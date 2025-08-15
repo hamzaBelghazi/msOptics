@@ -1,0 +1,719 @@
+{
+  "accessories": {
+    "title": "Brillenzubehör",
+    "description": "Vervollständigen Sie Ihre Brillenkollektion mit unserem Premium-Zubehör",
+    "cases": "Schutzhüllen",
+    "cleaning_kits": "Reinigungssets",
+    "cords": "Brillenketten & Kordeln"
+  },
+  "prescription": {
+    "tabs": {
+      "manual": "Parameter eingeben",
+      "upload": "Rezept hochladen"
+    },
+    "upload_label": "Rezept hochladen (Bild oder PDF)",
+    "saved_prefix": "Gespeichert:",
+    "stored_notice": "Ihre Datei wird lokal in Ihrem Browser gespeichert und erst beim Bestellvorgang hochgeladen.",
+    "or": "oder"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "optical": "Optisch",
+    "sunglasses": "Sonnenbrillen",
+    "wishlist": "Wunschliste",
+    "search": "Suche",
+    "account": "Konto",
+    "cart": "Ihr Warenkorb",
+    "logout": "Abmelden",
+    "contact_us": "Kontakt",
+    "menu": "Menü",
+    "close": "Schließen",
+    "language": "Sprache",
+    "currency": "Währung"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "login_text": "Bitte füllen Sie dieses Formular aus, um Ihr Konto zu erhalten.",
+    "register": "Registrieren",
+    "register_text": "Bitte füllen Sie dieses Formular aus, um ein Konto zu erstellen.",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "email_placeholder": "E-Mail eingeben",
+    "password_placeholder": "Passwort eingeben",
+    "password_repeat_placeholder": "Passwort wiederholen",
+    "first_name": "Vorname",
+    "last_name": "Nachname",
+    "firstName_placeholder": "Vorname eingeben",
+    "lastName_placeholder": "Nachname eingeben",
+    "login_btn": "Anmelden",
+    "Signup_btn": "Registrieren",
+    "forgot_password": "Passwort vergessen?",
+    "dont_have_account": "Kein Konto?",
+    "already_have": "Haben Sie bereits ein Konto?",
+    "recover_password": "Passwort wiederherstellen",
+    "recover_pass_text": "Bitte füllen Sie dieses Formular aus, um Ihr Passwort festzulegen.",
+    "confirm_pass_label": "Passwort bestätigen",
+    "confirm_pass": "Bestätigen",
+    "register_notice": "Durch die Erstellung eines Kontos stimmen Sie unseren",
+    "email_required": "E-Mail ist erforderlich",
+    "password_required": "Passwort ist erforderlich",
+    "login_success": "Erfolgreich angemeldet!",
+    "terms_condition": "Allgemeine Geschäftsbedingungen",
+    "password_confirm_required": "Bitte bestätigen Sie Ihr Passwort",
+    "passwords_must_match": "Passwörter müssen übereinstimmen",
+    "new_password": "Neues Passwort",
+    "new_password_placeholder": "Neues Passwort eingeben",
+    "confirm_password": "Passwort bestätigen",
+    "confirm_password_placeholder": "Neues Passwort erneut eingeben",
+    "forgot": {
+      "title": "Passwort vergessen",
+      "subtitle": "Geben Sie Ihre E-Mail ein, um einen Link zum Zurücksetzen zu erhalten.",
+      "send": "Link senden",
+      "sending": "Senden...",
+      "sent": "Falls die E-Mail existiert, haben wir Anweisungen zum Zurücksetzen gesendet.",
+      "error": "Zurücksetz-E-Mail konnte nicht gesendet werden"
+    },
+    "reset": {
+      "title": "Passwort zurücksetzen",
+      "subtitle": "Geben Sie Ihr neues Passwort ein.",
+      "save": "Neues Passwort speichern",
+      "saving": "Speichern...",
+      "success": "Passwort wurde zurückgesetzt. Sie können sich jetzt anmelden.",
+      "error": "Passwort konnte nicht zurückgesetzt werden"
+    }
+  },
+  "product": {
+    "properties": "EIGENSCHAFTEN",
+    "gender": "Geschlecht",
+    "shape": "Form",
+    "frame_colour": "Rahmenfarbe",
+    "temple_colour": "Bügelfarbe",
+    "frame_material": "Rahmenmaterial",
+    "frame_type": "Rahmentyp",
+    "fullrim": "Vollrand",
+    "halfrim": "Halbrand",
+    "rimless": "Randlos",
+    "shapes": {
+      "pilot": "Pilot",
+      "round": "Rund",
+      "square": "Quadratisch",
+      "browline": "Browline",
+      "rectangular": "Rechteckig"
+    },
+    "gender_options": {
+      "men": "Herren",
+      "women": "Damen",
+      "kids": "Kinder"
+    },
+    "dimensions": "Abmessungen",
+    "glasses_size": "Brillengröße",
+    "in_stock": "Auf Lager",
+    "delivery_time": "Lieferzeit",
+    "days": "Tage",
+    "try_on": "Anprobieren",
+    "customize_lens": "Gläser anpassen",
+    "colors": {
+      "black": "Schwarz",
+      "blue": "Blau",
+      "brown": "Braun",
+      "gold": "Gold",
+      "green": "Grün",
+      "gray": "Grau",
+      "orange": "Orange",
+      "pink": "Rosa",
+      "purple": "Lila",
+      "red": "Rot",
+      "silver": "Silber",
+      "white": "Weiß",
+      "yellow": "Gelb",
+      "transparent": "Transparent"
+    },
+    "page": {
+      "description": "Beschreibung",
+      "in_stock": "Auf Lager",
+      "add_to_cart": "In den Warenkorb",
+      "customize_lens": "Gläser anpassen",
+      "quantity": "Menge",
+      "dimensions": "Abmessungen",
+      "glasses_size": "Brillengröße",
+      "frame_details": "Rahmendetails",
+      "frame_type": "Rahmentyp",
+      "frame_material": "Rahmenmaterial",
+      "frame_color": "Rahmenfarbe",
+      "temple_color": "Bügelfarbe",
+      "lens_height": "Glashöhe",
+      "lens_width": "Glasbreite",
+      "bridge_size": "Stegbreite",
+      "temple_length": "Bügellänge",
+      "try_on": "Anprobieren",
+      "zoom": "Zoomen",
+      "close": "Schließen",
+      "next": "Weiter",
+      "previous": "Zurück",
+      "wishlist": {
+        "add": "Zur Wunschliste hinzufügen",
+        "remove": "Von der Wunschliste entfernen"
+      }
+    },
+    "last_updated": "Zuletzt aktualisiert:"
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "continue_shopping": "Weiter einkaufen",
+    "remove_all": "Alle entfernen",
+    "order_summary": "Bestellübersicht",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versand",
+    "calculated_at_checkout": "Wird an der Kasse berechnet",
+    "total": "Gesamt",
+    "proceed_to_checkout": "Zur Kasse",
+    "checkout": "Zur Kasse"
+  },
+  "filters": {
+    "title": "Filter",
+    "results": "Ergebnisse"
+  },
+  "category": {
+    "results_count_frames": "{{count}} Fassungen gefunden",
+    "sort_by": "Sortieren nach",
+    "show_filters": "Filter anzeigen",
+    "empty": {
+      "title": "Keine Fassungen gefunden",
+      "subtitle": "Versuchen Sie, die Filter anzupassen oder versuchen Sie es später erneut."
+    }
+  },
+  "hero": {
+    "big_title": "Wir rahmen Ihre",
+    "big_title_frame": "Welt",
+    "subtitle": "ÄNDERN SIE IHRE SICHT AUF DAS LEBEN."
+  },
+  "home": {
+    "title": "Willkommen bei MHS Optics",
+    "subtitle": "Ihre Vision, Unsere Leidenschaft",
+    "hero": {
+      "title": "Wir rahmen Ihre",
+      "title_highlight": "Welt",
+      "subtitle": "ÄNDERN SIE IHRE SICHT AUF DAS LEBEN",
+      "cta": "Jetzt einkaufen"
+    },
+    "features": {
+      "title": "Warum Uns Wählen",
+      "items": {
+        "quality": {
+          "title": "Premium Qualität",
+          "description": "Handgefertigte Fassungen aus feinsten Materialien"
+        },
+        "service": {
+          "title": "Experten-Service",
+          "description": "Professionelle Augenpflege und Anpassungsservice"
+        },
+        "warranty": {
+          "title": "Lebenslange Garantie",
+          "description": "Wir stehen hinter der Qualität unserer Produkte"
+        },
+        "shipping": {
+          "title": "Kostenloser Versand",
+          "description": "Bei allen Bestellungen über 100€"
+        }
+      }
+    },
+    "categories": {
+      "title": "Nach Kategorie einkaufen",
+      "optical": {
+        "title": "Optische Fassungen",
+        "description": "Brillen für jeden Stil"
+      },
+      "sunglasses": {
+        "title": "Sonnenbrillen",
+        "description": "Schützen Sie Ihre Augen mit Stil"
+      },
+      "kids": {
+        "title": "Kinderkollektion",
+        "description": "Langlebige und stylische Fassungen für Kinder"
+      }
+    },
+    "trending": {
+      "title": "Trending Jetzt",
+      "view_all": "Alle Produkte anzeigen"
+    },
+    "testimonials": {
+      "title": "Was Unsere Kunden Sagen",
+      "read_more": "Mehr Bewertungen lesen"
+    },
+    "newsletter": {
+      "title": "Bleiben Sie informiert",
+      "subtitle": "Abonnieren Sie unseren Newsletter für exklusive Angebote",
+      "placeholder": "Geben Sie Ihre E-Mail ein",
+      "button": "Abonnieren",
+      "success": "Vielen Dank für Ihr Abonnement!",
+      "error": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    },
+    "brands": {
+      "title": "Ausgewählte Marken",
+      "view_all": "Alle Marken anzeigen"
+    },
+    "featured_products": "Ausgewählte Produkte",
+    "social_feed": "Folgen Sie uns auf Instagram",
+    "our_interest": "Unser Interesse",
+    "for_her": "Für sie",
+    "for_kids": "Für Kinder",
+    "for_him": "Für ihn",
+    "our_best_items": "Unsere besten Artikel",
+    "see_all": "ALLE ANSEHEN",
+    "our_ways": "Unsere Wege",
+    "our_ways_title": "Wir bieten Ihnen die richtigen Gläser",
+    "shop_now": "Jetzt einkaufen",
+    "shop_now_title": "Vereinfachen Sie Ihr Leben auf vielfältige Weise.",
+    "journey": "Beginnen Sie Ihre Reise mit uns"
+  },
+  "features": {
+    "title": "Unsere Vorteile",
+    "subtitle": "Warum Uns Wählen",
+    "items": {
+      "quality": {
+        "title": "Premium Qualität",
+        "description": "Handgefertigte Fassungen aus feinsten Materialien für Langlebigkeit und Stil"
+      },
+      "service": {
+        "title": "Experten-Service",
+        "description": "Professionelle Augenpflege und persönlicher Anpassungsservice durch zertifizierte Optiker"
+      },
+      "warranty": {
+        "title": "Lebenslange Garantie",
+        "description": "Wir stehen hinter der Qualität unserer Produkte mit umfassender Garantieabdeckung"
+      },
+      "shipping": {
+        "title": "Kostenloser Versand",
+        "description": "Genießen Sie kostenlosen Versand bei allen Bestellungen über 100€, mit weltweiten Lieferoptionen"
+      }
+    }
+  },
+  "footer": {
+    "inside_mhsoptics": "Unternehmen",
+    "our_story": "Über Uns",
+    "team": "Unser Team",
+    "contact_us": "Kontakt",
+    "support": "Support",
+    "return_policy": "Rückgaberichtlinien",
+    "tos": "Allgemeine Geschäftsbedingungen",
+    "social_media": "Soziale Medien",
+    "payment_methods": "Zahlungsmethoden",
+    "terms_condition": "Geschäftsbedingungen",
+    "privacy_notice": "Datenschutzerklärung",
+    "faq": "FAQ",
+    "customer_service": "Kundenservice",
+    "shipping_policy": "Versandrichtlinien",
+    "returns_exchanges": "Rücksendungen & Umtausch",
+    "warranty": "Garantie",
+    "legal": "Rechtliches",
+    "privacy_policy": "Datenschutzerklärung",
+    "terms_of_service": "Nutzungsbedingungen",
+    "cookie_policy": "Cookie-Richtlinie",
+    "description": "Ihr vertrauenswürdiger Partner für Premium-Brillen und optische Lösungen.",
+    "all_rights_reserved": "Alle Rechte vorbehalten.",
+    "social": {
+      "facebook": "Folgen Sie uns auf Facebook",
+      "instagram": "Folgen Sie uns auf Instagram",
+      "twitter": "Folgen Sie uns auf Twitter"
+    }
+  },
+  "customer_service": {
+    "title": "Kundenservice",
+    "phone_number": "Telefonnummer",
+    "opening_hours": "Öffnungszeiten der Hotline (GMT+1)",
+    "time": "Montag bis Donnerstag - 09:00 bis 13:00 und 14:00 bis 18:00 Freitag - 09:00 bis 13:00 und 14:00 bis 16:00",
+    "contact_us": "Kontakt",
+    "returns": "Rücksendungen",
+    "notice_1": "Wir bieten eine 30-tägige Rückgabe- oder Umtauschgarantie für alle Brillen."
+  },
+  "search": {
+    "text_grand": "Finden Sie nicht, wonach Sie suchen? Versuchen Sie es mit der Suche.",
+    "search_for_anything": "SUCHEN SIE NACH IRGENDETWAS"
+  },
+  "about_us": {
+    "title": "Über Uns",
+    "who_we_are": "Wer Wir Sind",
+    "about_content_1": "MHS Optics ist ein führendes Brillenunternehmen, das sich der Bereitstellung hochwertiger optischer Lösungen verschrieben hat...",
+    "about_content_2": "Mit jahrelanger Erfahrung in der Branche haben wir uns einen Ruf für Exzellenz aufgebaut...",
+    "about_content_3": "Wir glauben, dass Brillen mehr als nur eine Notwendigkeit sind – sie sind ein Statement des persönlichen Stils...",
+    "visit_us": "Besuchen Sie Unser Geschäft",
+    "store_address": "Optikstraße 123, Brüssel, Belgien",
+    "get_directions": "Wegbeschreibung",
+    "join_our_community": "Werden Sie Teil Unserer Gemeinschaft",
+    "cta_subtitle": "Seien Sie Teil unserer Reise und erleben Sie den Unterschied von Premium-Brillen."
+  },
+  "contact": {
+    "title": "Kontakt",
+    "subtitle": "Kontaktieren Sie uns",
+    "form": {
+      "title": "Senden Sie uns eine Nachricht",
+      "name": "Ihr Name",
+      "name_placeholder": "Geben Sie Ihren Namen ein",
+      "email": "Ihre E-Mail",
+      "email_placeholder": "Geben Sie Ihre E-Mail ein",
+      "phone": "Telefon (optional)",
+      "phone_placeholder": "Geben Sie Ihre Telefonnummer ein",
+      "subject": "Betreff",
+      "subject_placeholder": "Worum geht es?",
+      "message": "Ihre Nachricht",
+      "message_placeholder": "Geben Sie Ihre Nachricht hier ein...",
+      "submit": "Nachricht senden",
+      "submitting": "Wird gesendet...",
+      "validation": {
+        "name": "Name ist erforderlich",
+        "email": "E-Mail ist erforderlich",
+        "email_format": "Bitte geben Sie eine gültige E-Mail ein",
+        "subject": "Betreff ist erforderlich",
+        "message": "Die Nachricht muss mindestens 10 Zeichen enthalten"
+      },
+      "success": "Danke! Ihre Nachricht wurde gesendet.",
+      "error": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    },
+    "info": {
+      "title": "Kontaktinformationen",
+      "address": {
+        "title": "Adresse",
+        "line1": "Optikstraße 123",
+        "line2": "Brüssel, Belgien"
+      },
+      "phone": {
+        "title": "Telefon",
+        "number": "+32 123 456 789"
+      },
+      "email": {
+        "title": "E-Mail",
+        "address": "info@mhsoptics.com"
+      },
+      "hours": {
+        "title": "Öffnungszeiten",
+        "weekdays": "Montag - Freitag: 9:00 - 18:00 Uhr",
+        "weekend": "Samstag: 10:00 - 16:00 Uhr",
+        "sunday": "Sonntag: Geschlossen"
+      }
+    },
+    "map": {
+      "title": "Unser Standort"
+    }
+  },
+  "terms": {
+    "title": "Allgemeine Geschäftsbedingungen",
+    "sections": {
+      "acceptance": {
+        "title": "Annahme der Bedingungen",
+        "description": "Durch den Zugriff auf und die Nutzung dieser Website akzeptieren Sie die Bedingungen dieser Vereinbarung."
+      },
+      "use_of_services": {
+        "title": "Nutzung der Dienste",
+        "description": "Unsere Dienste stehen allen Nutzern zur Verfügung, die folgende Kriterien erfüllen:",
+        "items": [
+          "Sie müssen mindestens 18 Jahre alt sein",
+          "Sie müssen genaue und vollständige Informationen angeben",
+          "Sie müssen alle geltenden Gesetze und Vorschriften einhalten"
+        ]
+      },
+      "product_information": {
+        "title": "Produktinformationen",
+        "description": "Wir bemühen uns, unsere Produkte so genau wie möglich darzustellen. Wir können jedoch nicht garantieren, dass die Farbdarstellung auf Ihrem Computermonitor genau ist."
+      },
+      "orders_payment": {
+        "title": "Bestellungen und Zahlung",
+        "description": "Mit der Platzierung einer Bestellung garantieren Sie, dass Sie rechtlich in der Lage sind, verbindliche Verträge abzuschließen.",
+        "items": [
+          "Alle Preise sind in der angegebenen Währung",
+          "Die Zahlung muss vor der Lieferung vollständig erfolgen",
+          "Wir behalten uns das Recht vor, jede Bestellung abzulehnen"
+        ]
+      },
+      "intellectual_property": {
+        "title": "Geistiges Eigentum",
+        "description": "Alle Inhalte auf dieser Website sind Eigentum unseres Unternehmens oder seiner Inhaltslieferanten und durch internationale Urheberrechtsgesetze geschützt."
+      },
+      "limitation_liability": {
+        "title": "Haftungsbeschränkung",
+        "description": "Wir haften nicht für indirekte, zufällige, besondere, Folgeschäden oder Strafschäden, die sich aus Ihrer Nutzung oder Unfähigkeit zur Nutzung des Dienstes ergeben."
+      },
+      "changes_terms": {
+        "title": "Änderungen der Bedingungen",
+        "description": "Wir behalten uns das Recht vor, diese Bedingungen jederzeit zu ändern. Wir werden die Nutzer über Änderungen informieren, indem wir das Datum am Anfang dieser Bedingungen aktualisieren."
+      },
+      "contact": {
+        "title": "Kontaktinformationen",
+        "description": "Wenn Sie Fragen zu diesen Bedingungen haben, kontaktieren Sie uns bitte unter:",
+        "email": "E-Mail: support@mhsoptics.be",
+        "phone": "Telefon: +32 123 456 789",
+        "address": "Adresse: Ihre Firmenadresse"
+      }
+    }
+  },
+  "cookies": {
+    "title": "Cookie-Richtlinie",
+    "sections": {
+      "what_are_cookies": {
+        "title": "Was sind Cookies",
+        "description": "Cookies sind kleine Textdateien, die von Websites, die Sie besuchen, auf Ihrem Computer platziert werden. Sie werden häufig verwendet, um Websites effizienter zu machen und Website-Betreibern Informationen zu liefern."
+      },
+      "how_we_use": {
+        "title": "Wie wir Cookies verwenden",
+        "description": "Wir verwenden Cookies für folgende Zwecke:",
+        "items": [
+          "Um bestimmte Funktionen der Website zu ermöglichen",
+          "Um Analysen bereitzustellen",
+          "Um Ihre Einstellungen zu speichern",
+          "Um Werbung zu ermöglichen"
+        ]
+      },
+      "types": {
+        "essential": {
+          "title": "Essentielle Cookies",
+          "description": "Diese Cookies sind für das ordnungsgemäße Funktionieren der Website erforderlich."
+        },
+        "analytics": {
+          "title": "Analyse-Cookies",
+          "description": "Diese Cookies helfen uns zu verstehen, wie Besucher mit unserer Website interagieren."
+        },
+        "preference": {
+          "title": "Präferenz-Cookies",
+          "description": "Diese Cookies speichern Ihre Einstellungen und Präferenzen."
+        },
+        "marketing": {
+          "title": "Marketing-Cookies",
+          "description": "Diese Cookies werden verwendet, um Besucher über Websites hinweg zu verfolgen."
+        }
+      },
+      "managing": {
+        "title": "Verwaltung von Cookies",
+        "description": "Sie können Cookies nach Belieben kontrollieren und/oder löschen. Sie können alle bereits auf Ihrem Computer vorhandenen Cookies löschen und die meisten Browser so einstellen, dass sie nicht platziert werden."
+      },
+      "third_party": {
+        "title": "Cookies von Drittanbietern",
+        "description": "Einige Cookies werden von Drittanbieterdiensten platziert, die auf unseren Seiten erscheinen."
+      },
+      "updates": {
+        "title": "Aktualisierungen dieser Richtlinie",
+        "description": "Wir können diese Cookie-Richtlinie von Zeit zu Zeit aktualisieren, um Änderungen in unseren Praktiken oder aus anderen betrieblichen, rechtlichen oder regulatorischen Gründen widerzuspiegeln."
+      },
+      "contact": {
+        "title": "Kontaktieren Sie uns",
+        "description": "Wenn Sie Fragen zu unserer Verwendung von Cookies haben, kontaktieren Sie uns bitte unter:",
+        "email": "E-Mail: support@mhsoptics.be",
+        "phone": "Telefon: +32 123 456 789",
+        "address": "Adresse: Ihre Firmenadresse"
+      }
+    },
+    "last_updated": "Zuletzt aktualisiert:"
+  },
+  "privacy": {
+    "title": "Datenschutzerklärung",
+    "sections": {
+      "information_collection": {
+        "title": "Informationserfassung",
+        "description": "Wir erfassen Informationen, die Sie uns direkt zur Verfügung stellen, wenn Sie:",
+        "items": [
+          "Ein Konto erstellen",
+          "Einen Kauf tätigen",
+          "Sich für unseren Newsletter anmelden",
+          "Unseren Kundenservice kontaktieren"
+        ]
+      },
+      "information_usage": {
+        "title": "Wie wir Ihre Informationen verwenden",
+        "description": "Wir verwenden die gesammelten Informationen, um:",
+        "items": [
+          "Ihre Bestellungen zu bearbeiten",
+          "Sie über Ihre Bestellung zu informieren",
+          "Unsere Website zu verbessern",
+          "Ihnen Marketing-Mitteilungen zu senden"
+        ]
+      },
+      "information_sharing": {
+        "title": "Informationsweitergabe",
+        "description": "Wir können Ihre Informationen teilen mit:",
+        "items": [
+          "Dienstleistern",
+          "Zahlungsabwicklern",
+          "Marketing-Partnern",
+          "Behörden, wenn gesetzlich erforderlich"
+        ]
+      },
+      "your_rights": {
+        "title": "Ihre Rechte",
+        "description": "Je nach Ihrem Standort haben Sie möglicherweise das Recht, auf Ihre personenbezogenen Daten zuzugreifen, sie zu berichtigen, zu löschen oder die Verarbeitung einzuschränken.",
+        "items": [
+          "Zugriff und Erhalt einer Kopie Ihrer Daten",
+          "Berichtigung unrichtiger Daten verlangen",
+          "Löschung Ihrer Daten verlangen",
+          "Widerspruch gegen oder Einschränkung bestimmter Verarbeitungen",
+          "Datenübertragbarkeit, soweit anwendbar"
+        ]
+      },
+      "data_security": {
+        "title": "Datensicherheit",
+        "description": "Wir implementieren geeignete technische und organisatorische Maßnahmen, um Ihre personenbezogenen Informationen vor unbefugtem Zugriff, Veränderung, Offenlegung oder Zerstörung zu schützen."
+      },
+      "contact": {
+        "title": "Kontakt",
+        "description": "Wenn Sie Fragen zu dieser Datenschutzerklärung oder zu unseren Datenpraktiken haben, kontaktieren Sie uns bitte:",
+        "email": "E-Mail: support@mhsoptics.be",
+        "phone": "Telefon: +32 123 456 789",
+        "address": "Adresse: Ihre Firmenadresse"
+      }
+    },
+    "last_updated": "Zuletzt aktualisiert:"
+  },
+  "currency": {
+    "title": "Währung",
+    "usd": "US-Dollar (USD)",
+    "eur": "Euro (EUR)",
+    "gbp": "Britisches Pfund (GBP)",
+    "jpy": "Japanischer Yen (JPY)",
+    "select": "Währung auswählen",
+    "current": "Aktuelle Währung"
+  },
+  "language": {
+    "title": "Sprache",
+    "english": "Englisch",
+    "german": "Deutsch",
+    "select": "Sprache auswählen",
+    "current": "Aktuelle Sprache"
+  },
+  "wishlist": {
+    "title": "Meine Wunschliste",
+    "subtitle": "Speichern Sie Ihre Lieblingsprodukte für später",
+    "empty_title": "Ihre Wunschliste ist leer",
+    "empty_subtitle": "Fügen Sie Produkte zu Ihrer Wunschliste hinzu, um sie hier zu sehen",
+    "browse_products": "Produkte durchsuchen",
+    "view_details": "Details anzeigen",
+    "remove": "Entfernen",
+    "add_success": "Produkt zur Wunschliste hinzugefügt",
+    "remove_success": "Produkt aus der Wunschliste entfernt",
+    "error": "Ein Fehler ist aufgetreten",
+    "login_required": "Bitte melden Sie sich an, um Ihre Wunschliste zu verwalten",
+    "price": "Preis",
+    "description": "Beschreibung",
+    "loading": "Wunschliste wird geladen...",
+    "no_products": "Keine Produkte in der Wunschliste",
+    "continue_shopping": "Weiter einkaufen",
+    "remove_confirm": "Sind Sie sicher, dass Sie diesen Artikel entfernen möchten?",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "account": {
+    "title": "Mein Konto",
+    "subtitle": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen",
+    "profile": "Profil",
+    "orders": "Bestellungen",
+    "wishlist": "Wunschliste",
+    "settings": "Einstellungen",
+    "personal_info": "Persönliche Informationen",
+    "address_info": "Adressinformationen",
+    "first_name": "Vorname",
+    "last_name": "Nachname",
+    "email": "E-Mail",
+    "phone": "Telefonnummer",
+    "street": "Straße",
+    "city": "Stadt",
+    "postal_code": "Postleitzahl",
+    "country": "Land",
+    "edit_profile": "Profil bearbeiten",
+    "save_changes": "Änderungen speichern",
+    "cancel": "Abbrechen",
+    "loading": "Kontoinformationen werden geladen...",
+    "update_success": "Konto erfolgreich aktualisiert",
+    "update_error": "Fehler beim Aktualisieren des Kontos",
+    "first_name_required": "Vorname ist erforderlich",
+    "last_name_required": "Nachname ist erforderlich",
+    "email_required": "E-Mail ist erforderlich",
+    "email_invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "phone_invalid": "Bitte geben Sie eine gültige Telefonnummer ein",
+    "order_history": "Bestellverlauf",
+    "account_settings": "Kontoeinstellungen",
+    "language": "Sprache",
+    "currency": "Währung",
+    "refund_info": "Für diese Bestellung wurde eine Rückerstattung veranlasst und sollte innerhalb weniger Werktage auf Ihrem Bankkonto erscheinen.",
+    "order_deleted": "Bestellung entfernt."
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "view_more": "Weitere Fragen anzeigen",
+    "items": {
+      "ordering": {
+        "question": "Wie bestelle ich?",
+        "answer": "Sie können direkt auf unserer Website bestellen, indem Sie Produkte in Ihren Warenkorb legen und zur Kasse gehen. Folgen Sie diesen einfachen Schritten: 1) Durchsuchen Sie unsere Produkte, 2) Wählen Sie Ihre gewünschten Artikel, 3) Fügen Sie sie zum Warenkorb hinzu, 4) Überprüfen Sie Ihren Warenkorb und 5) Schließen Sie den Bestellvorgang ab."
+      },
+      "payment": {
+        "question": "Welche Zahlungsmethoden akzeptieren Sie?",
+        "answer": "Wir akzeptieren alle gängigen Kreditkarten (Visa, MasterCard, American Express), PayPal und Apple Pay. Alle Transaktionen sind sicher und verschlüsselt."
+      },
+      "shipping": {
+        "question": "Wie lange dauert der Versand?",
+        "answer": "Der Standardversand dauert in der Regel 3-5 Werktage innerhalb Deutschlands. Internationaler Versand kann 7-14 Werktage dauern. Express-Versandoptionen sind für schnellere Lieferung verfügbar."
+      },
+      "returns": {
+        "question": "Wie ist Ihre Rückgaberichtlinie?",
+        "answer": "Wir bieten eine 30-tägige Rückgaberichtlinie für die meisten Artikel. Produkte müssen sich in ihrem Originalzustand mit allen Verpackungen und Zubehörteilen befinden. Maßgefertigte Artikel können andere Rückgabebedingungen haben."
+      },
+      "warranty": {
+        "question": "Gibt es eine Garantie auf Ihre Produkte?",
+        "answer": "Ja, alle unsere optischen Produkte haben eine mindestens 1-jährige Garantie gegen Herstellungsfehler. Premium-Produkte können eine verlängerte Garantieabdeckung haben. Bitte überprüfen Sie die einzelnen Produktseiten für spezifische Garantiedetails."
+      }
+    }
+  },
+  "reviews": {
+    "title": "Kundenbewertungen",
+    "rating": "Ihre Bewertung",
+    "comment": "Ihre Bewertung",
+    "submit": "Bewertung absenden",
+    "no_reviews": "Noch keine Bewertungen",
+    "be_first": "Seien Sie der Erste, der dieses Produkt bewertet",
+    "helpful": "Hilfreich",
+    "not_helpful": "Nicht hilfreich",
+    "report": "Melden",
+    "verified_purchase": "Verifizierter Kauf",
+    "sort_by": "Sortieren nach",
+    "most_recent": "Neueste zuerst",
+    "highest_rated": "Höchste Bewertung",
+    "lowest_rated": "Niedrigste Bewertung",
+    "most_helpful": "Am hilfreichsten"
+  },
+  "related_products": "Das könnte Ihnen auch gefallen",
+  "pricePerPair": "Preis pro Paar",
+  "shipping": {
+    "title": "Versand & Lieferung",
+    "intro": "Wir bieten zuverlässige Versandoptionen, damit Ihre Bestellung pünktlich und in einwandfreiem Zustand ankommt.",
+    "options_title": "Versandoptionen",
+    "option1": "Standardversand (3–5 Werktage)",
+    "option2": "Expressversand (1–2 Werktage)",
+    "option3": "Internationaler Versand (7–14 Tage)",
+    "delivery_time_title": "Lieferzeit",
+    "delivery_time_content": "Die Lieferzeiten variieren je nach Standort und gewählter Versandmethode.",
+    "costs_title": "Versandkosten",
+    "costs_content": "Die Versandkosten werden an der Kasse anhand des Zielorts und des Paketgewichts berechnet.",
+    "note": "Hinweis: Lieferzeiten können durch Feiertage und unvorhergesehene Ereignisse beeinflusst werden."
+  },
+  "returns": {
+    "title": "Rückgaberichtlinie",
+    "intro": "Wenn Sie mit Ihrem Kauf nicht vollständig zufrieden sind, können Sie berechtigte Artikel innerhalb von 30 Tagen nach Lieferung zurückgeben.",
+    "conditionsTitle": "Rückgabebedingungen",
+    "condition1": "Artikel müssen unbenutzt und in der Originalverpackung sein.",
+    "condition2": "Bitte legen Sie alle Zubehörteile, Anleitungen und Etiketten bei.",
+    "condition3": "Ein Kaufnachweis (Bestellnummer) ist erforderlich.",
+    "processTitle": "So starten Sie eine Rückgabe",
+    "step1": "Kontaktieren Sie unser Support-Team, um eine Rückgabeautorisierung zu erhalten.",
+    "step2": "Verpacken Sie Ihre Artikel sicher und bringen Sie das bereitgestellte Rücksendeetikett an.",
+    "step3": "Senden Sie das Paket ab; Rückerstattungen erfolgen nach Prüfung.",
+    "note_returns": "Maßanfertigungen oder personalisierte Artikel sind von der Rückgabe ausgeschlossen, es sei denn, sie sind mangelhaft."
+  },
+  "warranty": {
+    "title": "Garantie",
+    "intro": "Wir stehen hinter der Qualität unserer Produkte mit einer umfassenden Garantie.",
+    "coverageTitle": "Abdeckung",
+    "coverage1": "Herstellungsfehler an Fassungen und Gläsern.",
+    "coverage2": "Beschichtungsfehler innerhalb der Garantiezeit.",
+    "coverage3": "Material- oder Verarbeitungsfehler.",
+    "exclusionsTitle": "Ausschlüsse",
+    "exclusion1": "Schäden durch unsachgemäße Verwendung, Unfälle oder mangelnde Pflege.",
+    "exclusion2": "Normaler Verschleiß, einschließlich Kratzern, die nicht auf Herstellungsfehler zurückzuführen sind.",
+    "note_warranty": "Bitte bewahren Sie Ihren Kaufnachweis auf; für Garantieansprüche kann eine Überprüfung erforderlich sein."
+  }
+}

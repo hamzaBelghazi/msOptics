@@ -1,0 +1,794 @@
+{
+  "accessories": {
+    "title": "Eyewear Accessories",
+    "description": "Complete your eyewear collection with our premium accessories",
+    "cases": "Protective Cases",
+    "cleaning_kits": "Cleaning Kits",
+    "cords": "Eyewear Cords & Chains"
+  },
+  "prescription": {
+    "tabs": {
+      "manual": "Enter parameters",
+      "upload": "Upload prescription"
+    },
+    "upload_label": "Upload Prescription (image or PDF)",
+    "saved_prefix": "Saved:",
+    "stored_notice": "Your file is stored locally in your browser for checkout and will not be uploaded until you place the order.",
+    "or": "or"
+  },
+  "navigation": {
+    "home": "Home",
+    "optical": "Optical",
+    "sunglasses": "Sunglasses",
+    "wishlist": "Wishlist",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Your Cart",
+    "logout": "Log out",
+    "contact_us": "Contact Us",
+    "menu": "Menu",
+    "close": "Close",
+    "language": "Language",
+    "currency": "Currency"
+  },
+  "auth": {
+    "login": "Sign in",
+    "login_text": "Please fill in this form to get your account.",
+    "register": "Sign up",
+    "register_text": "Please fill in this form to create an account.",
+    "email": "Email",
+    "password": "Password",
+    "email_placeholder": "Enter Email",
+    "password_placeholder": "Enter Password",
+    "password_repeat_placeholder": "Repeat Password",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "firstName_placeholder": "Enter First name",
+    "lastName_placeholder": "Enter Last name",
+    "login_btn": "Login",
+    "Signup_btn": "Sign Up",
+    "forgot_password": "Forgot password?",
+    "dont_have_account": "Don't have an account?",
+    "already_have": "Already have an account?",
+    "recover_password": "Recover Password",
+    "recover_pass_text": "Please fill in this form to set your password.",
+    "confirm_pass_label": "Password Confirm",
+    "confirm_pass": "Confirm",
+    "register_notice": "By creating an account you agree to our",
+    "email_required": "Email is required",
+    "password_required": "Password is required",
+    "login_success": "Logged in successfully!",
+    "login_error": "Invalid email or password",
+    "terms_condition": "Terms & Conditions",
+    "password_confirm_required": "Please confirm your password",
+    "passwords_must_match": "Passwords must match",
+    "new_password": "New Password",
+    "new_password_placeholder": "Enter new password",
+    "confirm_password": "Confirm Password",
+    "confirm_password_placeholder": "Re-enter new password",
+    "forgot": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to receive a password reset link.",
+      "send": "Send Reset Link",
+      "sending": "Sending...",
+      "sent": "If that email exists, we've sent reset instructions.",
+      "error": "Failed to send reset email"
+    },
+    "reset": {
+      "title": "Reset Password",
+      "subtitle": "Enter your new password.",
+      "save": "Save New Password",
+      "saving": "Saving...",
+      "success": "Password has been reset. You can now log in.",
+      "error": "Failed to reset password"
+    }
+  },
+  "product": {
+    "properties": "PROPERTIES",
+    "gender": "Gender",
+    "shape": "Shape",
+    "frame_colour": "Frame colour",
+    "temple_colour": "Temple colour",
+    "frame_material": "Frame material",
+    "frame_type": "Frame type",
+    "fullrim": "Full rim",
+    "halfrim": "Half rim",
+    "rimless": "Rimless",
+    "shapes": {
+      "pilot": "Pilot",
+      "round": "Round",
+      "square": "Square",
+      "browline": "Browline",
+      "rectangular": "Rectangular"
+    },
+    "gender_options": {
+      "men": "Men",
+      "women": "Women",
+      "kids": "Kids"
+    },
+    "dimensions": "Dimensions",
+    "glasses_size": "Glasses size",
+    "in_stock": "In stock",
+    "delivery_time": "Delivery time",
+    "days": "Days",
+    "try_on": "Try on",
+    "customize_lens": "Customize lens",
+    "colors": {
+      "black": "Black",
+      "blue": "Blue",
+      "brown": "Brown",
+      "gold": "Gold",
+      "green": "Green",
+      "gray": "Gray",
+      "orange": "Orange",
+      "pink": "Pink",
+      "purple": "Purple",
+      "red": "Red",
+      "silver": "Silver",
+      "white": "White",
+      "yellow": "Yellow",
+      "transparent": "Transparent"
+    },
+    "page": {
+      "description": "Description",
+      "in_stock": "In Stock",
+      "add_to_cart": "Add to Cart",
+      "customize_lens": "Customize Lens",
+      "quantity": "Quantity",
+      "dimensions": "Dimensions",
+      "glasses_size": "Glasses Size",
+      "frame_details": "Frame Details",
+      "frame_type": "Frame Type",
+      "frame_material": "Frame Material",
+      "frame_color": "Frame Color",
+      "temple_color": "Temple Color",
+      "lens_height": "Lens Height",
+      "lens_width": "Lens Width",
+      "bridge_size": "Bridge Size",
+      "temple_length": "Temple Length",
+      "try_on": "Try On",
+      "zoom": "Zoom",
+      "close": "Close",
+      "next": "Next",
+      "previous": "Previous",
+      "wishlist": {
+        "add": "Add to Wishlist",
+        "remove": "Remove from Wishlist"
+      }
+    },
+    "last_updated": "Last Updated:"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "continue_shopping": "Continue Shopping",
+    "remove_all": "Remove All",
+    "order_summary": "Order Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "calculated_at_checkout": "Calculated at checkout",
+    "total": "Total",
+    "proceed_to_checkout": "Proceed to Checkout",
+    "checkout": "Checkout"
+  },
+  "filters": {
+    "title": "Filters",
+    "results": "Results",
+    "apply": "Apply Filters",
+    "clear": "Clear Filters",
+    "price_range": "Price Range",
+    "min_price": "Min Price",
+    "max_price": "Max Price"
+  },
+  "category": {
+    "results_count_frames": "Found {{count}} frames",
+    "sort_by": "Sort by",
+    "show_filters": "Show Filters",
+    "empty": {
+      "title": "No frames found",
+      "subtitle": "Try adjusting filters or check back later."
+    }
+  },
+  "hero": {
+    "big_title": "We frame your",
+    "big_title_frame": "World",
+    "subtitle": "CHANGE THE WAY YOU SEE THE LIFE."
+  },
+  "home": {
+    "title": "Welcome to MHS Optics",
+    "subtitle": "Your Vision, Our Passion",
+    "hero": {
+      "title": "We frame your",
+      "title_highlight": "World",
+      "subtitle": "CHANGE THE WAY YOU SEE LIFE",
+      "cta": "Shop Now"
+    },
+    "features": {
+      "title": "Why Choose Us",
+      "items": {
+        "quality": {
+          "title": "Premium Quality",
+          "description": "Handcrafted frames from finest materials"
+        },
+        "service": {
+          "title": "Expert Service",
+          "description": "Professional eye care and fitting service"
+        },
+        "warranty": {
+          "title": "Lifetime Warranty",
+          "description": "We stand behind the quality of our products"
+        },
+        "shipping": {
+          "title": "Free Shipping",
+          "description": "On all orders over $100"
+        }
+      }
+    },
+    "categories": {
+      "title": "Shop by Category",
+      "optical": {
+        "title": "Optical Frames",
+        "description": "Glasses for every style"
+      },
+      "sunglasses": {
+        "title": "Sunglasses",
+        "description": "Protect your eyes with style"
+      },
+      "kids": {
+        "title": "Kids Collection",
+        "description": "Durable and stylish frames for children"
+      }
+    },
+    "trending": {
+      "title": "Trending Now",
+      "view_all": "View All Products"
+    },
+    "testimonials": {
+      "title": "What Our Customers Say",
+      "read_more": "Read More Reviews"
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "subtitle": "Subscribe to our newsletter for exclusive offers",
+      "placeholder": "Enter your email",
+      "button": "Subscribe",
+      "success": "Thank you for subscribing!",
+      "error": "Something went wrong. Please try again."
+    },
+    "brands": {
+      "title": "Featured Brands",
+      "view_all": "View All Brands"
+    },
+    "featured_products": "Featured Products",
+    "social_feed": "Follow Us on Instagram",
+    "our_interest": "Our interest",
+    "for_her": "For her",
+    "for_kids": "For kids",
+    "for_him": "For him",
+    "our_best_items": "Our best items",
+    "see_all": "SEE ALL",
+    "our_ways": "Our ways",
+    "our_ways_title": "We provide the right lenses for you",
+    "shop_now": "Shop Now",
+    "shop_now_title": "Simplify your life in more ways than one.",
+    "journey": "Go ahead and start your journey with us"
+  },
+  "features": {
+    "title": "Our Features",
+    "subtitle": "Why Choose Us",
+    "items": {
+      "quality": {
+        "title": "Premium Quality",
+        "description": "Handcrafted frames from finest materials, ensuring durability and style"
+      },
+      "service": {
+        "title": "Expert Service",
+        "description": "Professional eye care and personalized fitting service by certified opticians"
+      },
+      "warranty": {
+        "title": "Lifetime Warranty",
+        "description": "We stand behind the quality of our products with comprehensive warranty coverage"
+      },
+      "shipping": {
+        "title": "Free Shipping",
+        "description": "Enjoy free shipping on all orders over $100, with worldwide delivery options"
+      }
+    }
+  },
+  "footer": {
+    "inside_mhsoptics": "Company",
+    "our_story": "About Us",
+    "team": "Meet the team",
+    "contact_us": "Contact Us",
+    "support": "Support",
+    "return_policy": "Return Policy",
+    "tos": "Terms and Conditions of Sale",
+    "social_media": "Social Media",
+    "payment_methods": "Payment methods",
+    "terms_condition": "Terms & Condition",
+    "privacy_notice": "Privacy Notice",
+    "faq": "FAQ",
+    "customer_service": "Customer Service",
+    "shipping_policy": "Shipping Policy",
+    "returns_exchanges": "Returns & Exchanges",
+    "warranty": "Warranty",
+    "legal": "Legal",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "cookie_policy": "Cookie Policy",
+    "description": "Your trusted partner for premium eyewear and optical solutions.",
+    "all_rights_reserved": "All rights reserved.",
+    "social": {
+      "facebook": "Follow us on Facebook",
+      "instagram": "Follow us on Instagram",
+      "twitter": "Follow us on Twitter"
+    }
+  },
+  "customer_service": {
+    "title": "Customer Service",
+    "phone_number": "Phone number",
+    "opening_hours": "Opening hours of the line (GMT+1)",
+    "time": "Monday to Thursday - 09:00 to 13:00 and 14:00 to 18:00 Friday - 09:00 to 13:00 and 14:00 to 16:00",
+    "contact_us": "Contact us",
+    "returns": "Returns",
+    "notice_1": "We offer a 30-day return or exchange guarantee on all glasses."
+  },
+  "search": {
+    "text_grand": "Not finding what you're looking for? Try searching for it.",
+    "search_for_anything": "SEARCH FOR ANYTHING"
+  },
+  "about_us": {
+    "title": "About Us",
+    "who_we_are": "Who We Are",
+    "about_content_1": "MHS Optics is a leading eyewear company dedicated to providing high-quality optical solutions...",
+    "about_content_2": "With years of experience in the industry, we've built a reputation for excellence...",
+    "about_content_3": "We believe that eyewear is more than just a necessity – it's a statement of personal style...",
+    "visit_us": "Visit Our Store",
+    "store_address": "123 Optics Street, Brussels, Belgium",
+    "get_directions": "Get Directions",
+    "join_our_community": "Join Our Community",
+    "cta_subtitle": "Be part of our journey and experience the difference of premium eyewear."
+    
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with us",
+    "form": {
+      "title": "Send us a message",
+      "name": "Your Name",
+      "name_placeholder": "Enter your name",
+      "email": "Your Email",
+      "email_placeholder": "Enter your email",
+      "phone": "Phone (optional)",
+      "phone_placeholder": "Enter your phone",
+      "subject": "Subject",
+      "subject_placeholder": "What is this about?",
+      "message": "Your Message",
+      "message_placeholder": "Enter your message here...",
+      "submit": "Send Message",
+      "submitting": "Sending...",
+      "validation": {
+        "name": "Name is required",
+        "email": "Email is required",
+        "email_format": "Please enter a valid email",
+        "subject": "Subject is required",
+        "message": "Message must be at least 10 characters"
+      },
+      "success": "Thanks! Your message has been sent.",
+      "error": "Something went wrong. Please try again."
+    },
+    "info": {
+      "title": "Contact Information",
+      "address": {
+        "title": "Address",
+        "line1": "123 Optics Street",
+        "line2": "Brussels, Belgium"
+      },
+      "phone": {
+        "title": "Phone",
+        "number": "+32 123 456 789"
+      },
+      "email": {
+        "title": "Email",
+        "address": "info@mhsoptics.com"
+      },
+      "hours": {
+        "title": "Business Hours",
+        "weekdays": "Monday - Friday: 9:00 AM - 6:00 PM",
+        "weekend": "Saturday: 10:00 AM - 4:00 PM",
+        "sunday": "Sunday: Closed"
+      }
+    },
+    "map": {
+      "title": "Our Location"
+    }
+  },
+  
+  "terms": {
+    "title": "Terms and Conditions",
+    "sections": {
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "description": "By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement."
+      },
+      "use_of_services": {
+        "title": "Use of Services",
+        "description": "Our services are available to all users who meet the following criteria:",
+        "items": [
+          "You must be at least 18 years old",
+          "You must provide accurate and complete information",
+          "You must comply with all applicable laws and regulations"
+        ]
+      },
+      "product_information": {
+        "title": "Product Information",
+        "description": "We strive to display our products as accurately as possible. However, we cannot guarantee that your computer monitor's display of any color will be accurate."
+      },
+      "orders_payment": {
+        "title": "Orders and Payment",
+        "description": "By placing an order, you warrant that you are legally capable of entering into binding contracts.",
+        "items": [
+          "All prices are in the specified currency",
+          "Payment must be made in full before delivery",
+          "We reserve the right to refuse any order"
+        ]
+      },
+      "intellectual_property": {
+        "title": "Intellectual Property",
+        "description": "All content included on this site is the property of our company or its content suppliers and is protected by international copyright laws."
+      },
+      "limitation_liability": {
+        "title": "Limitation of Liability",
+        "description": "We shall not be liable for any indirect, incidental, special, consequential or punitive damages resulting from your use of or inability to use the service."
+      },
+      "changes_terms": {
+        "title": "Changes to Terms",
+        "description": "We reserve the right to modify these terms at any time. We will notify users of any changes by updating the date at the top of these terms."
+      },
+      "contact": {
+        "title": "Contact Information",
+        "description": "If you have any questions about these Terms, please contact us at:",
+        "email": "Email: support@mhsoptics.be",
+        "phone": "Phone: +32 123 456 789",
+        "address": "Address: Your Company Address"
+      }
+    }
+  },
+  "cookies": {
+    "title": "Cookie Policy",
+    "sections": {
+      "what_are_cookies": {
+        "title": "What Are Cookies",
+        "description": "Cookies are small text files that are placed on your computer by websites that you visit. They are widely used to make websites work more efficiently and provide information to website owners."
+      },
+      "how_we_use": {
+        "title": "How We Use Cookies",
+        "description": "We use cookies for the following purposes:",
+        "items": [
+          "To enable certain functions of the website",
+          "To provide analytics",
+          "To store your preferences",
+          "To enable advertisement delivery"
+        ]
+      },
+      "types": {
+        "essential": {
+          "title": "Essential Cookies",
+          "description": "These cookies are necessary for the website to function properly."
+        },
+        "analytics": {
+          "title": "Analytics Cookies",
+          "description": "These cookies help us understand how visitors interact with our website."
+        },
+        "preference": {
+          "title": "Preference Cookies",
+          "description": "These cookies remember your settings and preferences."
+        },
+        "marketing": {
+          "title": "Marketing Cookies",
+          "description": "These cookies are used to track visitors across websites."
+        }
+      },
+      "managing": {
+        "title": "Managing Cookies",
+        "description": "You can control and/or delete cookies as you wish. You can delete all cookies that are already on your computer and you can set most browsers to prevent them from being placed."
+      },
+      "third_party": {
+        "title": "Third-Party Cookies",
+        "description": "Some cookies are placed by third-party services that appear on our pages."
+      },
+      "updates": {
+        "title": "Updates to This Policy",
+        "description": "We may update this cookie policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "description": "If you have any questions about our use of cookies, please contact us at:",
+        "email": "Email: support@mhsoptics.be",
+        "phone": "Phone: +32 123 456 789",
+        "address": "Address: Your Company Address"
+      }
+    },
+    "last_updated": "Last Updated:"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "sections": {
+      "information_collection": {
+        "title": "Information Collection",
+        "description": "We collect information that you provide directly to us when you:",
+        "items": [
+          "Create an account",
+          "Make a purchase",
+          "Sign up for our newsletter",
+          "Contact our customer service"
+        ]
+      },
+      "information_usage": {
+        "title": "How We Use Your Information",
+        "description": "We use the information we collect to:",
+        "items": [
+          "Process your orders",
+          "Send you updates about your order",
+          "Improve our website",
+          "Send you marketing communications"
+        ]
+      },
+      "information_sharing": {
+        "title": "Information Sharing",
+        "description": "We may share your information with:",
+        "items": [
+          "Service providers",
+          "Payment processors",
+          "Marketing partners",
+          "Legal authorities when required"
+        ]
+      },
+      "your_rights": {
+        "title": "Your Rights",
+        "description": "Depending on your location, you may have the right to access, correct, delete, or restrict the processing of your personal data.",
+        "items": [
+          "Access and obtain a copy of your data",
+          "Request correction of inaccurate data",
+          "Request deletion of your data",
+          "Object to or restrict certain processing",
+          "Data portability where applicable"
+        ]
+      },
+      "data_security": {
+        "title": "Data Security",
+        "description": "We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "description": "If you have questions about this Privacy Policy or our data practices, please contact us:",
+        "email": "Email: support@mhsoptics.be",
+        "phone": "Phone: +32 123 456 789",
+        "address": "Address: Your Company Address"
+      }
+    },
+    "last_updated": "Last Updated:"
+  },
+  "currency": {
+    "usd": "US Dollar (USD)",
+    "eur": "Euro (EUR)",
+    "gbp": "British Pound (GBP)",
+    "jpy": "Japanese Yen (JPY)"
+  },
+  "language": {
+    "english": "English",
+    "german": "German"
+  },
+  "wishlist": {
+    "title": "My Wishlist",
+    "subtitle": "Save your favorite products for later",
+    "empty_title": "Your wishlist is empty",
+    "empty_subtitle": "Start adding products to your wishlist to see them here",
+    "browse_products": "Browse Products",
+    "view_details": "View Details",
+    "remove": "Remove",
+    "add_success": "Product added to wishlist",
+    "remove_success": "Product removed from wishlist",
+    "error": "An error occurred",
+    "login_required": "Please login to manage your wishlist",
+    "price": "Price",
+    "description": "Description",
+    "loading": "Loading wishlist...",
+    "no_products": "No products in wishlist",
+    "continue_shopping": "Continue Shopping",
+    "remove_confirm": "Are you sure you want to remove this item?",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "account": {
+    "title": "My Account",
+    "subtitle": "Manage your account settings and preferences",
+    "profile": "Profile",
+    "orders": "Orders",
+    "wishlist": "Wishlist",
+    "settings": "Settings",
+    "personal_info": "Personal Information",
+    "address_info": "Address Information",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "street": "Street Address",
+    "city": "City",
+    "postal_code": "Postal Code",
+    "country": "Country",
+    "edit_profile": "Edit Profile",
+    "save_changes": "Save Changes",
+    "cancel": "Cancel",
+    "loading": "Loading account information...",
+    "update_success": "Account updated successfully",
+    "update_error": "Error updating account",
+    "first_name_required": "First name is required",
+    "last_name_required": "Last name is required",
+    "email_required": "Email is required",
+    "email_invalid": "Please enter a valid email address",
+    "phone_invalid": "Please enter a valid phone number",
+    "order_history": "Order History",
+    "account_settings": "Account Settings",
+    "language": "Language",
+    "currency": "Currency",
+    "change_password": "Change Password",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm Password",
+    "password_success": "Password changed successfully",
+    "password_error": "Error changing password",
+    "refund_info": "A refund was issued for this order and should appear in your bank account within a few business days.",
+    "order_deleted": "Order removed.",
+    "current_password_required": "Current password is required",
+    "new_password_required": "New password is required",
+    "confirm_password_required": "Please confirm your new password",
+    "password_min_length": "Password must be at least 8 characters long",
+    "passwords_dont_match": "Passwords do not match"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "view_more": "View More Questions",
+    "items": {
+      "ordering": {
+        "question": "How do I place an order?",
+        "answer": "You can place an order directly on our website by adding products to your cart and proceeding to checkout. Follow these simple steps: 1) Browse our products, 2) Select your desired items, 3) Add them to your cart, 4) Review your cart, and 5) Complete the checkout process."
+      },
+      "payment": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and Apple Pay. All transactions are secure and encrypted for your safety."
+      },
+      "shipping": {
+        "question": "How long does shipping take?",
+        "answer": "Standard shipping typically takes 3-5 business days within the United States. International shipping may take 7-14 business days. Express shipping options are available for faster delivery."
+      },
+      "returns": {
+        "question": "What is your return policy?",
+        "answer": "We offer a 30-day return policy for most items. Products must be in their original condition with all packaging and accessories. Custom-made items may have different return conditions."
+      },
+      "warranty": {
+        "question": "Do your products come with a warranty?",
+        "answer": "Yes, all our optical products come with a minimum 1-year warranty against manufacturing defects. Premium products may have extended warranty coverage. Please check individual product pages for specific warranty details."
+      }
+    }
+  },
+  "reviews": {
+    "title": "Customer Reviews",
+    "rating": "Your Rating",
+    "comment": "Your Review",
+    "submit": "Submit Review",
+    "no_reviews": "No reviews yet",
+    "be_first": "Be the first to review this product",
+    "helpful": "Helpful",
+    "not_helpful": "Not Helpful",
+    "report": "Report",
+    "verified_purchase": "Verified Purchase",
+    "sort_by": "Sort by",
+    "most_recent": "Most Recent",
+    "highest_rated": "Highest Rated",
+    "lowest_rated": "Lowest Rated",
+    "most_helpful": "Most Helpful"
+  },
+  "related_products": "You May Also Like",
+  "parameters": "Parameters",
+  "understandingPrescription": "Understanding Your Prescription",
+  "sphere": "Sphere (SPH)",
+  "sphereDesc": "The main power of your lens. Negative values correct nearsightedness, positive values correct farsightedness.",
+  "cylinder": "Cylinder (CYL)",
+  "cylinderDesc": "The amount of astigmatism correction needed. This value can be positive or negative.",
+  "axis": "Axis",
+  "axisDesc": "The orientation of the cylinder power, measured in degrees from 0 to 180.",
+  "pupillaryDistance": "Pupillary Distance (PD)",
+  "pdDesc": "Your Pupillary Distance (PD) is the distance between your pupils, measured in millimeters. This measurement ensures your lenses are properly centered.",
+  "howToMeasurePD": "How to Measure Your PD",
+  "pdMeasurementMethods": "Methods to measure PD:",
+  "pdMethod1": "Ask your eye care professional during your eye exam",
+  "pdMethod2": "Use our online PD measurement tool",
+  "pdMethod3": "Measure at home using a ruler and mirror",
+  "downloadPDRuler": "Download PD Ruler",
+  "openMeasurementTool": "Open Measurement Tool",
+  "learnPDMeasurement": "Learn how to measure PD at home",
+  "useSinglePD": "Use Single PD",
+  "useDualPD": "Use Dual PD",
+  "rightEye": "Right Eye (OD)",
+  "leftEye": "Left Eye (OS)",
+  "selectPower": "Select power",
+  "selectCylinder": "Select cylinder",
+  "selectAxis": "Select axis",
+  "selectPD": "Select PD",
+  "benefits": "Benefits",
+  "uvFilter": "UV Filter",
+  "uvFilterDesc": "Protects your eyes from harmful UV radiation",
+  "hardened": "Hardened",
+  "hardenedDesc": "Extra protection against scratches and impacts",
+  "selfCleaningCoating": "Self-cleaning Coating",
+  "selfCleaningCoatingDesc": "Special coating that repels dirt and water",
+  "superhydrophobicCoating": "Superhydrophobic Coating",
+  "superhydrophobicCoatingDesc": "Advanced water-repellent coating for crystal clear vision",
+  "antiReflective": "Anti-reflective",
+  "antiReflectiveDesc": "Reduces glare and reflections for better vision",
+  "glassesType": "{{type}} Glasses",
+  "Men": "Men",
+  "Women": "Women",
+  "Kids": "Kids",
+  "Frame_type": "Frame Type",
+  "Shapes": "Shapes",
+  "pilot": "Pilot",
+  "round": "Round",
+  "square": "Square",
+  "rectangular": "Rectangular",
+  "browline": "Browline",
+  "Frame_colour": "Frame Color",
+  "Frame_material": "Frame Material",
+  "metal": "Metal",
+  "plastic": "Plastic",
+  "titanium": "Titanium",
+  "no_products": "No products found",
+  "loading": "Loading...",
+  "pricePerPair": "Price per pair",
+  "sort": {
+    "title": "Sort By",
+    "price_low_high": "Price: Low to High",
+    "price_high_low": "Price: High to Low",
+    "newest": "Newest First",
+    "popular": "Most Popular"
+  },
+  "shipping": {
+    "title": "Shipping & Delivery",
+    "intro": "We offer reliable shipping options to ensure your order arrives on time and in perfect condition.",
+    "options_title": "Shipping Options",
+    "option1": "Standard Shipping (3-5 business days)",
+    "option2": "Express Shipping (1-2 business days)",
+    "option3": "International Shipping (7-14 days)",
+    "delivery_time_title": "Delivery Time",
+    "delivery_time_content": "Delivery times vary depending on your location and selected shipping method.",
+    "costs_title": "Shipping Costs",
+    "costs_content": "Shipping costs are calculated at checkout based on destination and package weight.",
+    "note": "Note: Delivery times may be affected by holidays and unforeseen events."
+  },
+  "returns": {
+    "title": "Return Policy",
+    "intro": "If you're not fully satisfied with your purchase, you can return eligible items within 30 days of delivery.",
+    "conditionsTitle": "Return Conditions",
+    "condition1": "Items must be unused and in their original packaging.",
+    "condition2": "Include all accessories, manuals, and tags.",
+    "condition3": "Proof of purchase (order number) is required.",
+    "processTitle": "How to Start a Return",
+    "step1": "Contact our support team to obtain a return authorization.",
+    "step2": "Pack your items securely and attach the provided return label.",
+    "step3": "Ship the package; refunds are issued after inspection.",
+    "note_returns": "Custom-made or personalized items may be excluded from returns unless defective."
+  },
+  "warranty": {
+    "title": "Warranty",
+    "intro": "We stand behind the quality of our products with a comprehensive warranty.",
+    "coverageTitle": "What’s Covered",
+    "coverage1": "Manufacturing defects in frames and lenses.",
+    "coverage2": "Coating defects within the warranty period.",
+    "coverage3": "Faulty materials or workmanship.",
+    "exclusionsTitle": "Exclusions",
+    "exclusion1": "Damage from misuse, accidents, or improper care.",
+    "exclusion2": "Normal wear and tear, including scratches not due to manufacturing defects.",
+    "note_warranty": "Please keep your proof of purchase; warranty claims may require verification."
+  }
+}
