@@ -61,7 +61,7 @@ export default function Register() {
   };
 
   return (
-    <Layout>
+    <Layout title={t("auth.register")}>
       <section className="min-h-screen p-10 grid grid-col-2">
         {/* Logo */}
         <div className="container mx-auto text-center py-8">

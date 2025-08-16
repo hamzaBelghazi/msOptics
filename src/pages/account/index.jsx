@@ -156,7 +156,7 @@ export default function Account() {
 
   if (!isLoggedIn) {
     return (
-      <Layout>
+      <Layout title={"loading..."}>
         <div className="flex items-center justify-center min-h-screen">
           <Spinner />
         </div>
@@ -166,7 +166,7 @@ export default function Account() {
 
   if (isLoading) {
     return (
-      <Layout>
+      <Layout title={"loading..."}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <Spinner />
@@ -178,7 +178,7 @@ export default function Account() {
   }
 
   return (
-    <Layout>
+    <Layout title={t("account.title")}>
       <section className="min-h-screen p-4 md:p-8">
         <div className="container mx-auto">
           {/* Header */}

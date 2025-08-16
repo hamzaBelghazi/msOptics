@@ -9,6 +9,7 @@ import AccessoryCard, {
 } from "@/Components/utils/AccessoryCard";
 import FloatingCartButton from "@/Components/utils/floatingCart";
 
+
 export default function Accessories() {
   const { t } = useTranslation();
   const [accessories, setAccessories] = useState([]);
@@ -92,7 +93,7 @@ export default function Accessories() {
   const skeletonArray = Array(8).fill(null);
 
   return (
-    <Layout title={t("accessories", "Accessories")}>
+    <Layout title={t("accessories.title")}>
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* Banner Section */}
         <section className="container mx-auto pt-8 px-4">

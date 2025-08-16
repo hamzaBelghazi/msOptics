@@ -88,7 +88,7 @@ export default function Login() {
   }
 
   return (
-    <Layout>
+    <Layout title={t("auth.login")}>
       <section className="min-h-screen grid p-2 md:p-10">
         {/* Main Content */}
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-center min-h-[80vh]">

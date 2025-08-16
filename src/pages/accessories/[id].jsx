@@ -59,7 +59,7 @@ export default function AccessoryDetails({
 
   if (error) {
     return (
-      <Layout title="Accessory Not Found">
+      <Layout title={accessory?.name || "Accessory Not Found"}>
         <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4">

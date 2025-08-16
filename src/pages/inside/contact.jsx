@@ -66,7 +66,7 @@ export default function Contact() {
   };
 
   return (
-    <Layout>
+    <Layout title={t("contact.title")}>
       {/* Hero Section */}
       <div className="relative h-[400px] flex items-center justify-center text-white">
         <Image

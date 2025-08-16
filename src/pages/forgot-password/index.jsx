@@ -32,14 +32,14 @@ export default function ForgotPassword() {
   };
 
   return (
-    <Layout>
+    <Layout title={t("auth.forgot.title") || "Forgot Password"}>
       <section className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-card-background border border-border rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold mb-4">{t("auth.forgot.title") || "Forgot Password"}</h1>
-          <p className="text-text-secondary mb-6">{t("auth.forgot.subtitle") || "Enter your email to receive a password reset link."}</p>
+          <h1 className="text-2xl font-bold mb-4">{t("auth.forgot.title")}</h1>
+          <p className="text-text-secondary mb-6">{t("auth.forgot.subtitle")}</p>
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
             <div>
-              <label htmlFor="email" className="block mb-1">{t("auth.email") || "Email"}</label>
+              <label htmlFor="email" className="block mb-1">{t("auth.email")}</label>
               <input
                 id="email"
                 type="email"

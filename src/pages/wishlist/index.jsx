@@ -45,7 +45,7 @@ export default function Wishlist() {
 
   if (authLoading || isLoading) {
     return (
-      <Layout>
+      <Layout title={'loading...'}>
         <div className="flex items-center justify-center min-h-screen">
           <ButtonSpinner />
         </div>

@@ -47,7 +47,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <Layout>
+    <Layout title={t("auth.reset.title")}>
       <section className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-card-background border border-border rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold mb-4">{t("auth.reset.title") || "Reset Password"}</h1>

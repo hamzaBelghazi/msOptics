@@ -29,7 +29,7 @@ export default function CheckoutSuccess() {
   const paymentIntentId = router.query?.pi;
 
   return (
-    <Layout>
+    <Layout title="Checkout Success">
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <h1 className="text-3xl font-semibold text-green-600">Payment Successful</h1>

@@ -235,7 +235,7 @@ export default function Category({ products , category }) {
   }, [hasMoreApi, loadingMore, id, router?.isReady]);
 
   return (
-    <Layout>
+    <Layout title={category?.name}>
       {/* Hero Section */}
       <section className="mt-6">
         <div className="container mx-auto px-4">

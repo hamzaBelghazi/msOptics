@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 function Page404() {
   return (
-    <Layout>
+    <Layout title="404">
       <div className="flex items-center justify-center relative h-[60vh] flex-col gap-3">
         <h2>Ooops!</h2>
         <h1 className="text-4xl lg:text-6xl text-gray-800 dark:text-gray-200 font-bold z-10 text-center">

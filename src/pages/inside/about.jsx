@@ -8,7 +8,7 @@ export default function About() {
   const { t } = useTranslation();
 
   return (
-    <Layout>
+    <Layout title={t("about_us")}>
       {/* Hero Section */}
       <div className="relative h-[400px] flex items-center justify-center text-white">
         <Image

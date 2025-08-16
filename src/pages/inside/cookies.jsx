@@ -8,7 +8,7 @@ export default function CookiePolicy() {
   const { t } = useTranslation();
 
   return (
-    <Layout>
+    <Layout title={t("cookies.title")}>
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold text-text-primary mb-8">
           {t("cookies.title")}
