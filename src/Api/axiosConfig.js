@@ -9,13 +9,16 @@ function getToken() {
   return "";
 }
 
-const baseURL = process.env.NEXT_PUBLIC_SERVER_URL;
+// Prefer env var; fallback to local dev API
+const baseURL = process.env.NEXT_PUBLIC_SERVER_URL || "http://127.0.0.1:5000";
 const instance = axios.create({
-  baseURL: `${"http://127.0.0.1:4000"}/api`,
+  baseURL: `${baseURL}/api`,
   headers: {
     "Content-Type": "application/json",
     "cache-control": "no-cache",
   },
+  // Send cookies/session for credentialed requests
+  withCredentials: true,
 });
 
 instance.interceptors.request.use(

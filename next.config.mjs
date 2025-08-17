@@ -20,6 +20,22 @@ const nextConfig = {
         port: "4000",
         pathname: "/img/**",
       },
+      // Production API on Vercel (preview and prod deployments)
+      {
+        protocol: "https",
+        hostname: "m-optics-*.vercel.app",
+        pathname: "/img/**",
+      },
+      // Optional: if you have a stable API domain, expose via env
+      ...(process.env.NEXT_PUBLIC_API_HOSTNAME
+        ? [
+            {
+              protocol: "https",
+              hostname: process.env.NEXT_PUBLIC_API_HOSTNAME,
+              pathname: "/img/**",
+            },
+          ]
+        : []),
     ],
   },
   webpack: (config) => {
