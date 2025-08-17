@@ -21,11 +21,13 @@ const nextConfig = {
         pathname: "/img/**",
       },
       // Production API on Vercel (preview and prod deployments)
+      // Exact production host
       {
         protocol: "https",
-        hostname: "m-optics-*.vercel.app",
+        hostname: "m-optics.vercel.app",
         pathname: "/img/**",
       },
+      // Preview deployments (set a specific host via env when needed)
       // Optional: if you have a stable API domain, expose via env
       ...(process.env.NEXT_PUBLIC_API_HOSTNAME
         ? [
