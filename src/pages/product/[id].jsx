@@ -491,9 +491,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         const customizations = {
                           color: selectedColor,
                         };
-                        if (hasPrescription && rxStorageKey) {
-                          customizations.prescriptionRef = rxStorageKey;
-                        }
+                       
 
                         addToCart(
                           {
