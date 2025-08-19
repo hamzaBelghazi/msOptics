@@ -178,8 +178,9 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
             const constraints = {
               video: {
                 facingMode: { ideal: "user" }, 
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                aspectRatio: 16 / 9,
                 frameRate: { ideal: 30 },
                 advanced: [{ focusMode: "continuous" }],
               },
@@ -192,8 +193,9 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
                 if ("contentHint" in track) track.contentHint = "detail";
                 if (track.applyConstraints) {
                   await track.applyConstraints({
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    aspectRatio: 16 / 9,
                     frameRate: { ideal: 30 },
                     advanced: [{ focusMode: "continuous" }],
                   });
@@ -203,12 +205,23 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
               }
             }
             mediaStreamRef.current = stream; // Store reference to stop later
-            videoSettings = {
-              facingMode: "user",
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-              frameRate: { ideal: 30 },
-            };
+
+            // Create a controlled video element and wait for metadata for exact sizing
+            const videoElement = document.createElement("video");
+            videoElement.autoplay = true;
+            videoElement.muted = true;
+            videoElement.playsInline = true;
+            videoElement.srcObject = stream;
+            await new Promise((resolve) => {
+              const done = () => resolve();
+              videoElement.onloadedmetadata = done;
+              // Fallback if onloadedmetadata doesn't fire quickly
+              setTimeout(done, 500);
+            });
+            try { await videoElement.play(); } catch (_) {}
+
+            // Set video settings to use this element so Jeeliz does not re-open camera with different constraints
+            videoSettings = { videoElement };
           } catch (err) {
             console.error("❌ Error accessing webcam:", err);
             return;
@@ -248,7 +261,23 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
           return;
         }
 
-        // Mirror the canvas for selfie mode
+        // Fit canvas to the actual video resolution to avoid scaling blur
+        try {
+          if (videoSettings && videoSettings.videoElement) {
+            const vw = videoSettings.videoElement.videoWidth || 1280;
+            const vh = videoSettings.videoElement.videoHeight || 720;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = Math.floor(vw * dpr);
+            canvas.height = Math.floor(vh * dpr);
+            // Let CSS control display size; maintain 16:9
+            canvas.style.width = "100%";
+            canvas.style.height = "100%";
+          }
+        } catch (e) {
+          console.warn("⚠️ Could not size canvas from video element:", e);
+        }
+
+        // Mirror the canvas for selfie mode without distorting
         canvas.style.transform = "scaleX(-1)";
 
         window.JEELIZFACEFILTER.init({
@@ -317,8 +346,10 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
         <div
           ref={containerRef}
           style={{
-            width: 480,
-            height: 480,
+            width: "100%",
+            maxWidth: 720,
+            aspectRatio: "16 / 9",
+            height: "auto",
             position: "relative",
             overflow: "hidden",
           }}
