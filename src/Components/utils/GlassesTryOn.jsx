@@ -21,6 +21,10 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
   const [modelPositionZ, setModelPositionZ] = useState(0);
   const [showControls, setShowControls] = useState(false);
 
+  // Responsive/mobile state
+  const [isSmall, setIsSmall] = useState(false);
+  const [aspect, setAspect] = useState("16 / 9");
+
   // Reference to the glasses model for updates
   const glassesModelRef = useRef(null);
 
@@ -51,6 +55,20 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
   useEffect(() => {
     updateModelControls();
   }, [modelScale, modelPositionX, modelPositionY, modelPositionZ]);
+
+  // Handle responsive behavior (mobile-friendly aspect & full-screen)
+  useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      setIsSmall(w <= 600);
+      // Portrait: prefer 9/16 to reduce zoom/crop; Landscape: 16/9
+      setAspect(h > w ? "9 / 16" : "16 / 9");
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   // Cleanup camera when modal closes
   useEffect(() => {
@@ -333,7 +351,27 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
   }, [open, modelUrl]); // Add dependencies
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      fullScreen={isSmall}
+      BackdropProps={{
+        sx: {
+          backdropFilter: "blur(6px)",
+          backgroundColor: "rgba(0,0,0,0.6)",
+        },
+      }}
+      PaperProps={{
+        sx: {
+          borderRadius: isSmall ? 0 : 3,
+          overflow: "hidden",
+          backgroundColor: "#000",
+          boxShadow: isSmall ? "none" : "0 20px 60px rgba(0,0,0,0.45)",
+        },
+      }}
+    >
       <DialogContent
         sx={{
           display: "flex",
@@ -341,19 +379,47 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
           alignItems: "center",
           background: "black",
           position: "relative",
+          p: 0,
+          pt: isSmall ? "env(safe-area-inset-top)" : 0,
+          pb: isSmall ? "env(safe-area-inset-bottom)" : 0,
         }}
       >
         <div
           ref={containerRef}
           style={{
             width: "100%",
-            maxWidth: 720,
-            aspectRatio: "16 / 9",
+            maxWidth: isSmall ? "100%" : 720,
+            aspectRatio: aspect,
             height: "auto",
             position: "relative",
             overflow: "hidden",
+            borderRadius: isSmall ? 0 : 12,
+            boxShadow: isSmall ? "none" : "0 12px 32px rgba(0,0,0,0.35)",
           }}
         >
+          {/* Header Bar */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 48,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "0 12px",
+              background:
+                "linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.0))",
+              color: "#fff",
+              zIndex: 1002,
+              pointerEvents: "none",
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: 0.4 }}>
+              Virtual Try-On
+            </div>
+          </div>
           {/* Model Controls Panel */}
           {showControls && (
             <div
@@ -542,7 +608,15 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
             </div>
           )}
 
-          <canvas width="600" height="600" id="jeeFaceFilterCanvas"></canvas>
+          <canvas
+            id="jeeFaceFilterCanvas"
+            style={{
+              display: "block",
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          ></canvas>
           <video
             id="myVideo"
             className="hidden w-full h-full rotate-180"
@@ -561,29 +635,31 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
           onClick={() => setShowControls(!showControls)}
           style={{
             position: "absolute",
-            top: "10px",
-            left: "10px",
-            background: "rgba(0, 0, 0, 0.8)",
+            bottom: 12,
+            left: 12,
+            background:
+              "linear-gradient(135deg, rgba(102,126,234,0.95), rgba(118,75,162,0.95))",
             color: "white",
             border: "none",
-            padding: "8px 12px",
-            borderRadius: "6px",
+            padding: "10px 14px",
+            borderRadius: 10,
             cursor: "pointer",
-            fontSize: "13px",
-            fontWeight: "500",
-            zIndex: 1000,
+            fontSize: 14,
+            fontWeight: 600,
+            zIndex: 1001,
             transition: "all 0.2s ease",
             display: "flex",
             alignItems: "center",
-            gap: "6px",
+            gap: 8,
+            boxShadow: "0 10px 20px rgba(0,0,0,0.25)",
           }}
           onMouseOver={(e) => {
-            e.target.style.background = "rgba(0, 0, 0, 0.9)";
             e.target.style.transform = "translateY(-1px)";
+            e.target.style.boxShadow = "0 14px 26px rgba(0,0,0,0.3)";
           }}
           onMouseOut={(e) => {
-            e.target.style.background = "rgba(0, 0, 0, 0.8)";
             e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "0 10px 20px rgba(0,0,0,0.25)";
           }}
         >
           {showControls ? "🔧 Hide Adjustments" : "⚙️ Adjust Fit"}
@@ -594,34 +670,33 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
           onClick={onClose}
           style={{
             position: "absolute",
-            top: "10px",
-            right: "10px",
-            background: "rgba(255, 0, 0, 0.8)",
+            top: 10,
+            right: 10,
+            background: "rgba(255, 255, 255, 0.1)",
             color: "white",
-            border: "none",
-            padding: "10px 14px",
-            borderRadius: "50%",
+            border: "1px solid rgba(255,255,255,0.2)",
+            padding: 10,
+            borderRadius: 12,
             cursor: "pointer",
-            fontSize: "16px",
-            fontWeight: "bold",
-            zIndex: 1001,
+            fontSize: 14,
+            fontWeight: 700,
+            zIndex: 1003,
             transition: "all 0.2s ease",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: "40px",
-            height: "40px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+            width: 44,
+            height: 44,
+            backdropFilter: "blur(4px)",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.35)",
           }}
           onMouseOver={(e) => {
-            e.target.style.background = "rgba(255, 0, 0, 0.9)";
-            e.target.style.transform = "scale(1.1)";
-            e.target.style.boxShadow = "0 4px 12px rgba(0,0,0,0.4)";
+            e.target.style.background = "rgba(255, 255, 255, 0.18)";
+            e.target.style.transform = "scale(1.03)";
           }}
           onMouseOut={(e) => {
-            e.target.style.background = "rgba(255, 0, 0, 0.8)";
+            e.target.style.background = "rgba(255, 255, 255, 0.1)";
             e.target.style.transform = "scale(1)";
-            e.target.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
           }}
           title="Close Try-On"
         >
