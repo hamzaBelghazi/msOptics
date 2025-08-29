@@ -45,49 +45,61 @@ export default function Home() {
     <Layout title={t("home.title")} announcement={data?.announces}>
       <div className="space-y-16 bg-background">
         {/* Hero Section */}
+        
         <HeroSection />
 
         {/* Features Section */}
         <Features />
-
-        <Categories categories={data?.categories} />
+        {data?.categories.length > 0 && (
+          <Categories categories={data?.categories} />
+        )}
 
         {/* Featured Products */}
-        <section className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-            {t("home.featured_products")}
-          </h2>
-          <FeaturedProducts products={data?.products} />
-        </section>
+        {data?.products.length > 0 && (
+          <section className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
+              {t("home.featured_products")}
+            </h2>
+            <FeaturedProducts products={data?.products} />
+          </section>
+        )}
 
         {/* Product Grid */}
-        <section className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-            {t("home.trending.title")}
+        {data?.products.length > 0 && (
+          <section className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
+              {t("home.trending.title")}
           </h2>
           <ProductGrid products={data?.products} />
         </section>
+        )}  
 
         {/* Testimonials */}
+        {data?.products.length > 0 && (
         <section className="container mx-auto px-4 py-12">
           <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
             {t("home.testimonials.title")}
           </h2>
           <Testimonials />
         </section>
+        )}
 
         {/* Accessories Section */}
+        {data?.accessories.length > 0 && (
         <section className="container mx-auto px-4 py-12">
           <HomeAccessories accessories={data?.accessories} />
         </section>
+        )}
 
         {/* About Us */}
+        
         <section className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
             {t("about_us.who_we_are")}
           </h2>
           <AboutUs />
         </section>
+      
 
         {/* FAQ Section */}
         <section className="container mx-auto px-4">
