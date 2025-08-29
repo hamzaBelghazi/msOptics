@@ -31,6 +31,24 @@
     "language": "Language",
     "currency": "Currency"
   },
+  "errors": {
+    "accessory_not_found": {
+      "title": "Accessory Not Found",
+      "subtitle_default": "The accessory you're looking for doesn't exist.",
+      "browse_accessories": "Browse Accessories"
+    }
+  },
+  "gallery": {
+    "accessory_preview": "Accessory preview",
+    "image_label": "Image {{index}}",
+    "no_preview": "No preview",
+    "thumbnail_label": "thumbnail {{index}}",
+    "accessory_gallery": "Accessory Gallery",
+    "select_image": "Select Image",
+    "of_counter": "{{current}} of {{total}}",
+    "accessory_image": "Accessory image",
+    "full_view_label": "Full view {{index}}"
+  },
   "auth": {
     "login": "Sign in",
     "login_text": "Please fill in this form to get your account.",
@@ -94,6 +112,27 @@
     "fullrim": "Full rim",
     "halfrim": "Half rim",
     "rimless": "Rimless",
+    "reviews": "Reviews",
+    "noReviews": "No reviews yet. Be the first to review this product!",
+    "writeReview": "Write a review",
+    "rating": "Your Rating",
+    "comment": "Your Review",
+    "reviewTitle": "Review Title",
+    "addPhotos": "Add Photo",
+    "verified": "Verified",
+    "helpful": "Helpful",
+    "loadMoreReviews": "Load More Reviews",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "submitReview": "Submit Review",
+    "glasses_width": "Glasses width",
+    "glasses_height": "Glasses height",
+    "bridge_size": "Bridge size",
+    "temple_length": "Temple length",
+    "lens_height": "Lens height",
+    "lens_width": "Lens width",
+    "you_might_also_like": "You Might Also Like",
+    "view_all_related_products": "View All Related Products",
     "shapes": {
       "pilot": "Pilot",
       "round": "Round",
@@ -107,6 +146,9 @@
       "kids": "Kids"
     },
     "dimensions": "Dimensions",
+    "sold" : "sold",
+    "views": "views",
+    "colors_label": "Colors",
     "glasses_size": "Glasses size",
     "in_stock": "In stock",
     "delivery_time": "Delivery time",
@@ -131,8 +173,11 @@
     },
     "page": {
       "description": "Description",
+      "specifications": "Specifications",
       "in_stock": "In Stock",
       "add_to_cart": "Add to Cart",
+      "added_to_cart": "Added to Cart",
+      "in_cart": "In Cart",
       "customize_lens": "Customize Lens",
       "quantity": "Quantity",
       "dimensions": "Dimensions",
@@ -151,6 +196,12 @@
       "close": "Close",
       "next": "Next",
       "previous": "Previous",
+      "features_benefits": "Features & Benefits",
+      "free_worldwide_shipping": "Free worldwide shipping",
+      "quality_guarantee": "Quality guarantee",
+      "easy_returns": "Easy returns",
+      "trending": "Trending",
+      "popular_choice": "Popular choice",
       "wishlist": {
         "add": "Add to Wishlist",
         "remove": "Remove from Wishlist"
@@ -226,6 +277,7 @@
     },
     "categories": {
       "title": "Shop by Category",
+      "subtitle": "Explore our wide range of products by category.",
       "optical": {
         "title": "Optical Frames",
         "description": "Glasses for every style"
@@ -241,6 +293,7 @@
     },
     "trending": {
       "title": "Trending Now",
+      "subtitle": "Discover the hottest picks in optics! From modern frames to cutting-edge lenses, these trending products are loved by everyone.",
       "view_all": "View All Products"
     },
     "testimonials": {
@@ -260,6 +313,7 @@
       "view_all": "View All Brands"
     },
     "featured_products": "Featured Products",
+    "featured_products_subtitle": "Explore our curated collection of premium optics—stylish eyewear and advanced lenses designed to enhance your vision and elevate your look.",
     "social_feed": "Follow Us on Instagram",
     "our_interest": "Our interest",
     "for_her": "For her",
@@ -340,6 +394,8 @@
   "about_us": {
     "title": "About Us",
     "who_we_are": "Who We Are",
+    "learn_more": "Learn More",
+    "description": "We started with a simple mission: to provide high-quality products that make a difference. Today, we're proud to serve customers worldwide.",
     "about_content_1": "MHS Optics is a leading eyewear company dedicated to providing high-quality optical solutions...",
     "about_content_2": "With years of experience in the industry, we've built a reputation for excellence...",
     "about_content_3": "We believe that eyewear is more than just a necessity – it's a statement of personal style...",
@@ -577,7 +633,8 @@
   },
   "language": {
     "english": "English",
-    "german": "German"
+    "german": "German",
+    "arabic": "Arabic"
   },
   "wishlist": {
     "title": "My Wishlist",
@@ -644,7 +701,8 @@
     "new_password_required": "New password is required",
     "confirm_password_required": "Please confirm your new password",
     "password_min_length": "Password must be at least 8 characters long",
-    "passwords_dont_match": "Passwords do not match"
+    "passwords_dont_match": "Passwords do not match",
+    "no_orders": "No orders found"
   },
   "faq": {
     "title": "Frequently Asked Questions",
@@ -790,5 +848,34 @@
     "exclusion1": "Damage from misuse, accidents, or improper care.",
     "exclusion2": "Normal wear and tear, including scratches not due to manufacturing defects.",
     "note_warranty": "Please keep your proof of purchase; warranty claims may require verification."
-  }
+  },
+  "backToProduct": "Back to Frame",
+  "customizeLens": "Customise Lens",
+  "lensesType": "Lenses Type",
+  "frames": "Frames",
+  "refractionIndex": "Refraction Index",
+  "thickness": "Thickness",
+  "advancedLensType": "Advanced Lens Type",
+  "total": "Total",
+  "frameOverview": "Frame Overview",
+  "gender": "Gender",
+  "frameType": "Frame Type",
+  "shape": "Shape",
+  "frameColor": "Frame Color",
+  "templeColor": "Temple Color",
+  "lensHeight": "Lens Height",
+  "lensWidth": "Lens Width",
+  "bridgeSize": "Bridge Size",
+  "templeLength": "Temple Length",
+  "tryOn": "Try On",
+  "zoom": "Zoom",
+  "close": "Close",
+  "next": "Next",
+  "previous": "Previous",
+  "featuresBenefits": "Features & Benefits",
+  "freeWorldwideShipping": "Free worldwide shipping",
+  "qualityGuarantee": "Quality guarantee",
+  "easyReturns": "Easy returns",
+  "trending": "Trending",
+  "popularChoice": "Popular choice"
 }

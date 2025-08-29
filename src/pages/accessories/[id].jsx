@@ -46,7 +46,8 @@ export default function AccessoryDetails({
     views: accessory?.views || 0,
   };
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dir = i18n.dir();
 
   const openModal = (index) => {
     setSliderIndex(index);
@@ -59,22 +60,22 @@ export default function AccessoryDetails({
 
   if (error) {
     return (
-      <Layout title={accessory?.name || "Accessory Not Found"}>
+      <Layout title={accessory?.name || t("errors.accessory_not_found.title")}>
         <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-              Accessory Not Found
+              {t("errors.accessory_not_found.title")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-8">
               {error.api ||
                 error.network ||
-                "The accessory you're looking for doesn't exist."}
+                t("errors.accessory_not_found.subtitle_default")}
             </p>
             <Link
               href="/accessories"
               className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-pink-600 transition-all duration-300"
             >
-              Browse Accessories
+              {t("errors.accessory_not_found.browse_accessories")}
             </Link>
           </div>
         </div>
@@ -84,12 +85,12 @@ export default function AccessoryDetails({
 
   if (!accessory) {
     return (
-      <Layout title="Loading...">
+      <Layout title={t("product.loading")}>
         <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-gray-400">
-              Loading accessory...
+              {t("product.loading")}
             </p>
           </div>
         </div>
@@ -98,15 +99,15 @@ export default function AccessoryDetails({
   }
 
   return (
-    <Layout title={accessory?.name || t("accessory")}>
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <Layout title={accessory?.name || t("accessories.title")}>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" dir={dir}>
         <div className="container mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <Link href="/" className="hover:text-primary transition-colors">
-                  Home
+                  {t("navigation.home")}
                 </Link>
               </li>
               <li>/</li>
@@ -115,7 +116,7 @@ export default function AccessoryDetails({
                   href="/accessories"
                   className="hover:text-primary transition-colors"
                 >
-                  Accessories
+                  {t("accessories.title")}
                 </Link>
               </li>
               <li>/</li>
@@ -136,6 +137,7 @@ export default function AccessoryDetails({
                 {/* Main Image Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                   <Swiper
+                    key={dir}
                     modules={[Navigation, Pagination, Autoplay]}
                     navigation
                     pagination={{ clickable: true }}
@@ -153,7 +155,7 @@ export default function AccessoryDetails({
                           <div className="w-full h-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                             <Image
                               src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/accessories/${img}`}
-                              alt={`${accessory.name || "Accessory preview"} - Image ${idx + 1}`}
+                              alt={`${accessory.name || t("gallery.accessory_preview")} - ${t("gallery.image_label", { index: idx + 1 })}`}
                               width={500}
                               height={500}
                               className={`object-contain aspect-square h-full w-full transition-transform duration-300 hover:scale-110 cursor-zoom-in ${
@@ -172,7 +174,7 @@ export default function AccessoryDetails({
                         <div className="w-full h-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                           <Image
                             src="/placeholder.png"
-                            alt="No preview"
+                            alt={t("gallery.no_preview")}
                             width={400}
                             height={400}
                             className="object-contain max-h-80 opacity-50"
@@ -202,7 +204,7 @@ export default function AccessoryDetails({
                     >
                       <Image
                         src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/accessories/${image}`}
-                        alt={`${accessory.name} thumbnail ${index + 1}`}
+                        alt={`${accessory.name} ${t("gallery.thumbnail_label", { index: index + 1 })}`}
                         width={100}
                         height={100}
                         className="w-full h-20 object-cover"
@@ -245,10 +247,10 @@ export default function AccessoryDetails({
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>🔥 {mockData.soldCount.toLocaleString()} sold</span>
+                    <span>🔥 {mockData.soldCount.toLocaleString()} {t("product.sold")}</span>
                     <span className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      {mockData.views.toLocaleString()} views
+                      {mockData.views.toLocaleString()} {t("product.views")}
                     </span>
                   </div>
                 </div>
@@ -258,7 +260,7 @@ export default function AccessoryDetails({
                   {/* Quantity Selector */}
                   <div className="flex items-center gap-4">
                     <span className="text-gray-700 dark:text-gray-300 font-medium">
-                      Quantity:
+                      {t("product.page.quantity")}:
                     </span>
                     <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                       <button
@@ -290,7 +292,7 @@ export default function AccessoryDetails({
                         )
                       }
                     >
-                      🛒 Add to Cart
+                      🛒 {t("product.page.add_to_cart")}
                     </button>
                   </div>
                 </div>
@@ -299,7 +301,7 @@ export default function AccessoryDetails({
               {/* Features & Benefits */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Features & Benefits
+                  {t("product.page.features_benefits")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
@@ -311,7 +313,7 @@ export default function AccessoryDetails({
                         {mockData.shipping}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Free worldwide shipping
+                        {t("product.page.free_worldwide_shipping")}
                       </p>
                     </div>
                   </div>
@@ -324,7 +326,7 @@ export default function AccessoryDetails({
                         {mockData.warranty}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Quality guarantee
+                        {t("product.page.quality_guarantee")}
                       </p>
                     </div>
                   </div>
@@ -337,7 +339,7 @@ export default function AccessoryDetails({
                         {mockData.returnPolicy}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Easy returns
+                        {t("product.page.easy_returns")}
                       </p>
                     </div>
                   </div>
@@ -347,10 +349,10 @@ export default function AccessoryDetails({
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        Popular
+                        {t("product.page.trending")}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Customer favorite
+                        {t("product.page.popular_choice")}
                       </p>
                     </div>
                   </div>
@@ -364,7 +366,7 @@ export default function AccessoryDetails({
             <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="p-6">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                  Description
+                  {t("product.page.description")}
                 </h3>
                 <div className="prose prose-lg max-w-none dark:prose-invert">
                   <div
@@ -413,7 +415,7 @@ export default function AccessoryDetails({
                       {accessory.name}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Accessory Gallery
+                      {t("gallery.accessory_gallery")}
                     </p>
                   </div>
                 </div>
@@ -421,7 +423,7 @@ export default function AccessoryDetails({
                 <button
                   onClick={closeModal}
                   className="p-2 sm:p-3 rounded-full bg-white/90 hover:bg-red-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl backdrop-blur-sm border border-gray-200 dark:border-gray-600"
-                  aria-label="Close"
+                  aria-label={t("product.page.close")}
                 >
                   <svg
                     className="w-5 h-5 sm:w-6 sm:h-6"
@@ -442,6 +444,7 @@ export default function AccessoryDetails({
               {/* Main Image Container */}
               <div className="relative w-full h-[50vh] sm:h-[450px] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                 <Swiper
+                  key={dir}
                   modules={[Navigation, Pagination, Autoplay]}
                   navigation={{
                     nextEl: ".swiper-button-next",
@@ -471,7 +474,7 @@ export default function AccessoryDetails({
                         <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-8">
                           <Image
                             src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/accessories/${image}`}
-                            alt={`${accessory.name || "Accessory image"} - Full view ${idx + 1}`}
+                            alt={`${accessory.name || t("gallery.accessory_image")} - ${t("gallery.full_view_label", { index: idx + 1 })}`}
                             fill
                             className="object-contain transition-transform duration-300 hover:scale-105"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
@@ -494,10 +497,10 @@ export default function AccessoryDetails({
                 <div className="p-4 sm:p-6 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-                      Select Image
+                      {t("gallery.select_image")}
                     </h4>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {sliderIndex + 1} of {accessory.images.length}
+                      {t("gallery.of_counter", { current: sliderIndex + 1, total: accessory.images.length })}
                     </span>
                   </div>
 

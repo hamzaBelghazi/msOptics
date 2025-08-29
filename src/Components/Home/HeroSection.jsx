@@ -4,10 +4,13 @@ import { Autoplay, Navigation, EffectCreative } from "swiper/modules";
 import "swiper/swiper-bundle.css";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 export default function HeroSection() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { i18n } = useTranslation();
+  const dir = i18n.dir();
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -39,8 +42,9 @@ export default function HeroSection() {
   }
 
   return (
-    <div className="relative w-full min-h-[50vh] md:aspect-[21/9] overflow-hidden">
+    <div className="relative w-full min-h-[50vh] md:aspect-[21/9] overflow-hidden" dir={dir}>
       <Swiper
+        key={dir}
         modules={[Autoplay, Navigation, EffectCreative]}
         spaceBetween={0}
         slidesPerView={1}

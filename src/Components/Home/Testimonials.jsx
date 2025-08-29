@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectCards } from "swiper/modules";
 import "swiper/swiper-bundle.css";
+import { useTranslation } from "react-i18next";
 
 const testimonials = [
   {
@@ -53,9 +54,12 @@ const themeColors = [
 ];
 
 export default function Testimonials() {
+  const { i18n } = useTranslation();
+  const dir = i18n.dir();
   return (
-    <div className="max-w-lg mx-auto px-4">
+    <div className="max-w-lg mx-auto px-4" dir={dir}>
       <Swiper
+        key={dir}
         modules={[Autoplay, EffectCards]}
         effect="cards"
         grabCursor={true}

@@ -89,7 +89,8 @@ export default function ProductDetails({ product: initialProduct, error }) {
     getReviews();
   }, []);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dir = i18n.dir();
 
   const openModal = (index) => {
     setSliderIndex(index);
@@ -133,7 +134,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
   useEffect(() => {
     // Set initial selected color
     if (product && Array.isArray(product.colors) && product.colors.length > 0) {
-      setSelectedColor(product.colors[0]);
+      setSelectedColor(product.colors[0].split(",")[0]);
     }
   }, [product]);
 
@@ -159,14 +160,14 @@ export default function ProductDetails({ product: initialProduct, error }) {
   return (
     <Layout title={product?.title || t("product")}>
       
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" dir={dir}>
         <div className="container mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <Link href="/" className="hover:text-primary transition-colors">
-                  Home
+                  {t("navigation.home")}
                 </Link>
               </li>
               <li>/</li>
@@ -175,7 +176,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                   href={`/type/${product?.categories?.name}`}
                   className="hover:text-primary transition-colors"
                 >
-                  Products
+                 {product?.categories?.name}
                 </Link>
               </li>
               <li>/</li>
@@ -241,6 +242,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     />
                   ) : (
                     <Swiper
+                      key={dir}
                       modules={[Navigation, Pagination, Autoplay]}
                       navigation
                       pagination={{ clickable: true }}
@@ -377,7 +379,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                       ))}
                       <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                         {mockData.rating} (
-                        {mockData.reviewCount.toLocaleString()} reviews)
+                        {mockData.reviewCount.toLocaleString()} {t("product.reviews")})
                       </span>
                     </div>
                   </div>
@@ -399,8 +401,8 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>🔥 {mockData.soldCount.toLocaleString()} sold</span>
-                    <span>👁️ {mockData.views.toLocaleString()} views</span>
+                    <span>🔥 {mockData.soldCount.toLocaleString()} {t("product.sold")}</span>
+                    <span>👁️ {mockData.views.toLocaleString()} {t("product.views")}</span>
                   </div>
                 </div>
 
@@ -409,7 +411,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                   {/* Quantity Selector */}
                   <div className="flex items-center gap-4">
                     <span className="text-gray-700 dark:text-gray-300 font-medium">
-                      Quantity:
+                     {t("product.page.quantity")}:
                     </span>
                     <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                       <button
@@ -433,9 +435,10 @@ export default function ProductDetails({ product: initialProduct, error }) {
                   
 
                   {/* Color Swatch */}
+                  {product.colors.length > 0 && (
                   <div className="space-y-3">
                     <span className="text-gray-700 dark:text-gray-300 font-medium block">
-                      Color Options:
+                     {t("product.colors_label")}:
                     </span>
                     <div className="flex flex-wrap gap-3">
                       {Array.isArray(product?.colors) &&
@@ -476,7 +479,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                           </button>
                         ))}
                     </div>
-                  </div>
+                  </div> )}
                 
              
                   {/* Action Buttons */}
@@ -510,16 +513,16 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     >
                       {addedToCart ? (
                         <span className="flex items-center justify-center">
-                          ✓ Added to Cart
+                          ✓ {t("product.page.added_to_cart")}
                         </span>
                       ) : isInCart(product?._id) ? (
                         <span className="flex items-center justify-center">
-                          🛒 In Cart ({getCartItem(product?._id)?.quantity || 0}
+                          🛒 {t("product.page.in_cart")} ({getCartItem(product?._id)?.quantity || 0}
                           )
                         </span>
                       ) : (
                         <span className="flex items-center justify-center">
-                          🛒 Add to Cart
+                          🛒 {t("product.page.add_to_cart")}
                         </span>
                       )}
 
@@ -539,9 +542,9 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     ) : (
                       <Link
                         href={`/product/customize/${product._id}`}
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 text-white py-4 px-6 rounded-xl font-bold text-sm md:text-base hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-center"
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 text-white py-4 px-6 rounded-xl font-bold text-sm md:text-base hover:from-blue-600 hover:to-purple-600 transition-all hover:text-button-text duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-center"
                       >
-                        🎨 Customize Lens
+                        🎨 {t("product.page.customize_lens")}
                       </Link>
                     )}
                   </div>
@@ -551,7 +554,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
               {/* Features & Benefits */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Features & Benefits
+                  {t("product.page.features_benefits")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
@@ -563,7 +566,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         {mockData.shipping}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Free worldwide shipping
+                        {t("product.page.free_worldwide_shipping")}
                       </p>
                     </div>
                   </div>
@@ -576,7 +579,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         {mockData.warranty}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Quality guarantee
+                        {t("product.page.quality_guarantee")}
                       </p>
                     </div>
                   </div>
@@ -589,7 +592,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         {mockData.returnPolicy}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Easy returns
+                        {t("product.page.easy_returns")}
                       </p>
                     </div>
                   </div>
@@ -599,10 +602,10 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        Trending
+                        {t("product.page.trending")}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Popular choice
+                        {t("product.page.popular_choice")}
                       </p>
                     </div>
                   </div>
@@ -617,9 +620,9 @@ export default function ProductDetails({ product: initialProduct, error }) {
               {/* Tab Navigation */}
               <div className="flex flex-col sm:flex-row border-b border-gray-200 dark:border-gray-700">
                 {[
-                  { id: "description", label: "Description", icon: "📝" },
-                  { id: "specifications", label: "Specifications", icon: "📋" },
-                  { id: "reviews", label: "Reviews", icon: "⭐" },
+                  { id: "description", label: t("product.page.description"), icon: "📝" },
+                  { id: "specifications", label: t("product.page.specifications"), icon: "📋" },
+                  { id: "reviews", label: t("product.reviews"), icon: "⭐" },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -633,10 +636,8 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     <span className="mr-1 sm:mr-2 text-sm sm:text-base">
                       {tab.icon}
                     </span>
-                    <span className="hidden md:inline">{tab.label}</span>
-                    <span className="md:hidden">
-                      {tab.label.substring(0, 3)}
-                    </span>
+                    <span className="inline">{tab.label}</span>
+            
                   </button>
                 ))}
               </div>
@@ -658,12 +659,12 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     {/* General Details */}
                     <div>
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
-                        General Information
+                       {t("product.page.specifications")}
                       </h3>
                       <div className="space-y-2 sm:space-y-3">
                         <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                           <span className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base">
-                            Gender
+                            {t("product.gender")}
                           </span>
                           <span className="text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                             {product.productGender}
@@ -671,7 +672,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                           <span className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base">
-                            Shape
+                            {t("product.shape")}
                           </span>
                           <span className="text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                             {product.shape}
@@ -679,7 +680,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                           <span className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base">
-                            Frame Color
+                            {t("product.page.frame_color")}
                           </span>
                           <span className="text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                             {product.colors}
@@ -687,7 +688,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                           <span className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base">
-                            Temple Color
+                            {t("product.page.temple_color")}
                           </span>
                           <span className="text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                             {product.templeColor}
@@ -695,7 +696,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between py-2">
                           <span className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base">
-                            Frame Material
+                            {t("product.page.frame_material")}
                           </span>
                           <span className="text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                             {product.frameMatirial}
@@ -707,14 +708,14 @@ export default function ProductDetails({ product: initialProduct, error }) {
                     {/* Dimensions */}
                     <div>
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
-                        Dimensions
+                        {t("product.page.dimensions")}
                       </h3>
                       <div className="space-y-3 sm:space-y-4">
                         <div className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                           <GlassesSizeSVG className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                           <div>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                              Glasses Width
+                              {t("product.glasses_width")}
                             </p>
                             <p className="font-bold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                               {product.glassWidth}mm
@@ -725,7 +726,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                           <BridgeSizeSVG className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                           <div>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                              Bridge Size
+                              {t("product.page.bridge_size")}
                             </p>
                             <p className="font-bold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                               {product.noasSize}mm
@@ -736,7 +737,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                           <TempleLengthSVG className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                           <div>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                              Temple Length
+                              {t("product.page.temple_length")}
                             </p>
                             <p className="font-bold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                               {product.sideSize}mm
@@ -747,7 +748,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                           <LensSizeSVG className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                           <div>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                              Lens Height
+                              {t("product.page.lens_height")}
                             </p>
                             <p className="font-bold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                               {product.lenseHeight}mm
@@ -758,7 +759,7 @@ export default function ProductDetails({ product: initialProduct, error }) {
                           <LensSizeSVG className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                           <div>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                              Lens Width
+                              {t("product.page.lens_width")}
                             </p>
                             <p className="font-bold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base">
                               {product.lenseSize}mm

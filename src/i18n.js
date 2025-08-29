@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import I18nextBrowserLanguageDetector from "i18next-browser-languagedetector";
 import enTranslations from "./translations/en.json";
 import deTranslations from "./translations/de.json";
+import arTranslations from "./translations/AR.json";
 
 i18next
   .use(I18nextBrowserLanguageDetector)
@@ -15,12 +16,18 @@ i18next
       de: {
         translation: deTranslations,
       },
+      ar: {
+        translation: arTranslations,
+      },
     },
     fallbackLng: "en",
-    supportedLngs: ["en", "de"],
+    supportedLngs: ["en", "de", "ar"],
     detection: {
-      order: ["localStorage", "navigator"],
-      caches: ["localStorage"],
+      // Prefer cookie so SSR can match client language
+      order: ["cookie", "localStorage", "navigator"],
+      caches: ["cookie", "localStorage"],
+      lookupCookie: "i18next",
+      cookieMinutes: 60 * 24 * 365, // 1 year
     },
     interpolation: {
       escapeValue: false,

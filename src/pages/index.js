@@ -84,7 +84,7 @@ export default function Home() {
         {/* About Us */}
         <section className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-            {t("about_us.title")}
+            {t("about_us.who_we_are")}
           </h2>
           <AboutUs />
         </section>

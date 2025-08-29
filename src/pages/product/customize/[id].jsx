@@ -748,7 +748,7 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
                               <div className="text-text-secondary text-sm">
                                 <div className="flex items-center text-text-secondary text-sm">
                                   <span className="font-medium">
-                                    Refraction Index:
+                                    {t("refractionIndex")}:
                                   </span>
                                   <span className="ml-2">
                                     {thickness.refraction}

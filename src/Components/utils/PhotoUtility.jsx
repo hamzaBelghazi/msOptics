@@ -26,6 +26,45 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
   const arucoLoadedRef = useRef(false);
   const arucoLoadingRef = useRef(false);
 
+  // Compute preferred camera constraints, prioritizing mobile-friendly sizes
+  const getPreferredVideoConstraints = () => {
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 640;
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 480;
+    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    const isPortrait = vh >= vw;
+    const isMobile = vw <= 900; // heuristic
+
+    // Baseline desktop/default
+    let widthIdeal = 640;
+    let heightIdeal = 480;
+    let aspect = 4 / 3;
+
+    if (isMobile) {
+      // Prefer 720p in the dominant axis to balance quality and performance
+      if (isPortrait) {
+        // 3:4 portrait (e.g., 720x960) keeps face large in frame
+        widthIdeal = Math.round(360 * dpr) * 2;   // ~720 @ dpr=2
+        heightIdeal = Math.round((widthIdeal * 4) / 3);
+        aspect = 3 / 4;
+      } else {
+        // Landscape 16:9-ish but we keep 720 height for stability
+        heightIdeal = Math.round(360 * dpr) * 2;  // ~720 @ dpr=2
+        widthIdeal = Math.round((heightIdeal * 4) / 3); // still 4:3 to match canvas/layout
+        aspect = 4 / 3;
+      }
+      // Cap extremes
+      widthIdeal = Math.min(Math.max(widthIdeal, 480), 1280);
+      heightIdeal = Math.min(Math.max(heightIdeal, 360), 960);
+    }
+
+    return {
+      facingMode: { exact: 'user' },
+      width: { ideal: widthIdeal },
+      height: { ideal: heightIdeal },
+      aspectRatio: { ideal: aspect },
+    };
+  };
+
   useEffect(() => {
 
     const setup = async () => {
@@ -52,23 +91,27 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
         // Camera access (selfie/front). Try exact 'user' first, then fall back.
         try {
           streamRef.current = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: { exact: "user" },
-              width: { ideal: 640 },
-              height: { ideal: 480 },
-            },
+            video: getPreferredVideoConstraints(),
             audio: false,
           });
         } catch (_) {
           try {
+            const fallback = getPreferredVideoConstraints();
+            // Soften facingMode requirement in fallback
+            fallback.facingMode = 'user';
             streamRef.current = await navigator.mediaDevices.getUserMedia({
-              video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+              video: fallback,
               audio: false,
             });
           } catch (e2) {
             // Final fallback: default camera
+            const vw = typeof window !== 'undefined' ? window.innerWidth : 640;
+            const vh = typeof window !== 'undefined' ? window.innerHeight : 480;
+            const isPortrait = vh >= vw;
+            const w = isPortrait ? 720 : 960;
+            const h = isPortrait ? 960 : 720;
             streamRef.current = await navigator.mediaDevices.getUserMedia({
-              video: { width: { ideal: 640 }, height: { ideal: 480 } },
+              video: { width: { ideal: w }, height: { ideal: h } },
               audio: false,
             });
           }

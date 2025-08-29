@@ -13,6 +13,7 @@ const FloatingCartButton = () => {
   const dragging = useRef(false);
   const offset = useRef({ x: 0, y: 0 });
   const dragMoved = useRef(false);
+  const startTouch = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,24 +61,42 @@ const FloatingCartButton = () => {
   // Touch drag handlers
   const handleTouchStart = (e) => {
     const touch = e.touches[0];
-    dragging.current = true;
+    // Do not start dragging immediately to allow page scroll if it's just a scroll gesture
+    dragging.current = false;
     dragMoved.current = false;
+    startTouch.current = { x: touch.clientX, y: touch.clientY };
     offset.current = {
       x: touch.clientX - position.left,
       y: touch.clientY - position.top,
     };
-    document.addEventListener("touchmove", handleTouchMove);
-    document.addEventListener("touchend", handleTouchEnd);
+    // non-passive so we can preventDefault only when actually dragging
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: true });
   };
 
   const handleTouchMove = (e) => {
-    if (!dragging.current) return;
-    dragMoved.current = true;
     const touch = e.touches[0];
+    const dx = touch.clientX - startTouch.current.x;
+    const dy = touch.clientY - startTouch.current.y;
+    const THRESHOLD = 8; // pixels
+
+    // Only start dragging after a small movement threshold
+    if (!dragging.current) {
+      if (Math.abs(dx) > THRESHOLD || Math.abs(dy) > THRESHOLD) {
+        dragging.current = true;
+      } else {
+        return; // let the page handle scroll
+      }
+    }
+
+    // When actually dragging, update position and prevent page scroll
+    dragMoved.current = true;
     setPosition({
       left: touch.clientX - offset.current.x,
       top: touch.clientY - offset.current.y,
     });
+    // prevent the page from scrolling while dragging
+    if (e.cancelable) e.preventDefault();
   };
 
   const handleTouchEnd = () => {
@@ -85,6 +104,7 @@ const FloatingCartButton = () => {
     document.removeEventListener("touchend", handleTouchEnd);
     if (!dragMoved.current) router.push("/cart");
     dragging.current = false;
+    dragMoved.current = false;
   };
 
   return (

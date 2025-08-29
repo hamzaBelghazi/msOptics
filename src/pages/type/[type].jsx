@@ -229,7 +229,7 @@ export default function Item() {
                 {t("gender")}
               </button>
               {openDropdown === "gender" && (
-                <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
+                <ul dir="ltr" className="absolute top-full  left-0 mt-2 w-48 max-h-48 overflow-y-auto bg-gray-900 text-white rounded-md shadow-lg z-50 text-left">
                   {genderOptions.map((opt) => (
                     <li key={opt.value} className="px-4 py-2 hover:bg-gray-800">
                       <label className="flex items-center space-x-2">
@@ -257,7 +257,7 @@ export default function Item() {
                 {t("Frame_type")}
               </button>
               {openDropdown === "frameType" && (
-                <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
+                <ul dir="ltr" className="absolute top-full left-0 mt-2 w-48 max-h-48 overflow-y-auto bg-gray-900 text-white rounded-md shadow-lg z-50 text-left">
                   {frameTypeOptions.map((opt) => (
                     <li key={opt.value} className="px-4 py-2 hover:bg-gray-800">
                       <label className="flex items-center space-x-2">
@@ -285,7 +285,7 @@ export default function Item() {
                 {t("Shapes")}
               </button>
               {openDropdown === "shape" && (
-                <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
+                <ul dir="ltr" className="absolute top-full left-0 mt-2 w-48 max-h-48 overflow-y-auto bg-gray-900 text-white rounded-md shadow-lg z-50 text-left">
                   {shapeOptions.map((opt) => (
                     <li key={opt.value} className="px-4 py-2 hover:bg-gray-800">
                       <label className="flex items-center space-x-2">
@@ -313,7 +313,7 @@ export default function Item() {
                 {t("Frame_colour")}
               </button>
               {openDropdown === "color" && (
-                <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
+                <ul dir="ltr" className="absolute top-full left-0 mt-2 w-48 max-h-48 overflow-y-auto bg-gray-900 text-white rounded-md shadow-lg z-50 text-left">
                   {colorOptionList.map((color) => (
                     <li key={color} className="px-4 py-2 hover:bg-gray-800">
                       <label className="flex items-center space-x-2">
@@ -341,7 +341,7 @@ export default function Item() {
                 {t("Frame_material")}
               </button>
               {openDropdown === "material" && (
-                <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
+                <ul dir="ltr" className="absolute top-full left-0 mt-2 w-48 max-h-48 overflow-y-auto bg-gray-900 text-white rounded-md shadow-lg z-50 text-left">
                   {materialOptions.map((opt) => (
                     <li key={opt.value} className="px-4 py-2 hover:bg-gray-800">
                       <label className="flex items-center space-x-2">

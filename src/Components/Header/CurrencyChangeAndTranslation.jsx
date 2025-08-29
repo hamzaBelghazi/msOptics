@@ -11,6 +11,15 @@ export default function CurrencyChangeAndTranslation() {
   // Update i18next language when the user selects a new language
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
+    // Persist language in cookie so SSR can match client language
+    try {
+      const oneYear = 60 * 60 * 24 * 365;
+      document.cookie = `i18next=${lang}; path=/; max-age=${oneYear}`;
+      // Also persist via i18next detector's localStorage cache
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("i18nextLng", lang);
+      }
+    } catch {}
     i18n.changeLanguage(lang); // Change the active language
   };
 
@@ -25,6 +34,7 @@ export default function CurrencyChangeAndTranslation() {
   const languages = [
     { code: "en", nameKey: "language.english" },
     { code: "de", nameKey: "language.german" },
+    { code: "ar", nameKey: "language.arabic" },
   ];
 
   return (

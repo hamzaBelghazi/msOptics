@@ -107,7 +107,7 @@ const Footer = () => {
             <div className="flex space-x-6">
               <Link
                 href="/inside/privacy"
-                className="text-text-secondary hover:text-primary transition-colors text-sm"
+                className="text-text-secondary hover:text-primary transition-colors text-sm mx-2"
               >
                 {t("footer.privacy_policy")}
               </Link>

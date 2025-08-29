@@ -31,6 +31,24 @@
     "language": "Sprache",
     "currency": "Währung"
   },
+  "errors": {
+    "accessory_not_found": {
+      "title": "Zubehör nicht gefunden",
+      "subtitle_default": "Das gesuchte Zubehör existiert nicht.",
+      "browse_accessories": "Zubehör durchsuchen"
+    }
+  },
+  "gallery": {
+    "accessory_preview": "Zubehörvorschau",
+    "image_label": "Bild {{index}}",
+    "no_preview": "Keine Vorschau",
+    "thumbnail_label": "Vorschaubild {{index}}",
+    "accessory_gallery": "Zubehörgalerie",
+    "select_image": "Bild auswählen",
+    "of_counter": "{{current}} von {{total}}",
+    "accessory_image": "Zubehörbild",
+    "full_view_label": "Vollansicht {{index}}"
+  },
   "auth": {
     "login": "Anmelden",
     "login_text": "Bitte füllen Sie dieses Formular aus, um Ihr Konto zu erhalten.",
@@ -93,6 +111,27 @@
     "fullrim": "Vollrand",
     "halfrim": "Halbrand",
     "rimless": "Randlos",
+    "reviews": "Bewertungen",
+    "noReviews": "Noch keine Bewertungen",
+    "writeReview": "Bewertung schreiben",
+    "rating": "Ihre Bewertung",
+    "comment": "Ihre Bewertung",
+    "reviewTitle": "Bewertungstitel",
+    "addPhotos": "Foto hinzufügen",
+    "verified": "Verifiziert",
+    "helpful": "Hilfreich",
+    "loadMoreReviews": "Mehr Bewertungen laden",
+    "cancel": "Abbrechen",
+    "submitting": "Absenden...",
+    "submitReview": "Bewertung absenden",
+    "glasses_width": "Brillengröße",
+    "glasses_height": "Brillenhöhe",
+    "bridge_size": "Steggröße",
+    "temple_length": "Bügelgröße",
+    "lens_height": "Glasgröße",
+    "lens_width": "Glasbreite",
+    "you_might_also_like": "Du magst auch",
+    "view_all_related_products": "Alle verwandten Produkte anzeigen",
     "shapes": {
       "pilot": "Pilot",
       "round": "Rund",
@@ -106,6 +145,9 @@
       "kids": "Kinder"
     },
     "dimensions": "Abmessungen",
+    "sold" : "verkauft",
+    "views": "ansicht",
+    "colors_label": "Farben",
     "glasses_size": "Brillengröße",
     "in_stock": "Auf Lager",
     "delivery_time": "Lieferzeit",
@@ -130,8 +172,11 @@
     },
     "page": {
       "description": "Beschreibung",
+      "specifications": "Spezifikationen",
       "in_stock": "Auf Lager",
       "add_to_cart": "In den Warenkorb",
+      "added_to_cart": "In den Warenkorb",
+      "in_cart": "In den Warenkorb",
       "customize_lens": "Gläser anpassen",
       "quantity": "Menge",
       "dimensions": "Abmessungen",
@@ -150,6 +195,12 @@
       "close": "Schließen",
       "next": "Weiter",
       "previous": "Zurück",
+      "features_benefits": "Funktionen & Vorteile",
+      "free_worldwide_shipping": "Kostenloser weltweiter Versand",
+      "quality_guarantee": "Qualitätsgarantie",
+      "easy_returns": "Einfache Rückgabe",
+      "trending": "Im Trend",
+      "popular_choice": "Beliebte Wahl",
       "wishlist": {
         "add": "Zur Wunschliste hinzufügen",
         "remove": "Von der Wunschliste entfernen"
@@ -220,6 +271,7 @@
     },
     "categories": {
       "title": "Nach Kategorie einkaufen",
+      "subtitle": "Entdecken Sie unsere breite Palette von Produkten nach Kategorie.",
       "optical": {
         "title": "Optische Fassungen",
         "description": "Brillen für jeden Stil"
@@ -235,6 +287,7 @@
     },
     "trending": {
       "title": "Trending Jetzt",
+      "subtitle": "Entdecken Sie die heißesten Picks in Optik! Von modernen Fassungen bis zu cutting-edge Linsen, diese Trendprodukte werden von jedem geliebt.",
       "view_all": "Alle Produkte anzeigen"
     },
     "testimonials": {
@@ -254,6 +307,7 @@
       "view_all": "Alle Marken anzeigen"
     },
     "featured_products": "Ausgewählte Produkte",
+    "featured_products_subtitle": "Entdecken Sie die heißesten Picks in Optik! Von modernen Fassungen bis zu cutting-edge Linsen, diese Trendprodukte werden von jedem geliebt.",
     "social_feed": "Folgen Sie uns auf Instagram",
     "our_interest": "Unser Interesse",
     "for_her": "Für sie",
@@ -333,6 +387,8 @@
   },
   "about_us": {
     "title": "Über Uns",
+    "learn_more": "Mehr erfahren",
+    "description": "Wir haben mit einer einfachen Mission begonnen: hochwertige Produkte zu liefern, die einen Unterschied machen. Heutzutage sind wir stolz darauf, Kunden weltweit zu bedienen.",
     "who_we_are": "Wer Wir Sind",
     "about_content_1": "MHS Optics ist ein führendes Brillenunternehmen, das sich der Bereitstellung hochwertiger optischer Lösungen verschrieben hat...",
     "about_content_2": "Mit jahrelanger Erfahrung in der Branche haben wir uns einen Ruf für Exzellenz aufgebaut...",
@@ -631,7 +687,9 @@
     "language": "Sprache",
     "currency": "Währung",
     "refund_info": "Für diese Bestellung wurde eine Rückerstattung veranlasst und sollte innerhalb weniger Werktage auf Ihrem Bankkonto erscheinen.",
-    "order_deleted": "Bestellung entfernt."
+    "order_deleted": "Bestellung entfernt.",
+    "passwords_dont_match": "Passwörter stimmen nicht überein",
+    "no_orders": "No orders found"
   },
   "faq": {
     "title": "Häufig gestellte Fragen",
@@ -715,5 +773,34 @@
     "exclusion1": "Schäden durch unsachgemäße Verwendung, Unfälle oder mangelnde Pflege.",
     "exclusion2": "Normaler Verschleiß, einschließlich Kratzern, die nicht auf Herstellungsfehler zurückzuführen sind.",
     "note_warranty": "Bitte bewahren Sie Ihren Kaufnachweis auf; für Garantieansprüche kann eine Überprüfung erforderlich sein."
-  }
+  },
+  "backToProduct": "Zurück zur Fassung",
+  "customizeLens": "Personalisiere Linsen",
+  "lensesType": "Linsentyp",
+  "frames": "Fassungen",
+  "refractionIndex": "Refractionsindex",
+  "thickness": "Dicken",
+  "advancedLensType": "Fortgeschrittenen Linsentyp",
+  "total": "Gesamt",
+  "frameOverview": "Fassungsoverview",
+  "gender": "Geschlecht",
+  "frameType": "Rahmentyp",
+  "shape": "Form",
+  "frameColor": "Rahmenfarbe",
+  "templeColor": "Bügelfarbe",
+  "lensHeight": "Glashöhe",
+  "lensWidth": "Glasbreite",
+  "bridgeSize": "Stegbreite",
+  "templeLength": "Bügellänge",
+  "tryOn": "Anprobieren",
+  "zoom": "Zoomen",
+  "close": "Schließen",
+  "next": "Weiter",
+  "previous": "Zurück",
+  "featuresBenefits": "Funktionen & Vorteile",
+  "freeWorldwideShipping": "Kostenloser weltweiter Versand",
+  "qualityGuarantee": "Qualitätsgarantie",
+  "easyReturns": "Einfache Rückgabe",
+  "trending": "Im Trend",
+  "popularChoice": "Beliebte Wahl"
 }

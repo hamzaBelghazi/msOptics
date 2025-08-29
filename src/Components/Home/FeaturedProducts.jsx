@@ -2,18 +2,21 @@ import React, { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Parallax } from "swiper/modules";
 import SoloSlide from "@/Components/Home/Slide";
+import { useTranslation } from "react-i18next";
 
 function FeaturedProducts({ products }) {
   const swiperRef = useRef(null);
+  const { t, i18n } = useTranslation();
+  const dir = i18n.dir();
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8" dir={dir}>
       <p className="text-center text-text-secondary mb-8 px-4">
-        Explore our curated collection of premium optics—stylish eyewear and
-        advanced lenses designed to enhance your vision and elevate your look.
+        {t("home.featured_products_subtitle")}
       </p>
       <div className="relative">
         <Swiper
+          key={dir}
           ref={swiperRef}
           modules={[Autoplay, Parallax]}
           spaceBetween={5}

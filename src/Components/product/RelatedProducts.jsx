@@ -56,7 +56,7 @@ const RelatedProducts = ({
               <TrendingUp className="text-white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              You Might Also Like
+            {t("product.you_might_also_like")}
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -83,7 +83,7 @@ const RelatedProducts = ({
             <TrendingUp className="text-white" />
           </div>
           <h2 className="text-md md:text-2xl font-bold text-gray-900 dark:text-white">
-            You Might Also Like
+            {t("product.you_might_also_like")}
           </h2>
         </div>
 
@@ -101,7 +101,7 @@ const RelatedProducts = ({
             onClick={() => router.push(`/category/${currentProductCategory}`)}
             className="bg-gradient-to-r text-xs md:text-base from-blue-500 to-purple-500 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            View All Related Products
+            {t("product.view_all_related_products")}
           </button>
         </div>
       </div>

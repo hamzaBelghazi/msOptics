@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import ProductsCard from "../utils/ProductsCard";
 import ViewMoreCard from "./ViewMoreCard";
+import { useTranslation } from "react-i18next";
 
 export default function ProductGrid({ products }) {
   const [visibleProducts, setVisibleProducts] = useState(12);
+
+  const { t} = useTranslation();
 
   // Generate light rays
   const lightRays = Array.from({ length: 30 }).map((_, index) => (
@@ -38,8 +41,7 @@ export default function ProductGrid({ products }) {
       {lightRays}
 
       <p className="text-center text-text-secondary mb-8 px-4">
-        Discover the hottest picks in optics! From modern frames to cutting-edge
-        lenses, these trending products are loved by everyone.
+        {t("home.trending.subtitle")}
       </p>
 
       {/* Product Grid */}

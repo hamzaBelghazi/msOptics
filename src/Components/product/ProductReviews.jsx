@@ -277,7 +277,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
         </div>
         <div className="flex-1">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            Customer Reviews
+            {t("product.reviews")}
           </h2>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
             <div className="flex items-center gap-2">
@@ -312,13 +312,13 @@ const ProductReviews = ({ productId, reviewsData }) => {
               onClick={() => setShowReviewForm(true)}
               className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
             >
-              Write a Review
+              {t("product.writeReview")}
             </button>
           ) : (
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-3 sm:p-4 md:p-6 border border-blue-200 dark:border-blue-700">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
-                  Write a Review
+                  {t("product.writeReview")}
                 </h3>
                 <button
                   onClick={() => setShowReviewForm(false)}
@@ -330,7 +330,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
               <form onSubmit={handleSubmitReview}>
                 <div className="mb-3 sm:mb-4">
                   <label className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2 font-medium">
-                    Your Rating
+                    {t("product.rating")}
                   </label>
                   <StarRating
                     rating={newReview.rating}
@@ -342,7 +342,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
                 </div>
                 <div className="mb-3 sm:mb-4">
                   <label className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2 font-medium">
-                    Review Title (Optional)
+                    {t("product.reviewTitle")}
                   </label>
                   <input
                     type="text"
@@ -357,7 +357,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
                 </div>
                 <div className="mb-3 sm:mb-4">
                   <label className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2 font-medium">
-                    Your Review
+                    {t("product.comment")}
                   </label>
                   <textarea
                     value={newReview.comment}
@@ -373,7 +373,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
                 </div>
                 <div className="mb-3 sm:mb-4">
                   <label className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2 font-medium">
-                    Add Photos (Optional)
+                   {t("product.addPhotos")}
                   </label>
                   <input
                     type="file"
@@ -405,14 +405,14 @@ const ProductReviews = ({ productId, reviewsData }) => {
                     disabled={submitting}
                     className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base disabled:opacity-50"
                   >
-                    {submitting ? "Submitting..." : "Submit Review"}
+                    {submitting ? t("product.submitting") : t("product.submitReview")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowReviewForm(false)}
                     className="px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-semibold border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 text-sm sm:text-base"
                   >
-                    Cancel
+                    {t("product.cancel")}
                   </button>
                 </div>
               </form>
@@ -426,7 +426,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
         {reviews.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500 dark:text-gray-400">
-              No reviews yet. Be the first to review this product!
+              {t("product.noReviews")}
             </p>
           </div>
         ) : (
@@ -459,7 +459,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
                         <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full self-start sm:self-auto">
                           <Verified className="w-3 h-3 text-green-600 dark:text-green-400" />
                           <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                            Verified
+                            {t("product.verified")}
                           </span>
                         </div>
                       )}
@@ -518,7 +518,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
                   }`}
                 >
                   <ThumbUp className="w-3 h-3 sm:w-4 sm:h-4" />
-                  Helpful ({review.helpful})
+                  {t("product.helpful")} ({review.helpful})
                 </button>
               </div>
             </div>
@@ -533,7 +533,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
             onClick={() => fetchReviews(pagination.currentPage + 1)}
             className="w-full sm:w-auto bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-semibold hover:from-gray-600 hover:to-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
           >
-            Load More Reviews
+            {t("product.loadMoreReviews")}
           </button>
         </div>
       )}

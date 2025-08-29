@@ -10,10 +10,10 @@ const Categories = ({ categories }) => {
       {/* Section Title */}
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-text-primary">
-          {t("Shop by Category")}
+          {t("home.categories.title")}
         </h2>
         <p className="mt-2 text-gray-400">
-          {t("Explore our wide range of products by category.")}
+          {t("home.categories.subtitle")}
         </p>
       </div>
 
