@@ -152,6 +152,7 @@ export default function Category({ products , category }) {
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef(null);
   const fetchingRef = useRef(false);
+  const didRestoreRef = useRef(false);
 
   async function fetchNextPage() {
     try {
@@ -233,6 +234,49 @@ export default function Category({ products , category }) {
     io.observe(el);
     return () => io.disconnect();
   }, [hasMoreApi, loadingMore, id, router?.isReady]);
+
+  // Page-level scroll restoration: prefetch pages until tall enough, then scroll
+  useEffect(() => {
+    if (!router?.isReady || didRestoreRef.current) return;
+    didRestoreRef.current = true;
+    const path = router.asPath;
+    try {
+      const raw = sessionStorage.getItem(`scroll:${path}`);
+      if (!raw) return;
+      const targetY = parseInt(raw, 10);
+      if (isNaN(targetY) || targetY <= 0) return;
+
+      let tries = 0;
+      const maxTries = 80; // up to ~8s
+
+      const ensureHeightAndScroll = async () => {
+        // If content is not tall enough, try fetching additional pages
+        const currentDocH = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight
+        );
+        if (currentDocH >= targetY) {
+          window.scrollTo(0, targetY);
+          return true;
+        }
+        if (hasMoreApi && !loadingMore && !fetchingRef.current) {
+          await fetchNextPage();
+        }
+        return false;
+      };
+
+      const tick = async () => {
+        tries += 1;
+        const done = await ensureHeightAndScroll();
+        if (!done && tries < maxTries) {
+          setTimeout(tick, 100);
+        }
+      };
+
+      // Start after a brief delay to allow initial render
+      setTimeout(tick, 0);
+    } catch {}
+  }, [router?.isReady, router?.asPath, hasMoreApi, loadingMore]);
 
   return (
     <Layout title={category?.name}>
