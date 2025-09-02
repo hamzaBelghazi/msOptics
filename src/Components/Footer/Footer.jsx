@@ -41,7 +41,7 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href="/" className="text-2xl font-bold text-text-primary">
-              MS Optics
+              MHS Optics
             </Link>
             <p className="text-text-secondary">{t("footer.description")}</p>
             <div className="flex space-x-4">
