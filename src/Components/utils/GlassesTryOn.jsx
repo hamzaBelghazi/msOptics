@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import JeelizThreeGlassesCreatorGLB from "./JeelizThreeGlassesCreatorGLB";
-import JeelizThreeGlassesCreator from "./JeelizThreeGlassesCreator";
+// Lazy-load heavy modules only when needed to reduce initial bundle size
 
 const TryOnModal = ({ open, onClose, modelUrl }) => {
   const containerRef = useRef(null);
   let THREECAMERA = null;
   const mediaStreamRef = useRef(null);
+  // Cache dynamically imported modules across openings
+  const modelModuleRef = useRef({ glb: null, json: null });
 
   // Set flags
   const useCamera = true; // Changed to true to use webcam
@@ -20,6 +22,7 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
   const [modelPositionY, setModelPositionY] = useState(0);
   const [modelPositionZ, setModelPositionZ] = useState(0);
   const [showControls, setShowControls] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Responsive/mobile state
   const [isSmall, setIsSmall] = useState(false);
@@ -27,6 +30,8 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
 
   // Reference to the glasses model for updates
   const glassesModelRef = useRef(null);
+  // Reference to the face occluder for synchronized scaling
+  const occluderModelRef = useRef(null);
 
   // Function to update model with user controls
   const updateModelControls = () => {
@@ -48,6 +53,12 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
         basePosition.y + modelPositionY * 0.1,
         basePosition.z + modelPositionZ * 0.1
       );
+    }
+    // Apply the same scale factor to the face occluder for consistent fit
+    if (occluderModelRef.current) {
+      const occ = occluderModelRef.current;
+      const occBaseScale = occ.userData.baseScale || 0.0084;
+      occ.scale.setScalar(occBaseScale * modelScale);
     }
   };
 
@@ -91,8 +102,8 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
   }, [open]);
 
   useEffect(() => {
-    console.log("useEffect", modelUrl);
     if (!open) return; // Don't initialize if modal is not open
+    setLoading(true);
 
     // Load Jeeliz scripts dynamically
     const loadJeelizScripts = () => {
@@ -126,17 +137,25 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
     };
 
     // Detection callback
-    function detect_callback(faceIndex, isDetected) {
-      console.log(
-        `INFO in detect_callback(): ${isDetected ? "DETECTED" : "LOST"}`
-      );
-    }
+    function detect_callback(faceIndex, isDetected) {}
 
     // === THREE SCENE SETUP ===
     async function init_threeScene(spec) {
-      const modelLoader = useGLB
-        ? JeelizThreeGlassesCreatorGLB
-        : JeelizThreeGlassesCreator;
+      // Dynamically import model creators to avoid upfront cost
+      let modelLoader;
+      if (useGLB) {
+        if (!modelModuleRef.current.glb) {
+          const mod = await import("./JeelizThreeGlassesCreatorGLB");
+          modelModuleRef.current.glb = mod.default || mod;
+        }
+        modelLoader = modelModuleRef.current.glb;
+      } else {
+        if (!modelModuleRef.current.json) {
+          const mod = await import("./JeelizThreeGlassesCreator");
+          modelModuleRef.current.json = mod.default || mod;
+        }
+        modelLoader = modelModuleRef.current.json;
+      }
 
       let glassesResources;
       try {
@@ -164,16 +183,20 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
       const occluder = glassesResources.occluder;
       occluder.rotation.set(0.3, 0, 0);
       occluder.position.set(0, 0.03 + dy, -0.04);
-      occluder.scale.multiplyScalar(0.0084);
+      // Save base scale and apply current modelScale for synchronized resizing
+      occluder.userData.baseScale = 0.0084;
+      occluder.scale.setScalar(occluder.userData.baseScale * modelScale);
       occluder.visible = true;
+      occluderModelRef.current = occluder;
       spec.threeStuffs.faceObject.add(occluder);
 
       const threeGlasses = glassesResources.glasses;
       threeGlasses.position.set(0, dy, 0.4);
-      threeGlasses.scale.multiplyScalar(0.006);
+      // Save base scale and apply current modelScale for immediate consistency
+      threeGlasses.userData.baseScale = 0.006;
+      threeGlasses.scale.setScalar(threeGlasses.userData.baseScale * modelScale);
 
       // Store reference to glasses model for user adjustments
-      threeGlasses.userData.baseScale = 0.006;
       threeGlasses.userData.basePosition = { x: 0, y: dy, z: 0.4 };
       glassesModelRef.current = threeGlasses;
 
@@ -185,43 +208,28 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
     // === FACE FILTER INIT ===
     async function startFaceFilter() {
       try {
-       
         await loadJeelizScripts();
-       
         let videoSettings;
 
         if (useCamera) {
-         
           try {
+            // Low resolution + higher framerate to reduce latency
             const constraints = {
               video: {
-                facingMode: { ideal: "user" }, 
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
+                facingMode: { ideal: "user" },
+                width: { ideal: 480 },
+                height: { ideal: 270 },
                 aspectRatio: 16 / 9,
-                frameRate: { ideal: 30 },
-                advanced: [{ focusMode: "continuous" }],
+                frameRate: { ideal: 60 },
               },
             };
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            // Try to sharpen further via track constraints
-            const track = stream.getVideoTracks && stream.getVideoTracks()[0];
-            if (track) {
-              try {
-                if ("contentHint" in track) track.contentHint = "detail";
-                if (track.applyConstraints) {
-                  await track.applyConstraints({
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
-                    aspectRatio: 16 / 9,
-                    frameRate: { ideal: 30 },
-                    advanced: [{ focusMode: "continuous" }],
-                  });
-                }
-              } catch (e) {
-                console.warn("⚠️ Could not apply extra video constraints:", e);
-              }
+            // Hint the track for motion to reduce internal buffering on some browsers
+            const t = stream.getVideoTracks && stream.getVideoTracks()[0];
+            if (t && 'contentHint' in t) {
+              try { t.contentHint = 'motion'; } catch (_) {}
             }
+            // Keep it simple to avoid slow renegotiation on some devices
             mediaStreamRef.current = stream; // Store reference to stop later
 
             // Create a controlled video element and wait for metadata for exact sizing
@@ -282,9 +290,9 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
         // Fit canvas to the actual video resolution to avoid scaling blur
         try {
           if (videoSettings && videoSettings.videoElement) {
-            const vw = videoSettings.videoElement.videoWidth || 1280;
-            const vh = videoSettings.videoElement.videoHeight || 720;
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const vw = videoSettings.videoElement.videoWidth || 640;
+            const vh = videoSettings.videoElement.videoHeight || 360;
+            const dpr = 1; // prioritize latency over sharpness
             canvas.width = Math.floor(vw * dpr);
             canvas.height = Math.floor(vh * dpr);
             // Let CSS control display size; maintain 16:9
@@ -308,7 +316,6 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
               console.error("❌ JEELIZ init error:", errCode);
               return;
             }
-          
 
             // Initialize Three.js helper first and save to spec
             spec.threeStuffs = window.JeelizThreeHelper.init(
@@ -318,6 +325,7 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
 
             // Now you can safely call init_threeScene, which needs spec.threeStuffs
             await init_threeScene(spec);
+            setLoading(false);
           },
           callbackTrack: function (detectState) {
             window.JeelizThreeHelper.render(detectState, THREECAMERA);
@@ -325,6 +333,7 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
         });
       } catch (error) {
         console.error("❌ Failed to initialize Jeeliz:", error);
+        setLoading(false);
       }
     }
 
@@ -397,6 +406,26 @@ const TryOnModal = ({ open, onClose, modelUrl }) => {
             boxShadow: isSmall ? "none" : "0 12px 32px rgba(0,0,0,0.35)",
           }}
         >
+          {loading && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background:
+                  "linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.35))",
+                zIndex: 1100,
+                flexDirection: "column",
+                gap: 12,
+                color: "#fff",
+              }}
+            >
+              <CircularProgress size={36} thickness={4} sx={{ color: "#fff" }} />
+              <div style={{ fontSize: 13, opacity: 0.9 }}>Initializing camera...</div>
+            </div>
+          )}
           {/* Header Bar */}
           <div
             style={{
