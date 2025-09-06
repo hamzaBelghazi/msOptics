@@ -8,6 +8,8 @@ const VISION_PATH =
 const MODEL_PATH =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 const IRIS_WIDTH_IN_MM = 12; // Reference iris diameter used in PdModal
+const FACE_WIDTH_OVER_PD_RATIO = 2.2; // Tighter realistic ratio (~140mm face width for ~63mm PD)
+const RESIZE_OVERLAY = false; // keep face guide fixed-size
 
 // Shared singleton to prevent repeated WASM/model loads across modal opens
 let sharedLandmarkerPromise = null;
@@ -15,7 +17,9 @@ let sharedLandmarkerPromise = null;
 export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const overlayContainerRef = useRef(null);
   const [loading, setLoading] = useState(true);
+  const [isTakingPhoto, setIsTakingPhoto] = useState(false);
   const [error, setError] = useState(null);
   const landmarkerRef = useRef(null);
   const lastVideoTimeRef = useRef(-1);
@@ -25,6 +29,43 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
   const lastResultsRef = useRef(null);
   const arucoLoadedRef = useRef(false);
   const arucoLoadingRef = useRef(false);
+  // PD indicator state
+  const [pdMm, setPdMm] = useState(null);
+  const [faceDetected, setFaceDetected] = useState(false);
+  const [inGuide, setInGuide] = useState(false);
+  // Dynamic overlay sizing (in screen pixels for reliability)
+  const [overlaySize, setOverlaySize] = useState({ widthPx: 0, heightPx: 0 });
+  const [containerSize, setContainerSize] = useState({ cw: 0, ch: 0 });
+
+  // Initialize overlay size from container on first render
+  useEffect(() => {
+    const cont = overlayContainerRef.current;
+    if (!cont) return;
+    const measure = () => {
+      const cw = cont.clientWidth;
+      const ch = cont.clientHeight;
+      if (!cw || !ch) return;
+      setContainerSize({ cw, ch });
+      if (!overlaySize.widthPx || !overlaySize.heightPx) {
+        // initialize roughly centered size with increased height
+        setOverlaySize({ widthPx: cw * 0.56, heightPx: ch * 0.9 });
+      }
+    };
+    measure();
+    // Observe container resize
+    let ro;
+    if (window.ResizeObserver) {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(cont);
+    } else {
+      // Fallback
+      const id = setInterval(measure, 500);
+      return () => clearInterval(id);
+    }
+    return () => {
+      try { ro && ro.disconnect(); } catch {}
+    };
+  }, [overlayContainerRef]);
 
   // Compute preferred camera constraints, prioritizing mobile-friendly sizes
   const getPreferredVideoConstraints = () => {
@@ -192,7 +233,90 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
         ctx.save();
         ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         ctx.drawImage(video, 0, 0, canvasRef.current.width, canvasRef.current.height);
-        ctx.restore();
+        // Compute PD for badge (no drawing overlays on canvas)
+        try {
+          const lm = results?.faceLandmarks?.[0];
+          const hasFace = Boolean(lm);
+          setFaceDetected(hasFace);
+          
+          if (hasFace) {
+            // Iris horizontal diameter points
+            const li0 = FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[0].start;
+            const li2 = FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[2].start;
+            const ri0 = FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[0].start;
+            const ri2 = FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[2].start;
+
+            const lx0 = lm[li0].x * vw;
+            const ly0 = lm[li0].y * vh;
+            const lx2 = lm[li2].x * vw;
+            const ly2 = lm[li2].y * vh;
+            const rx0 = lm[ri0].x * vw;
+            const ry0 = lm[ri0].y * vh;
+            const rx2 = lm[ri2].x * vw;
+            const ry2 = lm[ri2].y * vh;
+
+            // Pupils approximated as midpoints of 0 and 2
+            const lpX = (lx0 + lx2) / 2;
+            const lpY = (ly0 + ly2) / 2;
+            const rpX = (rx0 + rx2) / 2;
+            const rpY = (ry0 + ry2) / 2;
+            const pupilsDistPx = Math.hypot(lpX - rpX, lpY - rpY);
+
+            // Only proceed with face detection if we have valid landmarks
+            if (lm && lm.length) {
+              // Prefer actual on-screen rect from canvas/video for higher reliability
+              const rect = canvasRef.current?.getBoundingClientRect?.() || null;
+              const cw = rect?.width || containerSize.cw || overlayContainerRef.current?.clientWidth || vw;
+              const ch = rect?.height || containerSize.ch || overlayContainerRef.current?.clientHeight || vh;
+              
+              if (cw && ch) {
+                const coverScale = Math.max(cw / vw, ch / vh);
+                
+                // Compute face bbox width in video pixels
+                let minX = 1, maxX = 0;
+                for (let i = 0; i < lm.length; i++) {
+                  const x = lm[i].x;
+                  if (x < minX) minX = x;
+                  if (x > maxX) maxX = x;
+                }
+                
+                const faceBoxWidthPx = Math.max(1, (maxX - minX) * vw);
+                
+                // Primary sizing from face bbox for more visible scaling, with padding
+                let desiredFaceWidthScreenPx = faceBoxWidthPx * 1.25 * coverScale;
+                
+                // Fallback/mix with PD-based if available (helps when bbox is noisy)
+                if (pupilsDistPx > 0) {
+                  const pdBased = pupilsDistPx * FACE_WIDTH_OVER_PD_RATIO * coverScale;
+                  desiredFaceWidthScreenPx = desiredFaceWidthScreenPx * 0.85 + pdBased * 0.15;
+                }
+                
+                const minW = cw * 0.30;
+                const maxW = cw * 0.90;
+                const widthPxClamped = Math.min(maxW, Math.max(minW, desiredFaceWidthScreenPx));
+                
+                // Update PD if we have valid iris measurements
+                try {
+                  const leftIrisPx = Math.hypot(lx0 - lx2, ly0 - ly2);
+                  const rightIrisPx = Math.hypot(rx0 - rx2, ry0 - ry2);
+                  const irisPx = (leftIrisPx + rightIrisPx) / 2;
+                  
+                  if (irisPx > 0 && pupilsDistPx > 0) {
+                    const pd = (IRIS_WIDTH_IN_MM / irisPx) * pupilsDistPx;
+                    setPdMm((prev) => prev === null ? pd : prev * 0.7 + pd * 0.3);
+                  }
+                } catch (e) {
+                  console.warn('Error calculating PD:', e);
+                  setPdMm(null);
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Error in face detection:', e);
+        } finally {
+          ctx.restore();
+        }
       }
       // Avoid stacking multiple loops
       animationIdRef.current = requestAnimationFrame(predict);
@@ -255,7 +379,8 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
   };
 
   const takePhoto = async () => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || isTakingPhoto) return;
+    setIsTakingPhoto(true);
     const srcCanvas = canvasRef.current;
     // Draw to an offscreen canvas so we can add measurement overlays
     const out = document.createElement("canvas");
@@ -399,8 +524,8 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
           <div className="text-red-600 text-sm">{error}</div>
         ) : (
           <>
-            <p className="text-sm text-gray-600 mb-2">Align your face inside the rectangle. Keep the phone upright, good lighting, and look straight at the camera.</p>
-            <div className="relative w-full max-w-[640px] mb-3 rounded-lg overflow-hidden border border-gray-200 mx-auto">
+            <p className="text-sm text-gray-600 mb-2">Align your face within the face outline. Keep the phone upright, use good lighting, and look straight at the camera.</p>
+            <div ref={overlayContainerRef} className="relative w-full max-w-[640px] mb-3 rounded-lg overflow-hidden border border-gray-200 mx-auto">
               {/* 4:3 aspect ratio spacer for responsiveness */}
               <div className="block w-full" style={{ paddingTop: '75%' }} />
               <video
@@ -416,18 +541,66 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
                 height={480}
                 className="absolute inset-0 w-full h-full pointer-events-none transform scale-x-[-1]"
               ></canvas>
-              {/* Centered guide rectangle overlay */}
+              {/* Centered face-shaped guide overlay (dynamically scaled) */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <div
-                  className="border-2 border-dashed border-cyan-400/80 rounded-md w-2/4 h-3/4 animate-pulse"
+                <svg
                   aria-hidden="true"
-                  title="Align your face inside this box"
-                ></div>
-                {/* corner markers */}
-                <div className="absolute w-8 h-8 border-t-4 border-l-4 border-cyan-400/90 rounded-tl-md" style={{ left: '25%', top: '12.5%' }} />
-                <div className="absolute w-8 h-8 border-t-4 border-r-4 border-cyan-400/90 rounded-tr-md" style={{ right: '25%', top: '12.5%' }} />
-                <div className="absolute w-8 h-8 border-b-4 border-l-4 border-cyan-400/90 rounded-bl-md" style={{ left: '25%', bottom: '12.5%' }} />
-                <div className="absolute w-8 h-8 border-b-4 border-r-4 border-cyan-400/90 rounded-br-md" style={{ right: '25%', bottom: '12.5%' }} />
+                  className="opacity-90 drop-shadow"
+                  style={{ width: overlaySize.widthPx ? `${overlaySize.widthPx}px` : '56%', height: overlaySize.heightPx ? `${overlaySize.heightPx}px` : '95%' }}
+                  viewBox="0 0 100 160"
+                  preserveAspectRatio="xMidYMid meet"
+                >
+                  {/* Dynamic color changes when face is inside the guide */}
+                  {(() => {
+                    const guideColor = inGuide ? '#22c55e' : '#22d3ee'; // green when inside
+                    return (
+                      <g>
+                        {/* Head outline */}
+                        <path d="M50 15 C 75 15, 85 40, 85 70 C 85 100, 75 120, 50 140 C 25 120, 15 100, 15 70 C 15 40, 25 15, 50 15 Z" 
+                          fill="none" 
+                          stroke={guideColor} 
+                          strokeWidth="2.5" 
+                          strokeDasharray="4 5" 
+                          vectorEffect="non-scaling-stroke" 
+                        />
+                        {/* Eye level guide */}
+                        <path d="M30 50 L70 50" 
+                          stroke={guideColor} 
+                          strokeWidth="1.5" 
+                          strokeDasharray="3 6" 
+                          vectorEffect="non-scaling-stroke" 
+                        />
+                        {/* Nose vertical guide */}
+                        <path d="M50 40 L50 90" 
+                          stroke={guideColor} 
+                          strokeWidth="1.2" 
+                          strokeDasharray="2 6" 
+                          vectorEffect="non-scaling-stroke" 
+                        />
+                        {/* Chin guide */}
+                        <path d="M30 90 L70 90" 
+                          stroke={guideColor} 
+                          strokeWidth="1.2" 
+                          strokeDasharray="2 6" 
+                          vectorEffect="non-scaling-stroke" 
+                        />
+                      </g>
+                    );
+                  })()}
+                </svg>
+              </div>
+              {/* PD indicator badge */}
+              <div className="absolute right-2 top-2 flex flex-col items-end gap-2 pointer-events-none">
+                {!faceDetected && (
+                  <div className="bg-black/60 text-white px-3 py-1.5 rounded-full text-xs backdrop-blur-sm animate-pulse">
+                    Align your face and look straight
+                  </div>
+                )}
+                {faceDetected && (
+                  <div className="bg-cyan-600/90 text-white px-3 py-1.5 rounded-full text-xs shadow">
+                    {pdMm != null ? `PD: ${Math.round(pdMm)} mm` : 'Detecting...'}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-between gap-3 flex-col sm:flex-row">
@@ -435,10 +608,18 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
               <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
                 <button
                   onClick={takePhoto}
-                  disabled={!!error || loading}
-                  className="bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md shadow-sm transition"
+                  disabled={!!error || loading || isTakingPhoto}
+                  className="bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md shadow-sm transition flex items-center justify-center min-w-[120px]"
                 >
-                  Capture Photo
+                  {isTakingPhoto ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </>
+                  ) : 'Take Picture'}
                 </button>
                 <button
                   onClick={onClose}
