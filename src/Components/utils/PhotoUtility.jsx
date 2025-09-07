@@ -41,7 +41,7 @@ export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto 
       
       if (isMobile) {
         // Mobile: Small face guide - 120px width max
-        const width = Math.min(200, window.innerWidth * 0.35);
+        const width = Math.min(220, window.innerWidth * 0.45);
         const height = width * (4/3);
         setOverlaySize({ widthPx: width, heightPx: height });
       } else {
@@ -487,8 +487,14 @@ export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
+    <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] ${
+      window.innerWidth <= 768 ? 'p-0' : 'p-4'
+    }`}>
+      <div className={`bg-white shadow-2xl w-full flex flex-col overflow-hidden ${
+        window.innerWidth <= 768 
+          ? 'h-full max-h-screen rounded-none' 
+          : 'rounded-2xl max-w-5xl max-h-[95vh]'
+      }`}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">{t('photoUtility.title')}</h2>
@@ -524,7 +530,7 @@ export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto 
                   className="relative w-full bg-black rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg"
                   style={{
                     aspectRatio: window.innerWidth <= 768 ? '4/3' : '16/9',
-                    maxHeight: window.innerWidth <= 768 ? '70vh' : '60vh'
+                    height: window.innerWidth <= 768 ? '55vh' : '60vh'
                   }}
                 >
                   {/* Video Element */}
