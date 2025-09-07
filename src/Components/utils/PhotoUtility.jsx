@@ -7,14 +7,13 @@ const VISION_PATH =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm";
 const MODEL_PATH =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
-const IRIS_WIDTH_IN_MM = 12; // Reference iris diameter used in PdModal
-const FACE_WIDTH_OVER_PD_RATIO = 2.2; // Tighter realistic ratio (~140mm face width for ~63mm PD)
-const RESIZE_OVERLAY = false; // keep face guide fixed-size
+const IRIS_WIDTH_IN_MM = 12;
+const FACE_WIDTH_OVER_PD_RATIO = 2.2;
+const RESIZE_OVERLAY = false;
 
-// Shared singleton to prevent repeated WASM/model loads across modal opens
 let sharedLandmarkerPromise = null;
 
-export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto }) {
+export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const overlayContainerRef = useRef(null);
@@ -25,19 +24,15 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
   const lastVideoTimeRef = useRef(-1);
   const animationIdRef = useRef(null);
   const streamRef = useRef(null);
-  // No DrawingUtils; do not render landmarks on the face
   const lastResultsRef = useRef(null);
   const arucoLoadedRef = useRef(false);
   const arucoLoadingRef = useRef(false);
-  // PD indicator state
   const [pdMm, setPdMm] = useState(null);
   const [faceDetected, setFaceDetected] = useState(false);
   const [inGuide, setInGuide] = useState(false);
-  // Dynamic overlay sizing (in screen pixels for reliability)
   const [overlaySize, setOverlaySize] = useState({ widthPx: 0, heightPx: 0 });
   const [containerSize, setContainerSize] = useState({ cw: 0, ch: 0 });
 
-  // Initialize overlay size from container on first render
   useEffect(() => {
     const cont = overlayContainerRef.current;
     if (!cont) return;
@@ -46,19 +41,18 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
       const ch = cont.clientHeight;
       if (!cw || !ch) return;
       setContainerSize({ cw, ch });
+
       if (!overlaySize.widthPx || !overlaySize.heightPx) {
-        // initialize roughly centered size with increased height
-        setOverlaySize({ widthPx: cw * 0.56, heightPx: ch * 0.9 });
+        const minSide = Math.min(cw, ch);
+        setOverlaySize({ widthPx: minSide * 0.65, heightPx: minSide * 0.95 });
       }
     };
     measure();
-    // Observe container resize
     let ro;
     if (window.ResizeObserver) {
       ro = new ResizeObserver(() => measure());
       ro.observe(cont);
     } else {
-      // Fallback
       const id = setInterval(measure, 500);
       return () => clearInterval(id);
     }
@@ -67,33 +61,27 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
     };
   }, [overlayContainerRef]);
 
-  // Compute preferred camera constraints, prioritizing mobile-friendly sizes
   const getPreferredVideoConstraints = () => {
     const vw = typeof window !== 'undefined' ? window.innerWidth : 640;
     const vh = typeof window !== 'undefined' ? window.innerHeight : 480;
     const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
     const isPortrait = vh >= vw;
-    const isMobile = vw <= 900; // heuristic
+    const isMobile = vw <= 900;
 
-    // Baseline desktop/default
     let widthIdeal = 640;
     let heightIdeal = 480;
     let aspect = 4 / 3;
 
     if (isMobile) {
-      // Prefer 720p in the dominant axis to balance quality and performance
       if (isPortrait) {
-        // 3:4 portrait (e.g., 720x960) keeps face large in frame
-        widthIdeal = Math.round(360 * dpr) * 2;   // ~720 @ dpr=2
+        widthIdeal = Math.round(360 * dpr) * 2;
         heightIdeal = Math.round((widthIdeal * 4) / 3);
         aspect = 3 / 4;
       } else {
-        // Landscape 16:9-ish but we keep 720 height for stability
-        heightIdeal = Math.round(360 * dpr) * 2;  // ~720 @ dpr=2
-        widthIdeal = Math.round((heightIdeal * 4) / 3); // still 4:3 to match canvas/layout
+        heightIdeal = Math.round(360 * dpr) * 2;
+        widthIdeal = Math.round((heightIdeal * 4) / 3);
         aspect = 4 / 3;
       }
-      // Cap extremes
       widthIdeal = Math.min(Math.max(widthIdeal, 480), 1280);
       heightIdeal = Math.min(Math.max(heightIdeal, 360), 960);
     }
@@ -105,6 +93,7 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
       aspectRatio: { ideal: aspect },
     };
   };
+
 
   useEffect(() => {
 
@@ -542,53 +531,66 @@ export default function PhotoUtility({ onClose, productId, onSaved , onTakePhoto
                 className="absolute inset-0 w-full h-full pointer-events-none transform scale-x-[-1]"
               ></canvas>
               {/* Centered face-shaped guide overlay (dynamically scaled) */}
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <svg
-                  aria-hidden="true"
-                  className="opacity-90 drop-shadow"
-                  style={{ width: overlaySize.widthPx ? `${overlaySize.widthPx}px` : '56%', height: overlaySize.heightPx ? `${overlaySize.heightPx}px` : '95%' }}
-                  viewBox="0 0 100 160"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  {/* Dynamic color changes when face is inside the guide */}
-                  {(() => {
-                    const guideColor = inGuide ? '#22c55e' : '#22d3ee'; // green when inside
-                    return (
-                      <g>
-                        {/* Head outline */}
-                        <path d="M50 15 C 75 15, 85 40, 85 70 C 85 100, 75 120, 50 140 C 25 120, 15 100, 15 70 C 15 40, 25 15, 50 15 Z" 
-                          fill="none" 
-                          stroke={guideColor} 
-                          strokeWidth="2.5" 
-                          strokeDasharray="4 5" 
-                          vectorEffect="non-scaling-stroke" 
-                        />
-                        {/* Eye level guide */}
-                        <path d="M30 50 L70 50" 
-                          stroke={guideColor} 
-                          strokeWidth="1.5" 
-                          strokeDasharray="3 6" 
-                          vectorEffect="non-scaling-stroke" 
-                        />
-                        {/* Nose vertical guide */}
-                        <path d="M50 40 L50 90" 
-                          stroke={guideColor} 
-                          strokeWidth="1.2" 
-                          strokeDasharray="2 6" 
-                          vectorEffect="non-scaling-stroke" 
-                        />
-                        {/* Chin guide */}
-                        <path d="M30 90 L70 90" 
-                          stroke={guideColor} 
-                          strokeWidth="1.2" 
-                          strokeDasharray="2 6" 
-                          vectorEffect="non-scaling-stroke" 
-                        />
-                      </g>
-                    );
-                  })()}
-                </svg>
-              </div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+<svg
+aria-hidden="true"
+className="opacity-90 drop-shadow"
+style={{
+width: overlaySize.widthPx
+? `${overlaySize.widthPx}px`
+: "56%",
+height: overlaySize.heightPx
+? `${overlaySize.heightPx}px`
+: "95%",
+}}
+viewBox="0 0 120 160"
+preserveAspectRatio="xMidYMid meet"
+>
+{(() => {
+const guideColor = inGuide ? "#22c55e" : "#06b6d4";
+return (
+<g stroke={guideColor} fill="none">
+{/* Realistic face outline */}
+<path
+d="M60 8
+C 88 12, 110 45, 102 85
+C 95 135, 75 152, 60 155
+C 45 152, 25 135, 18 85
+C 10 45, 32 12, 60 8 Z"
+strokeWidth="3"
+strokeLinecap="round"
+strokeLinejoin="round"
+vectorEffect="non-scaling-stroke"
+/>
+{/* Eye line */}
+<line
+x1="35" y1="60"
+x2="85" y2="60"
+strokeWidth="1.5"
+strokeDasharray="4 5"
+vectorEffect="non-scaling-stroke"
+/>
+{/* Nose vertical */}
+<line
+x1="60" y1="55"
+x2="60" y2="105"
+strokeWidth="1.2"
+strokeDasharray="3 5"
+vectorEffect="non-scaling-stroke"
+/>
+{/* Chin line */}
+<line
+x1="40" y1="105"
+x2="80" y2="105"
+strokeWidth="1.2"
+strokeDasharray="3 5"
+vectorEffect="non-scaling-stroke"
+/>
+</g>
+);
+})()}
+</svg>
+</div>
               {/* PD indicator badge */}
               <div className="absolute right-2 top-2 flex flex-col items-end gap-2 pointer-events-none">
                 {!faceDetected && (
