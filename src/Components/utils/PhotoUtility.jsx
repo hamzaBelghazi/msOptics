@@ -41,7 +41,7 @@ export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto 
       
       if (isMobile) {
         // Mobile: Small face guide - 120px width max
-        const width = Math.min(220, window.innerWidth * 0.45);
+        const width = Math.min(220, window.innerWidth * 0.50);
         const height = width * (4/3);
         setOverlaySize({ widthPx: width, heightPx: height });
       } else {
