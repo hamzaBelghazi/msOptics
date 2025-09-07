@@ -8,7 +8,7 @@
   },
   "prescription": {
     "tabs": {
-      "manual": "Enter parameters",
+      "manual": "Enter parameters manually",
       "upload": "Upload prescription"
     },
     "upload_label": "Upload Prescription (image or PDF)",
@@ -877,5 +877,27 @@
   "qualityGuarantee": "Quality guarantee",
   "easyReturns": "Easy returns",
   "trending": "Trending",
-  "popularChoice": "Popular choice"
+  "popularChoice": "Popular choice",
+  "photoUtility": {
+    "title": "Face Photo",
+    "loadingCamera": "Loading camera...",
+    "capturePhoto": "Take Photo",
+    "savePhoto": "Save Photo",
+    "close": "Close",
+    "processing": "Processing...",   
+    "instructions":"align your face with the guide, keep your face in the center of the guide, and make sure your face is in focus" ,
+    "faceDetected": "Face detected",
+    "positionFace": "Position your face with the guide",
+    "pd": "PD",            
+    "printTip":"Tip: print this page for your records. for accurate results, use actual size in your print settings."
+  },
+  "prescriptionUpload": {
+    "label": "Upload Prescription (image or PDF)",
+    "storedPrescription": "Stored prescription",
+    "fileTooLarge": "File too large. Please upload an image/PDF under 2.5MB.",
+    "storageError": "Failed to store file in browser storage.",
+    "unsupportedFileType": "Unsupported file type. Please upload an image or PDF.",
+    "saved": "Saved",
+    "storageNote": "Your file is stored locally in your browser for checkout and will not be uploaded until you place the order."
+  }
 }

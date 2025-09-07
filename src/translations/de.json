@@ -8,7 +8,7 @@
   },
   "prescription": {
     "tabs": {
-      "manual": "Parameter eingeben",
+      "manual": "Parameter eingeben manuell",
       "upload": "Rezept hochladen"
     },
     "upload_label": "Rezept hochladen (Bild oder PDF)",
@@ -802,5 +802,27 @@
   "qualityGuarantee": "Qualitätsgarantie",
   "easyReturns": "Einfache Rückgabe",
   "trending": "Im Trend",
-  "popularChoice": "Beliebte Wahl"
+  "popularChoice": "Beliebte Wahl",
+  "photoUtility": {
+    "title": "Gesichtsfoto",
+    "loadingCamera": "Kamera wird geladen...",
+    "capturePhoto": "Foto aufnehmen",
+    "savePhoto": "Foto speichern",
+    "close": "Schließen",
+    "processing": "Verarbeitung läuft...",   
+    "instructions": "Richten Sie Ihr Gesicht an der Führung aus, halten Sie Ihr Gesicht in der Mitte der Führung und stellen Sie sicher, dass Ihr Gesicht scharf ist",
+    "faceDetected": "Gesicht erkannt",
+    "positionFace": "Positionieren Sie Ihr Gesicht mit der Führung",
+    "pd": "PD",            
+    "printTip": "Tipp: Drucken Sie diese Seite für Ihre Unterlagen aus. Für genaue Ergebnisse verwenden Sie die tatsächliche Größe in Ihren Druckeinstellungen."
+  },
+  "prescriptionUpload": {
+    "label": "Rezept hochladen (Bild oder PDF)",
+    "storedPrescription": "Gespeichertes Rezept",
+    "fileTooLarge": "Datei zu groß. Bitte laden Sie ein Bild/PDF unter 2,5 MB hoch.",
+    "storageError": "Fehler beim Speichern der Datei im Browser-Speicher.",
+    "unsupportedFileType": "Nicht unterstützter Dateityp. Bitte laden Sie ein Bild oder PDF hoch.",
+    "saved": "Gespeichert",
+    "storageNote": "Ihre Datei wird lokal in Ihrem Browser für den Checkout gespeichert und wird erst hochgeladen, wenn Sie die Bestellung aufgeben."
+  }
 }

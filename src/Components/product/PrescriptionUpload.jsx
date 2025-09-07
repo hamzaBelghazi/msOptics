@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
-/**
- * PrescriptionUpload
- * - Stores selected file in browser storage (localStorage) as Data URL
- * - Returns a storage key via onChange so the parent can reference it in customizations
- * - Note: localStorage is limited (~5MB). We warn if file is too large.
- */
+
 export default function PrescriptionUpload({ productId, onChange }) {
+  const { t } = useTranslation();
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
   const inputRef = useRef(null);
@@ -16,7 +13,7 @@ export default function PrescriptionUpload({ productId, onChange }) {
     const key = `rx:${productId}`;
     const existing = typeof window !== "undefined" ? localStorage.getItem(key) : null;
     if (existing) {
-      setFileName("Stored prescription");
+      setFileName(t('prescriptionUpload.storedPrescription'));
       onChange && onChange(key);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -29,7 +26,7 @@ export default function PrescriptionUpload({ productId, onChange }) {
     // Basic size guard: ~2.5MB max for safety
     const maxBytes = 2.5 * 1024 * 1024;
     if (file.size > maxBytes) {
-      setError("File too large. Please upload an image/PDF under 2.5MB.");
+      setError(t('prescriptionUpload.fileTooLarge'));
       return;
     }
 
@@ -42,20 +39,20 @@ export default function PrescriptionUpload({ productId, onChange }) {
         setFileName(file.name);
         onChange && onChange(key);
       } catch (e) {
-        setError("Failed to store file in browser storage.");
+        setError(t('prescriptionUpload.storageError'));
       }
     };
     if (file.type.startsWith("image/") || file.type === "application/pdf") {
       reader.readAsDataURL(file);
     } else {
-      setError("Unsupported file type. Please upload an image or PDF.");
+      setError(t('prescriptionUpload.unsupportedFileType'));
     }
   };
 
   return (
     <div className="border rounded-lg p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
       <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-        Upload Prescription (image or PDF)
+        {t('prescriptionUpload.label')}
       </label>
       <div className="flex items-center gap-3">
         <input
@@ -67,13 +64,13 @@ export default function PrescriptionUpload({ productId, onChange }) {
         />
       </div>
       {fileName && (
-        <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">Saved: {fileName}</p>
+        <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">{t('prescriptionUpload.saved')}: {fileName}</p>
       )}
       {error && (
         <p className="mt-2 text-xs text-red-600">{error}</p>
       )}
       <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">
-        Your file is stored locally in your browser for checkout and will not be uploaded until you place the order.
+        {t('prescriptionUpload.storageNote')}
       </p>
     </div>
   );

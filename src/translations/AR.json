@@ -8,7 +8,7 @@
   },
   "prescription": {
     "tabs": {
-      "manual": "أدخل المعلمات",
+      "manual": "أدخل المعلومات يدويًا",
       "upload": "ارفع الوصفة"
     },
     "upload_label": "رفع الوصفة (صورة أو PDF)",
@@ -620,7 +620,7 @@
     "most_helpful": "الأكثر فائدة"
   },
   "related_products": "قد يعجبك أيضًا",
-  "parameters": "المعلمات",
+  "parameters": "المعلومات",
   "understandingPrescription": "فهم وصفة النظارات",
   "sphere": "الكرة (SPH)",
   "sphereDesc": "القوة الأساسية لعدستك. القيم السالبة لتصحيح قِصَر النظر، والموجبة لتصحيح بُعْد النظر.",
@@ -749,5 +749,32 @@
   "qualityGuarantee": "ضمان الجودة",
   "easyReturns": "إرجاع سهل",
   "trending": "رائج",
-  "popularChoice": "اختيار شائع"
+  "popularChoice": "اختيار شائع",
+  "photoUtility": {
+    "title": "صورة الوجه",
+    "loadingCamera": "جاري تحميل الكاميرا...",
+    "capturePhoto": "التقط صورة",
+    "savePhoto": "احفظ الصورة",
+    "close": "إغلاق",
+    "processing": "جاري المعالجة...",   
+    "instructions": "قم بمحاذاة وجهك مع الدليل، احتفظ بوجهك في وسط الدليل، وتأكد من وضوح وجهك",
+    "faceDetected": "تم اكتشاف الوجه",
+    "positionFace": "ضع وجهك مع الدليل",
+    "pd": "المسافة البؤرية",            
+    "printTip": "نصيحة: اطبع هذه الصفحة لسجلاتك. للحصول على نتائج دقيقة، استخدم الحجم الفعلي في إعدادات الطباعة."
+  },
+  "language": {
+    "english": "الإنجليزية",
+    "german": "الألمانية",
+    "arabic": "العربية"
+  },
+  "prescriptionUpload": {
+    "label": "رفع الوصفة الطبية (صورة أو PDF)",
+    "storedPrescription": "الوصفة الطبية محفوظة",
+    "fileTooLarge": "الملف كبير جداً. يرجى رفع صورة/PDF أقل من 2.5 ميغابايت.",
+    "storageError": "فشل في حفظ الملف في متصفح الويب.",
+    "unsupportedFileType": "نوع ملف غير مدعوم. يرجى رفع صورة أو PDF.",
+    "saved": "ملحوظة",
+    "storageNote": "يتم حفظ ملفك في متصفحك ولن يتم رفعه حتى تقوم بتأكيد الطلب."
+  }
 }

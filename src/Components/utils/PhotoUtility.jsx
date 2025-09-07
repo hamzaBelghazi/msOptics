@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
+import { useTranslation } from "react-i18next";
 
 const VISION_PATH =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm";
@@ -14,6 +15,7 @@ const RESIZE_OVERLAY = false;
 let sharedLandmarkerPromise = null;
 
 export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto }) {
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const overlayContainerRef = useRef(null);
@@ -34,64 +36,55 @@ export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto 
   const [containerSize, setContainerSize] = useState({ cw: 0, ch: 0 });
 
   useEffect(() => {
-    const cont = overlayContainerRef.current;
-    if (!cont) return;
-    const measure = () => {
-      const cw = cont.clientWidth;
-      const ch = cont.clientHeight;
-      if (!cw || !ch) return;
-      setContainerSize({ cw, ch });
-
-      if (!overlaySize.widthPx || !overlaySize.heightPx) {
-        const minSide = Math.min(cw, ch);
-        setOverlaySize({ widthPx: minSide * 0.65, heightPx: minSide * 0.95 });
+    const updateOverlaySize = () => {
+      const isMobile = window.innerWidth <= 768;
+      
+      if (isMobile) {
+        // Mobile: Small face guide - 120px width max
+        const width = Math.min(120, window.innerWidth * 0.25);
+        const height = width * (4/3);
+        setOverlaySize({ widthPx: width, heightPx: height });
+      } else {
+        // Desktop: Larger face guide - 280px width max
+        const width = Math.min(220, window.innerWidth * 0.20);
+        const height = width * (4/3);
+        setOverlaySize({ widthPx: width, heightPx: height });
       }
     };
-    measure();
-    let ro;
-    if (window.ResizeObserver) {
-      ro = new ResizeObserver(() => measure());
-      ro.observe(cont);
-    } else {
-      const id = setInterval(measure, 500);
-      return () => clearInterval(id);
-    }
-    return () => {
-      try { ro && ro.disconnect(); } catch {}
-    };
-  }, [overlayContainerRef]);
+    
+    updateOverlaySize();
+    
+    const handleResize = () => updateOverlaySize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const getPreferredVideoConstraints = () => {
-    const vw = typeof window !== 'undefined' ? window.innerWidth : 640;
-    const vh = typeof window !== 'undefined' ? window.innerHeight : 480;
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 480;
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 640;
     const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-    const isPortrait = vh >= vw;
-    const isMobile = vw <= 900;
-
-    let widthIdeal = 640;
-    let heightIdeal = 480;
-    let aspect = 4 / 3;
+    const isMobile = vw <= 768;
 
     if (isMobile) {
-      if (isPortrait) {
-        widthIdeal = Math.round(360 * dpr) * 2;
-        heightIdeal = Math.round((widthIdeal * 4) / 3);
-        aspect = 3 / 4;
-      } else {
-        heightIdeal = Math.round(360 * dpr) * 2;
-        widthIdeal = Math.round((heightIdeal * 4) / 3);
-        aspect = 4 / 3;
-      }
-      widthIdeal = Math.min(Math.max(widthIdeal, 480), 1280);
-      heightIdeal = Math.min(Math.max(heightIdeal, 360), 960);
+      // For mobile, use 4:3 aspect ratio
+      return {
+        facingMode: { ideal: 'user' },
+        width: { ideal: 640, min: 480, max: 1280 },
+        height: { ideal: 480, min: 360, max: 960 },
+        aspectRatio: 4/3,
+        frameRate: { ideal: 30, max: 30 }
+      };
+    } else {
+      // For desktop, use 16:9 aspect ratio
+      return {
+        facingMode: { ideal: 'user' },
+        width: { ideal: 1280, min: 960, max: 1920 },
+        height: { ideal: 720, min: 540, max: 1080 },
+        aspectRatio: 16/9,
+        frameRate: { ideal: 30, max: 30 }
+      };
     }
-
-    return {
-      facingMode: { exact: 'user' },
-      width: { ideal: widthIdeal },
-      height: { ideal: heightIdeal },
-      aspectRatio: { ideal: aspect },
-    };
   };
 
 
@@ -494,141 +487,130 @@ export default function PhotoUtility({ onClose, productId, onSaved, onTakePhoto 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-3">
-      <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-5 rounded-xl shadow-2xl relative w-full max-w-[720px]">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-800">Face Measurement Capture</h2>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-800">{t('photoUtility.title')}</h2>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Close"
-            title="Close"
           >
-            ✕
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
         {loading ? (
-          <div className="text-gray-600 text-sm">Loading camera...</div>
+          <div className="text-gray-600 text-sm">{t('photoUtility.loadingCamera')}</div>
         ) : error ? (
           <div className="text-red-600 text-sm">{error}</div>
         ) : (
           <>
-            <p className="text-sm text-gray-600 mb-2">Align your face within the face outline. Keep the phone upright, use good lighting, and look straight at the camera.</p>
-            <div ref={overlayContainerRef} className="relative w-full max-w-[640px] mb-3 rounded-lg overflow-hidden border border-gray-200 mx-auto">
-              {/* 4:3 aspect ratio spacer for responsiveness */}
-              <div className="block w-full" style={{ paddingTop: '75%' }} />
-              <video
-                ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover transform scale-x-[-1]"
-                playsInline
-                autoPlay
-                muted
-              ></video>
-              <canvas
-                ref={canvasRef}
-                width={640}
-                height={480}
-                className="absolute inset-0 w-full h-full pointer-events-none transform scale-x-[-1]"
-              ></canvas>
-              {/* Centered face-shaped guide overlay (dynamically scaled) */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-<svg
-aria-hidden="true"
-className="opacity-90 drop-shadow"
-style={{
-width: overlaySize.widthPx
-? `${overlaySize.widthPx}px`
-: "56%",
-height: overlaySize.heightPx
-? `${overlaySize.heightPx}px`
-: "95%",
-}}
-viewBox="0 0 120 160"
-preserveAspectRatio="xMidYMid meet"
->
-{(() => {
-const guideColor = inGuide ? "#22c55e" : "#06b6d4";
-return (
-<g stroke={guideColor} fill="none">
-{/* Realistic face outline */}
-<path
-d="M60 8
-C 88 12, 110 45, 102 85
-C 95 135, 75 152, 60 155
-C 45 152, 25 135, 18 85
-C 10 45, 32 12, 60 8 Z"
-strokeWidth="3"
-strokeLinecap="round"
-strokeLinejoin="round"
-vectorEffect="non-scaling-stroke"
-/>
-{/* Eye line */}
-<line
-x1="35" y1="60"
-x2="85" y2="60"
-strokeWidth="1.5"
-strokeDasharray="4 5"
-vectorEffect="non-scaling-stroke"
-/>
-{/* Nose vertical */}
-<line
-x1="60" y1="55"
-x2="60" y2="105"
-strokeWidth="1.2"
-strokeDasharray="3 5"
-vectorEffect="non-scaling-stroke"
-/>
-{/* Chin line */}
-<line
-x1="40" y1="105"
-x2="80" y2="105"
-strokeWidth="1.2"
-strokeDasharray="3 5"
-vectorEffect="non-scaling-stroke"
-/>
-</g>
-);
-})()}
-</svg>
-</div>
-              {/* PD indicator badge */}
-              <div className="absolute right-2 top-2 flex flex-col items-end gap-2 pointer-events-none">
-                {!faceDetected && (
-                  <div className="bg-black/60 text-white px-3 py-1.5 rounded-full text-xs backdrop-blur-sm animate-pulse">
-                    Align your face and look straight
+            {/* Instructions */}
+            <div className="mb-4 px-2">
+              <p className="text-sm text-gray-600 text-center">
+                {t('photoUtility.instructions')}
+              </p>
+            </div>
+
+            {/* Camera Container */}
+            <div className="flex-1 flex items-center justify-center px-4 pb-4">
+              <div className="relative w-full max-w-4xl">
+                {/* Video Container with proper aspect ratios */}
+                <div 
+                  ref={overlayContainerRef}
+                  className="relative w-full bg-black rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg"
+                  style={{
+                    aspectRatio: window.innerWidth <= 768 ? '4/3' : '16/9',
+                    maxHeight: window.innerWidth <= 768 ? '70vh' : '60vh'
+                  }}
+                >
+                  {/* Video Element */}
+                  <video
+                    ref={videoRef}
+                    className="absolute inset-0 w-full h-full object-cover transform scale-x-[-1]"
+                    playsInline
+                    autoPlay
+                    muted
+                  />
+                  
+                  {/* Canvas for processing */}
+                  <canvas
+                    ref={canvasRef}
+                    className="absolute inset-0 w-full h-full pointer-events-none transform scale-x-[-1] opacity-0"
+                  />
+                  
+                  {/* Face Guide Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <svg
+                      className="opacity-80 drop-shadow-lg"
+                      width={overlaySize.widthPx}
+                      height={overlaySize.heightPx}
+                      viewBox="0 0 120 160"
+                      preserveAspectRatio="xMidYMid meet"
+                    >
+                      <g stroke={faceDetected ? "#22c55e" : "#06b6d4"} fill="none" strokeWidth="2">
+                        {/* Face outline */}
+                        <path
+                          d="M60 8 C 88 12, 110 45, 102 85 C 95 135, 75 152, 60 155 C 45 152, 25 135, 18 85 C 10 45, 32 12, 60 8 Z"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                       
+                        <line x1="30" y1="70" x2="90" y2="70" strokeWidth="1" strokeDasharray="3 3" opacity="0.7" />
+                        <line x1="60" y1="55" x2="60" y2="110" strokeWidth="1" strokeDasharray="3 3" opacity="0.7" />
+                        <line x1="40" y1="120" x2="80" y2="120" strokeWidth="1" strokeDasharray="3 3" opacity="0.7" />
+                      </g>
+                    </svg>
                   </div>
-                )}
-                {faceDetected && (
-                  <div className="bg-cyan-600/90 text-white px-3 py-1.5 rounded-full text-xs shadow">
-                    {pdMm != null ? `PD: ${Math.round(pdMm)} mm` : 'Detecting...'}
+                  
+                  {/* Status Indicators */}
+                  <div className="absolute top-4 right-4 flex flex-col items-end gap-2 pointer-events-none">
+                    {!faceDetected ? (
+                      <div className="bg-black/70 text-white px-3 py-2 rounded-full text-xs backdrop-blur-sm animate-pulse">
+                        {t('photoUtility.positionFace')}
+                      </div>
+                    ) : (
+                      <div className="bg-green-600/90 text-white px-3 py-2 rounded-full text-xs backdrop-blur-sm">
+                        {pdMm ? `${t('photoUtility.pd')}: ${Math.round(pdMm)}mm` : t('photoUtility.faceDetected')}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-between gap-3 flex-col sm:flex-row">
-              <div className="text-xs text-gray-500 text-center sm:text-left">Tip: For true-size prints, use “Actual size / 100%” in your print dialog.</div>
-              <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
-                <button
-                  onClick={takePhoto}
-                  disabled={!!error || loading || isTakingPhoto}
-                  className="bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md shadow-sm transition flex items-center justify-center min-w-[120px]"
-                >
-                  {isTakingPhoto ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Processing...
-                    </>
-                  ) : 'Take Picture'}
-                </button>
-                <button
-                  onClick={onClose}
-                  className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md transition"
-                >
-                  Close
-                </button>
+
+            {/* Controls */}
+            <div className="px-4 pb-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-xs text-gray-500 text-center sm:text-left">
+              
+                  {t('photoUtility.printTip')}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {t('photoUtility.close')}
+                  </button>
+                  <button
+                    onClick={takePhoto}
+                    disabled={!!error || loading || isTakingPhoto}
+                    className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2 min-w-[120px] justify-center"
+                  >
+                    {isTakingPhoto ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        {t('photoUtility.processing')}
+                      </>
+                    ) : (
+                      t('photoUtility.capturePhoto')
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </>
