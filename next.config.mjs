@@ -30,7 +30,7 @@ const nextConfig = {
       // Production backend host (images served from /img/**)
       {
         protocol: "https",
-        hostname: "back.mhsoptics.com",
+        hostname: "back.mhsopitcs.com",
         pathname: "/img/**",
       },
       // Preview deployments (set a specific host via env when needed)
