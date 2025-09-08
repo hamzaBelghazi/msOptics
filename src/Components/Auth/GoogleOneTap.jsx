@@ -1,10 +1,12 @@
-import React, { useEffect, useContext, useRef } from "react";
+import React, { useEffect, useContext, useRef, useState } from "react";
 import { AuthContext } from "@/Components/Context/AuthContext";
 import { useTranslation } from "react-i18next";
+import Spinner from "@/Components/Spinner/Spinner";
 
 const GoogleOneTap = () => {
   const { login, isLoggedIn, authLoading } = useContext(AuthContext);
   const { t } = useTranslation();
+  const [processing, setProcessing] = useState(false);
   const promptTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -121,6 +123,7 @@ const GoogleOneTap = () => {
       const serverUrl =
         process.env.NEXT_PUBLIC_SERVER_URL || "http://127.0.0.1:4000";
       // Backend mounts auth routes at `/auth` (see server index.js)
+      setProcessing(true);
       const result = await fetch(`${serverUrl}/auth/google/onetap`, {
         method: "POST",
         headers: {
@@ -144,12 +147,28 @@ const GoogleOneTap = () => {
       }
     } catch (error) {
       console.error("Google One Tap error:", error);
+    } finally {
+      // Small grace timeout to avoid flicker if the response is very fast
+      setTimeout(() => setProcessing(false), 250);
     }
   };
 
-  // This component doesn't render anything visible
-  // The One Tap prompt is handled by Google's script
-  return null;
+  // Render a minimal overlay while processing One Tap sign-in (TailwindCSS)
+  return (
+    <>
+      {processing && (
+        <div className="fixed inset-0 z-[9999] w-screen h-screen bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-6 md:p-7 shadow-2xl min-w-[260px] text-center w-full">
+            <div className="flex justify-center mb-3">
+              <Spinner />
+            </div>
+            <div className="text-text-secondary dark:text-neutral-300 text-sm">
+              {t("auth.processing_login") || "Signing you in..."}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
-
 export default GoogleOneTap;
