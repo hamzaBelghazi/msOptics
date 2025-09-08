@@ -15,8 +15,7 @@ import Categories from "@/Components/Home/Categories";
 import { useTranslation } from "react-i18next";
 import HomeAccessories from "@/Components/Home/Accessories";
 import FloatingCartButton from "@/Components/utils/floatingCart";
-
-
+import GoogleOneTap from "@/Components/Auth/GoogleOneTap";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -25,11 +24,10 @@ export default function Home() {
   useEffect(() => {
     const getProducts = async () => {
       try {
-
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/getoverview`
         );
-        
+
         setData(response.data);
       } catch (error) {
         console.error(
@@ -45,7 +43,7 @@ export default function Home() {
     <Layout title={t("home.title")} announcement={data?.announces}>
       <div className="space-y-16 bg-background">
         {/* Hero Section */}
-        
+
         <HeroSection />
 
         {/* Features Section */}
@@ -69,37 +67,36 @@ export default function Home() {
           <section className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
               {t("home.trending.title")}
-          </h2>
-          <ProductGrid products={data?.products} />
-        </section>
-        )}  
+            </h2>
+            <ProductGrid products={data?.products} />
+          </section>
+        )}
 
         {/* Testimonials */}
         {data?.products.length > 0 && (
-        <section className="container mx-auto px-4 py-12">
-          <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-            {t("home.testimonials.title")}
-          </h2>
-          <Testimonials />
-        </section>
+          <section className="container mx-auto px-4 py-12">
+            <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
+              {t("home.testimonials.title")}
+            </h2>
+            <Testimonials />
+          </section>
         )}
 
         {/* Accessories Section */}
         {data?.accessories.length > 0 && (
-        <section className="container mx-auto px-4 py-12">
-          <HomeAccessories accessories={data?.accessories} />
-        </section>
+          <section className="container mx-auto px-4 py-12">
+            <HomeAccessories accessories={data?.accessories} />
+          </section>
         )}
 
         {/* About Us */}
-        
+
         <section className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
             {t("about_us.who_we_are")}
           </h2>
           <AboutUs />
         </section>
-      
 
         {/* FAQ Section */}
         <section className="container mx-auto px-4">
@@ -115,6 +112,9 @@ export default function Home() {
         </section>
       </div>
       <FloatingCartButton />
+
+      {/* Google One Tap Authentication */}
+      <GoogleOneTap />
     </Layout>
   );
 }

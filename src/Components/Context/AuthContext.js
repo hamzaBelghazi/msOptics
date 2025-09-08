@@ -46,7 +46,8 @@ const filterUserData = (userData) => {
     postalCode: userData.postalCode || null,
     country: userData.country || null,
     region: userData.region || null,
-    image: userData.image || "default-avatar.jpg",
+    provider: userData.provider || "local",
+    socialImage: userData.socialImage || null,
   };
 };
 
@@ -107,18 +108,15 @@ export const AuthProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(true);
   const router = useRouter();
 
-  const clearAuth = useCallback(
-    (shouldRedirect = true) => {
-      setToken(null);
-      setUser(null);
-      try {
-        localStorage.removeItem("userData");
-        localStorage.removeItem("token");
-      } catch (_) {}
-      if (shouldRedirect) router.replace("/");
-    },
-    []
-  );
+  const clearAuth = useCallback((shouldRedirect = true) => {
+    setToken(null);
+    setUser(null);
+    try {
+      localStorage.removeItem("userData");
+      localStorage.removeItem("token");
+    } catch (_) {}
+    if (shouldRedirect) router.replace("/");
+  }, []);
 
   const logout = useCallback(() => {
     clearAuth(true);
@@ -148,6 +146,9 @@ export const AuthProvider = ({ children }) => {
         // Store in localStorage
         localStorage.setItem("userData", encryptedUserData);
         localStorage.setItem("token", tokenData);
+
+        console.log("Token stored in localStorage:", tokenData);
+        console.log("Token from localStorage:", localStorage.getItem("token"));
 
         // Set default axios header
         axios.defaults.headers.common["Authorization"] = `Bearer ${tokenData}`;

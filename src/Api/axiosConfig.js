@@ -23,7 +23,9 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   async (config) => {
-    config.headers.Authorization = `Bearer ${getToken()}`;
+    const token = getToken();
+    console.log('Axios interceptor - Token from localStorage:', token);
+    config.headers.Authorization = `Bearer ${token}`;
 
     return config;
   },

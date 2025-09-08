@@ -153,7 +153,7 @@ export default function AccountDetails({ user, onUpdate }) {
         <div className="relative w-20 h-20 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
           {user.image && (
             <Image
-              src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/users/${user.image}`}
+              src={user.image.startsWith("http") ? user.image : `${process.env.NEXT_PUBLIC_SERVER_URL}/img/users/${user.image}`}
               alt="User Image"
               layout="fill"
               objectFit="cover"

@@ -50,6 +50,13 @@
     "full_view_label": "Full view {{index}}"
   },
   "auth": {
+    "social_login_error": "Social login failed",
+    "google_login_failed": "Google login failed",
+    "processing_login": "Processing login...",
+    "onetap_signin": "Sign in with Google One Tap",
+    "onetap_success": "Successfully signed in with Google!",
+    "onetap_error": "Google One Tap sign in failed",
+    "onetap_cancelled": "Google One Tap cancelled",
     "login": "Sign in",
     "login_text": "Please fill in this form to get your account.",
     "register": "Sign up",
@@ -99,7 +106,10 @@
       "saving": "Saving...",
       "success": "Password has been reset. You can now log in.",
       "error": "Failed to reset password"
-    }
+    },
+    "or": "or",
+    "continue_with_google": "Continue with Google",
+    "signing_in": "Signing in..."
   },
   "product": {
     "properties": "PROPERTIES",

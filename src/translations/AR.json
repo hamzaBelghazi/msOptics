@@ -51,6 +51,13 @@
     "full_view_label": "عرض كامل {{index}}"
   },
   "auth": {
+    "social_login_error": "فشل تسجيل الدخول الاجتماعي",
+    "google_login_failed": "فشل تسجيل الدخول بواسطة Google",
+    "processing_login": "جارٍ معالجة تسجيل الدخول...",
+    "onetap_signin": "تسجيل الدخول بواسطة Google One Tap",
+    "onetap_success": "تم تسجيل الدخول بنجاح بواسطة Google!",
+    "onetap_error": "فشل تسجيل الدخول بواسطة Google One Tap",
+    "onetap_cancelled": "تم إلغاء Google One Tap",
     "login": "تسجيل الدخول",
     "login_text": "يرجى ملء هذا النموذج للوصول إلى حسابك.",
     "register": "إنشاء حساب",
@@ -100,7 +107,10 @@
       "saving": "جارٍ الحفظ...",
       "success": "تمت إعادة تعيين كلمة المرور. يمكنك الآن تسجيل الدخول.",
       "error": "فشل في إعادة تعيين كلمة المرور"
-    }
+    },
+    "or": "أو",
+    "continue_with_google": "المتابعة مع جوجل",
+    "signing_in": "جارٍ تسجيل الدخول..."
   },
   "product": {
     "properties": "الخصائص",

@@ -34,6 +34,12 @@ const nextConfig = {
         pathname: "/img/**",
       },
       // Preview deployments (set a specific host via env when needed)
+      // Google profile images for OAuth
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
       // Optional: if you have a stable API domain, expose via env
       ...(process.env.NEXT_PUBLIC_API_HOSTNAME
         ? [

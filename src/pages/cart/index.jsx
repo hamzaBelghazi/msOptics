@@ -41,8 +41,8 @@ export default function Cart() {
             {t("cart.empty")}
           </p>
           <Link
-            href="/products"
-            className="inline-block bg-primary text-button-text px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-primary-hover transition duration-200 shadow-lg"
+            href="/type/optical"
+            className="inline-block bg-primary text-button-text px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-primary-hover hover:text-button-text transition duration-200 shadow-lg"
           >
             {t("cart.continue_shopping")}
           </Link>

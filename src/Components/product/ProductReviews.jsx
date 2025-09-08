@@ -440,8 +440,7 @@ const ProductReviews = ({ productId, reviewsData }) => {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <Image
                       src={
-                        `${process.env.NEXT_PUBLIC_SERVER_URL}/img/users/${review.user?.image}` ||
-                        "/default-avatar.jpg"
+                        review.user?.image.startsWith("http") ? review.user?.image : `${process.env.NEXT_PUBLIC_SERVER_URL}/img/users/${review.user?.image}`
                       }
                       alt={`${review.user?.firstName} ${review.user?.lastName}`}
                       width={40}

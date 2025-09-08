@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import ButtonSpinner from "@/Components/Spinner/ButtonSpinner";
 import { AuthContext } from "@/Components/Context/AuthContext";
+import GoogleLoginButton from "@/Components/Auth/GoogleLoginButton";
 
 export default function Register() {
   const router = useRouter();
@@ -224,6 +225,18 @@ export default function Register() {
               >
                 {isLoading ? <ButtonSpinner /> : t("auth.Signup_btn")}
               </button>
+            </div>
+
+            {/* Divider */}
+            <div className="my-6 flex items-center">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span className="px-4 text-sm text-gray-500">{t("auth.or")}</span>
+              <div className="flex-1 border-t border-gray-300"></div>
+            </div>
+
+            {/* Google Login Button */}
+            <div className="mb-4">
+              <GoogleLoginButton disabled={isLoading} />
             </div>
 
             {/* Login Link */}

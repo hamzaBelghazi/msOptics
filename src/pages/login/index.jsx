@@ -10,6 +10,7 @@ import { useToast } from "@/Components/Context/ToastContext";
 import { useTranslation } from "react-i18next";
 import Spinner from "@/Components/Spinner/Spinner";
 import ButtonSpinner from "@/Components/Spinner/ButtonSpinner";
+import GoogleLoginButton from "@/Components/Auth/GoogleLoginButton";
 
 export default function Login() {
   const router = useRouter();
@@ -171,6 +172,18 @@ export default function Login() {
               >
                 {isLoading ? <ButtonSpinner /> : t("auth.login_btn")}
               </button>
+            </div>
+
+            {/* Divider */}
+            <div className="my-6 flex items-center">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span className="px-4 text-sm text-gray-500">{t("auth.or")}</span>
+              <div className="flex-1 border-t border-gray-300"></div>
+            </div>
+
+            {/* Google Login Button */}
+            <div className="mb-4">
+              <GoogleLoginButton disabled={isLoading} />
             </div>
 
             {/* Register Link */}

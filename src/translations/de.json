@@ -50,6 +50,13 @@
     "full_view_label": "Vollansicht {{index}}"
   },
   "auth": {
+    "social_login_error": "Social login fehlgeschlagen",
+    "google_login_failed": "Google login fehlgeschlagen",
+    "processing_login": "Login wird verarbeitet...",
+    "onetap_signin": "Mit Google One Tap anmelden",
+    "onetap_success": "Erfolgreich mit Google angemeldet!",
+    "onetap_error": "Google One Tap Anmeldung fehlgeschlagen",
+    "onetap_cancelled": "Google One Tap abgebrochen",
     "login": "Anmelden",
     "login_text": "Bitte füllen Sie dieses Formular aus, um Ihr Konto zu erhalten.",
     "register": "Registrieren",
@@ -96,9 +103,12 @@
       "subtitle": "Geben Sie Ihr neues Passwort ein.",
       "save": "Neues Passwort speichern",
       "saving": "Speichern...",
-      "success": "Passwort wurde zurückgesetzt. Sie können sich jetzt anmelden.",
-      "error": "Passwort konnte nicht zurückgesetzt werden"
-    }
+      "success": "Das Passwort wurde zurückgesetzt. Sie können sich jetzt anmelden.",
+      "error": "Fehler beim Zurücksetzen des Passworts"
+    },
+    "or": "oder",
+    "continue_with_google": "Mit Google fortfahren",
+    "signing_in": "Anmeldung läuft..."
   },
   "product": {
     "properties": "EIGENSCHAFTEN",
