@@ -1,14 +1,34 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useRef } from "react";
 import { AuthContext } from "@/Components/Context/AuthContext";
 import { useTranslation } from "react-i18next";
 
 const GoogleOneTap = () => {
-  const { login, isLoggedIn } = useContext(AuthContext);
+  const { login, isLoggedIn, authLoading } = useContext(AuthContext);
   const { t } = useTranslation();
+  const promptTimeoutRef = useRef(null);
 
   useEffect(() => {
+    // Wait until auth state is resolved to avoid flashing the prompt
+    if (authLoading) return;
+
     // Don't show One Tap if user is already logged in
-    if (isLoggedIn) return;
+    // If GIS is already initialized, proactively cancel and disable auto-select
+    if (isLoggedIn) {
+      if (typeof window !== "undefined" && window.google?.accounts?.id) {
+        try {
+          window.google.accounts.id.cancel();
+          window.google.accounts.id.disableAutoSelect();
+        } catch (e) {
+          // no-op
+        }
+      }
+      // Clear any scheduled prompt
+      if (promptTimeoutRef.current) {
+        clearTimeout(promptTimeoutRef.current);
+        promptTimeoutRef.current = null;
+      }
+      return;
+    }
 
     // Load Google Identity Services script
     const script = document.createElement("script");
@@ -17,74 +37,42 @@ const GoogleOneTap = () => {
     script.defer = true;
 
     script.onload = () => {
-      console.log(
-        "Google One Tap script loaded",
+      if (
+        typeof window !== "undefined" &&
+        window.google &&
         process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-      );
-      if (window.google && process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
+      ) {
+        // Double-check login state at time of init
+        if (isLoggedIn) {
+          try {
+            window.google.accounts.id.cancel();
+            window.google.accounts.id.disableAutoSelect();
+          } catch (_) {}
+          return;
+        }
         // Initialize Google One Tap
         window.google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
           auto_select: false,
-          cancel_on_tap_outside: false, // Changed to false to prevent auto-cancel
-          use_fedcm_for_prompt: true, // Disable FedCM to avoid AbortError
+          cancel_on_tap_outside: false,
+          use_fedcm_for_prompt: true,
         });
 
         // Add a small delay before showing prompt
-        setTimeout(() => {
+        promptTimeoutRef.current = setTimeout(() => {
+          if (isLoggedIn) {
+            // If user logged in during delay, skip prompting
+            try {
+              window.google.accounts.id.cancel();
+              window.google.accounts.id.disableAutoSelect();
+            } catch (_) {}
+            return;
+          }
           // Display the One Tap prompt
           window.google.accounts.id.prompt((notification) => {
-            console.log("Google One Tap notification:", notification);
-            console.log(
-              "Notification methods available:",
-              Object.getOwnPropertyNames(notification)
-            );
-
             // Check all possible notification states
             console.log("isNotDisplayed:", notification.isNotDisplayed?.());
-            console.log("isSkippedMoment:", notification.isSkippedMoment?.());
-            console.log(
-              "isDismissedMoment:",
-              notification.isDismissedMoment?.()
-            );
-            console.log("getMomentType:", notification.getMomentType?.());
-
-            if (notification.isNotDisplayed && notification.isNotDisplayed()) {
-              const reason = notification.getNotDisplayedReason();
-              console.log("Google One Tap not displayed:", reason);
-
-              // Handle specific reasons
-              if (reason === "browser_not_supported") {
-                console.log("Browser not supported for One Tap");
-              } else if (reason === "invalid_client") {
-                console.log("Invalid Google Client ID");
-              } else if (reason === "missing_client_id") {
-                console.log("Missing Google Client ID");
-              } else if (reason === "opt_out_or_no_session") {
-                console.log("User opted out or no session");
-              } else if (reason === "secure_http_required") {
-                console.log("HTTPS required for One Tap");
-              }
-            } else if (
-              notification.isSkippedMoment &&
-              notification.isSkippedMoment()
-            ) {
-              console.log(
-                "Google One Tap skipped:",
-                notification.getSkippedReason()
-              );
-            } else if (
-              notification.isDismissedMoment &&
-              notification.isDismissedMoment()
-            ) {
-              console.log(
-                "Google One Tap dismissed:",
-                notification.getDismissedReason()
-              );
-            } else {
-              console.log("Google One Tap displayed successfully!");
-            }
           });
         }, 1000); // 1 second delay
       } else {
@@ -99,7 +87,30 @@ const GoogleOneTap = () => {
       if (document.head.contains(script)) {
         document.head.removeChild(script);
       }
+      if (promptTimeoutRef.current) {
+        clearTimeout(promptTimeoutRef.current);
+        promptTimeoutRef.current = null;
+      }
     };
+  }, [isLoggedIn, authLoading]);
+
+  // Secondary guard: if auth status flips to logged-in after init, cancel any prompt immediately
+  useEffect(() => {
+    if (
+      isLoggedIn &&
+      typeof window !== "undefined" &&
+      window.google?.accounts?.id
+    ) {
+      try {
+        window.google.accounts.id.cancel();
+        window.google.accounts.id.disableAutoSelect();
+        console.log("Google One Tap canceled due to login state change");
+      } catch (_) {}
+      if (promptTimeoutRef.current) {
+        clearTimeout(promptTimeoutRef.current);
+        promptTimeoutRef.current = null;
+      }
+    }
   }, [isLoggedIn]);
 
   const handleCredentialResponse = async (response) => {
@@ -123,7 +134,6 @@ const GoogleOneTap = () => {
       const data = await result.json();
 
       if (result.ok && data.token) {
-        console.log("Google One Tap login successful");
         login(data.user, data.token);
       } else {
         console.error(

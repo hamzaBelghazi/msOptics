@@ -39,7 +39,7 @@ const filterUserData = (userData) => {
     firstName: userData.firstName,
     lastName: userData.lastName,
     email: userData.email,
-    image: userData.image || "default-avatar.jpg",
+    image: userData.image,
     phone: userData.phone || null,
     street: userData.street || null,
     city: userData.city || null,
@@ -146,10 +146,6 @@ export const AuthProvider = ({ children }) => {
         // Store in localStorage
         localStorage.setItem("userData", encryptedUserData);
         localStorage.setItem("token", tokenData);
-
-        console.log("Token stored in localStorage:", tokenData);
-        console.log("Token from localStorage:", localStorage.getItem("token"));
-
         // Set default axios header
         axios.defaults.headers.common["Authorization"] = `Bearer ${tokenData}`;
       } catch (error) {
@@ -228,6 +224,17 @@ export const AuthProvider = ({ children }) => {
       setAuthLoading(false);
     }
   }, [clearAuth]);
+
+  // Global safeguard: if we are logged in and GIS is present, cancel any One Tap prompt
+  useEffect(() => {
+    if (token && typeof window !== 'undefined' && window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.cancel();
+        window.google.accounts.id.disableAutoSelect();
+        // console.debug('One Tap globally canceled due to active token');
+      } catch (_) {}
+    }
+  }, [token]);
 
   const value = {
     isLoggedIn: !!token,

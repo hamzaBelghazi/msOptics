@@ -16,10 +16,13 @@ import { useTranslation } from "react-i18next";
 import HomeAccessories from "@/Components/Home/Accessories";
 import FloatingCartButton from "@/Components/utils/floatingCart";
 import GoogleOneTap from "@/Components/Auth/GoogleOneTap";
+import { useContext } from "react";
+import { AuthContext } from "@/Components/Context/AuthContext";
 
 export default function Home() {
   const { t } = useTranslation();
   const [data, setData] = useState();
+  const { isLoggedIn } = useContext(AuthContext);
 
   useEffect(() => {
     const getProducts = async () => {
@@ -114,7 +117,7 @@ export default function Home() {
       <FloatingCartButton />
 
       {/* Google One Tap Authentication */}
-      <GoogleOneTap />
+      {!isLoggedIn && <GoogleOneTap />}
     </Layout>
   );
 }
