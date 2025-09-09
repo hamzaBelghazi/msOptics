@@ -26,6 +26,8 @@ export default function Account() {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [expandedOrderIds, setExpandedOrderIds] = useState({});
+  const [orderTabs, setOrderTabs] = useState({}); // { [orderId]: 'items' | 'customizations' | 'shipping' }
 
   useEffect(() => {
     if (!isLoggedIn && hasMounted) {
@@ -109,6 +111,16 @@ export default function Account() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  // Expand/hide order details and switch tabs (component scope)
+  const toggleOrderExpand = (orderId) => {
+    setExpandedOrderIds((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
+    setOrderTabs((prev) => ({ ...prev, [orderId]: prev[orderId] || "items" }));
+  };
+
+  const setOrderActiveTab = (orderId, tab) => {
+    setOrderTabs((prev) => ({ ...prev, [orderId]: tab }));
   };
 
   const handleUpdateProfile = async (formData) => {
@@ -268,8 +280,32 @@ export default function Account() {
                       {t("account.order_history")}
                     </h2>
                     {ordersLoading ? (
-                      <div className="flex items-center gap-2 text-text-secondary">
-                        <Spinner /> <span>{t("account.loading")}</span>
+                      <div className="space-y-3">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="animate-pulse border border-border rounded-lg p-4">
+                            <div className="flex justify-between">
+                              <div className="h-3 w-24 bg-muted rounded" />
+                              <div className="h-3 w-32 bg-muted rounded" />
+                            </div>
+                            <div className="mt-3 flex items-center justify-between">
+                              <div className="h-4 w-28 bg-muted rounded" />
+                              <div className="flex gap-2">
+                                <div className="h-6 w-16 bg-muted rounded-full" />
+                                <div className="h-6 w-24 bg-muted rounded" />
+                              </div>
+                            </div>
+                            <div className="mt-4 space-y-2">
+                              <div className="flex gap-3">
+                                <div className="h-16 w-16 bg-muted rounded" />
+                                <div className="flex-1 space-y-2">
+                                  <div className="h-3 w-40 bg-muted rounded" />
+                                  <div className="h-3 w-24 bg-muted rounded" />
+                                  <div className="h-3 w-32 bg-muted rounded" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     ) : orders.length === 0 ? (
                       <p className="text-text-secondary">{t("account.no_orders") || "No orders yet."}</p>
@@ -285,6 +321,12 @@ export default function Account() {
                               <div className="text-text-primary font-medium">{t("account.total") || "Total"}: €{order.amount?.toFixed?.(2) ?? order.amount}</div>
                               <div className="flex items-center gap-3">
                                 <div className="text-xs px-2 py-1 rounded bg-primary/10 text-primary capitalize">{order.status}</div>
+                                <button
+                                  onClick={() => toggleOrderExpand(order._id)}
+                                  className="text-xs px-3 py-1 rounded border border-border hover:bg-primary/10 text-text-secondary"
+                                >
+                                  {expandedOrderIds[order._id] ? t('account.hide_details') || 'Hide details' : t('account.view_details') || 'View details'}
+                                </button>
                                 {!["shipped", "delivered", "cancelled"].includes(order.status) && (
                                   <button
                                     onClick={() => cancelOrder(order._id)}
@@ -315,57 +357,129 @@ export default function Account() {
                                 )}
                               </div>
                             )}
-                            <div className="mt-3 divide-y divide-border">
-                              {Array.isArray(order.products) && order.products.map((item, idx) => {
-                                const attachments = (order.prescriptions || []).filter((p) => p.itemId === item.id);
-                                const isLens = item.type === "lens";
-                                return (
-                                  <div key={idx} className="py-3 flex gap-3">
-                                    {item.image ? (
-                                      <Image
-                                        src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/${item.type === "accessory" ? "accessories" : "products"}/${item.image}`}
-                                        alt={item.title}
-                                        className="w-16 h-16 object-contain rounded"
-                                        height={64}
-                                        width={64}
-                                      />
-                                    ) : (
-                                      <div className="w-16 h-16 rounded bg-muted" />
-                                    )}
-                                    <div className="flex-1">
-                                      <div className="flex justify-between">
-                                        <div className="font-medium text-text-primary">{item.title}</div>
-                                        <div className="text-sm text-text-secondary">x{item.quantity}</div>
-                                      </div>
-                                      <div className="text-sm text-text-secondary">€{(item.price * item.quantity).toFixed(2)}</div>
-                                      {isLens && attachments.length > 0 && (
-                                        <div className="mt-2 text-sm">
-                                          <div className="font-medium text-text-primary mb-1">Attachments</div>
-                                          <div className="flex flex-wrap gap-2">
-                                            {attachments.map((a, i) => {
-                                              const href = `${process.env.NEXT_PUBLIC_SERVER_URL}/${a.file}`;
-                                              const isPdf = a.file?.toLowerCase?.().endsWith(".pdf");
-                                              const label = a.kind === "facePhoto" ? "Face photo" : "Prescription";
-                                              return (
-                                                <a
-                                                  key={i}
-                                                  href={href}
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                  className="inline-flex items-center gap-2 px-3 py-1.5 border border-border rounded hover:bg-primary/5 text-sm"
-                                                >
-                                                  {label} {isPdf ? "(PDF)" : "(Image)"}
-                                                </a>
-                                              );
-                                            })}
+                            {expandedOrderIds[order._id] && (
+                              <div className="mt-4">
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                  <button
+                                    onClick={() => setOrderActiveTab(order._id, 'items')}
+                                    className={`px-3 py-1.5 text-xs md:text-sm rounded-full ${ (orderTabs[order._id]||'items') === 'items' ? 'bg-primary text-white' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}
+                                  >
+                                    {t('account.order_items') || 'Items'}
+                                  </button>
+                                  <button
+                                    onClick={() => setOrderActiveTab(order._id, 'customizations')}
+                                    className={`px-3 py-1.5 text-xs md:text-sm rounded-full ${ (orderTabs[order._id]||'items') === 'customizations' ? 'bg-primary text-white' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}
+                                  >
+                                    {t('account.customizations') || 'Customizations'}
+                                  </button>
+                                  <button
+                                    onClick={() => setOrderActiveTab(order._id, 'shipping')}
+                                    className={`px-3 py-1.5 text-xs md:text-sm rounded-full ${ (orderTabs[order._id]||'items') === 'shipping' ? 'bg-primary text-white' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}
+                                  >
+                                    {t('account.shipping') || 'Shipping'}
+                                  </button>
+                                </div>
+
+                                {/* Items Tab */}
+                                { (orderTabs[order._id]||'items') === 'items' && (
+                                  <div className="divide-y divide-border">
+                                    {Array.isArray(order.products) && order.products.map((item, idx) => {
+                                      const attachments = (order.prescriptions || []).filter((p) => p.itemId === item.id);
+                                      const isLens = item.type === 'lens';
+                                      return (
+                                        <div key={idx} className="py-3 flex gap-3">
+                                          {item.image ? (
+                                            <Image
+                                              src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/${item.type === 'accessory' ? 'accessories' : 'products'}/${item.image}`}
+                                              alt={item.title}
+                                              className="w-16 h-16 object-contain rounded"
+                                              height={64}
+                                              width={64}
+                                            />
+                                          ) : (
+                                            <div className="w-16 h-16 rounded bg-muted" />
+                                          )}
+                                          <div className="flex-1">
+                                            <div className="flex justify-between">
+                                              <div className="font-medium text-text-primary">{item.title}</div>
+                                              <div className="text-sm text-text-secondary">x{item.quantity}</div>
+                                            </div>
+                                            <div className="text-sm text-text-secondary">€{(item.price * item.quantity).toFixed(2)}</div>
+                                            {isLens && attachments.length > 0 && (
+                                              <div className="mt-2 text-sm">
+                                                <div className="font-medium text-text-primary mb-1">{t('account.attachments') || 'Attachments'}</div>
+                                                <div className="flex flex-wrap gap-2">
+                                                  {attachments.map((a, i) => {
+                                                    const href = `${process.env.NEXT_PUBLIC_SERVER_URL}/${a.file}`;
+                                                    const isPdf = a.file?.toLowerCase?.().endsWith('.pdf');
+                                                    const label = a.kind === 'facePhoto' ? (t('account.face_photo') || 'Face photo') : (t('account.prescription') || 'Prescription');
+                                                    return (
+                                                      <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 border border-border rounded hover:bg-primary/5 text-sm">
+                                                        {label} {isPdf ? '(PDF)' : '(Image)'}
+                                                      </a>
+                                                    );
+                                                  })}
+                                                </div>
+                                              </div>
+                                            )}
                                           </div>
                                         </div>
-                                      )}
-                                    </div>
+                                      );
+                                    })}
                                   </div>
-                                );
-                              })}
-                            </div>
+                                )}
+
+                                {/* Customizations Tab */}
+                                { (orderTabs[order._id]||'items') === 'customizations' && (
+                                  <div className="space-y-3">
+                                    {Array.isArray(order.products) && order.products.map((item, idx) => {
+                                      const cust = item?.customizations && typeof item.customizations === 'object' ? item.customizations : null;
+                                      const entries = cust ? Object.entries(cust).filter(([k,v]) => v !== undefined && v !== null && v !== '') : [];
+                                      if (!entries.length) return null;
+                                      return (
+                                        <div key={idx} className="border border-border rounded p-3">
+                                          <div className="font-medium text-text-primary mb-2">{item.title}</div>
+                                          <ul className="list-disc list-inside text-sm text-text-secondary space-y-1">
+                                            {entries.map(([k,v]) => {
+                                              const label = String(k).replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+                                              const val = Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : v);
+                                              return <li key={k}><span className="text-text-primary font-medium">{label}:</span> <span>{val}</span></li>;
+                                            })}
+                                          </ul>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {/* Shipping Tab */}
+                                { (orderTabs[order._id]||'items') === 'shipping' && (
+                                  <div className="text-sm">
+                                    <div className="font-medium text-text-primary mb-2">{t('account.shipping_address') || 'Shipping address'}</div>
+                                    {(() => {
+                                      const a = order?.address || {};
+                                      const name = order?.customerName || a?.name;
+                                      const phone = order?.customerPhone || a?.phone;
+                                      const lines = [];
+                                      if (name) lines.push(name);
+                                      const line12 = [a?.line1, a?.line2].filter(Boolean).join(', ');
+                                      if (line12) lines.push(line12);
+                                      const cityLine = [a?.postal_code, a?.city].filter(Boolean).join(' ');
+                                      const loc = [cityLine, a?.state].filter(Boolean).join(', ');
+                                      if (loc) lines.push(loc);
+                                      if (a?.country) lines.push(a.country);
+                                      if (phone) lines.push(`☎ ${phone}`);
+                                      if (!lines.length) return <div className="text-text-secondary">{t('account.no_shipping') || 'No shipping address on file.'}</div>;
+                                      return (
+                                        <div className="space-y-1 text-text-secondary">
+                                          {lines.map((l,i) => <div key={i}>{l}</div>)}
+                                        </div>
+                                      );
+                                    })()}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </li>
                         ))}
                       </ul>

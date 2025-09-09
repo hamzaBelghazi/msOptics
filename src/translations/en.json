@@ -6,6 +6,13 @@
     "cleaning_kits": "Cleaning Kits",
     "cords": "Eyewear Cords & Chains"
   },
+  "checkout": {
+    "guide_title": "Secure Checkout",
+    "guide_step_review": "Review your order summary on the left.",
+    "guide_step_details": "Enter your payment details securely below.",
+    "guide_step_confirm": "Confirm and submit to complete your purchase.",
+    "no_store_payments": "For your security, we do not store your card or payment details on our servers. Payments are processed securely."
+  },
   "prescription": {
     "tabs": {
       "manual": "Enter parameters manually",
@@ -156,7 +163,7 @@
       "kids": "Kids"
     },
     "dimensions": "Dimensions",
-    "sold" : "sold",
+    "sold": "sold",
     "views": "views",
     "colors_label": "Colors",
     "glasses_size": "Glasses size",
@@ -414,7 +421,6 @@
     "get_directions": "Get Directions",
     "join_our_community": "Join Our Community",
     "cta_subtitle": "Be part of our journey and experience the difference of premium eyewear."
-    
   },
   "contact": {
     "title": "Contact Us",
@@ -469,7 +475,7 @@
       "title": "Our Location"
     }
   },
-  
+
   "terms": {
     "title": "Terms and Conditions",
     "sections": {
@@ -712,7 +718,27 @@
     "confirm_password_required": "Please confirm your new password",
     "password_min_length": "Password must be at least 8 characters long",
     "passwords_dont_match": "Passwords do not match",
-    "no_orders": "No orders found"
+    "no_orders": "No orders found",
+    "view_details": "View details",
+    "hide_details": "Hide details",
+    "order_items": "Items",
+    "customizations": "Customizations",
+    "shipping": "Shipping",
+    "shipping_address": "Shipping address",
+    "no_shipping": "No shipping address on file.",
+    "attachments": "Attachments",
+    "face_photo": "Face photo",
+    "prescription": "Prescription"
+  },
+  "lensGuide": {
+    "title": "Prescription & Fit Guide",
+    "providePrescription": "Provide your prescription",
+    "prescriptionHelp": "You can enter values manually or upload a doctor prescription.",
+    "capturePhoto": "Capture a face photo",
+    "captureHelp": "We use it to help verify PD and fit lenses to your face size and shape.",
+    "takePhoto": "Take Photo",
+    "continue": "Continue below to configure parameters and lens options.",
+    "photoRequired": "A face photo is required to proceed."
   },
   "faq": {
     "title": "Frequently Asked Questions",
@@ -894,12 +920,12 @@
     "capturePhoto": "Take Photo",
     "savePhoto": "Save Photo",
     "close": "Close",
-    "processing": "Processing...",   
-    "instructions":"align your face with the guide, keep your face in the center of the guide, and make sure your face is in focus" ,
+    "processing": "Processing...",
+    "instructions": "align your face with the guide, keep your face in the center of the guide, and make sure your face is in focus",
     "faceDetected": "Face detected",
     "positionFace": "Position your face with the guide",
-    "pd": "PD",            
-    "printTip":"Tip: print this page for your records. for accurate results, use actual size in your print settings."
+    "pd": "PD",
+    "printTip": "Tip: print this page for your records. for accurate results, use actual size in your print settings."
   },
   "prescriptionUpload": {
     "label": "Upload Prescription (image or PDF)",

@@ -18,13 +18,20 @@ import { CartContext } from "@/Components/Context/CartContext";
 import PriceTag from "@/Components/utils/PriceTag";
 import PrescriptionUpload from "@/Components/product/PrescriptionUpload";
 import FacePdfModal from "@/Components/utils/PhotoUtility";
- 
 
 const LensCustomizer = ({ product: initialProduct, error }) => {
-
   const { addToCart } = useContext(CartContext);
 
   const addToCartHandler = () => {
+    // Require face photo before adding to cart
+    if (!facePhotoRef && !facePhotoData) {
+      setFacePhotoError(true);
+      // Optionally scroll to guide section
+      try {
+        document.getElementById('lens-guide')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (_) {}
+      return;
+    }
     // Add the frame
     addToCart(product, 1, {}); // no customizations for frame
 
@@ -84,11 +91,15 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
 
   // Default: preselect first thickness option when product loads
   useEffect(() => {
-    if (!selectedThickness && Array.isArray(thicknessOptions) && thicknessOptions.length > 0) {
+    if (
+      !selectedThickness &&
+      Array.isArray(thicknessOptions) &&
+      thicknessOptions.length > 0
+    ) {
       const first = thicknessOptions[0];
       setSelectedThickness(first);
       // Also update price to reflect default selection
-      if (typeof first?.price !== 'undefined') {
+      if (typeof first?.price !== "undefined") {
         setThicknessPrice(parseFloat(first.price || 0));
       }
     }
@@ -96,20 +107,20 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
   const [thicknessPrice, setThicknessPrice] = useState(0);
   const [advancedTypePrice, setAdvancedTypePrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(Number(product?.price));
-  const [paramTab, setParamTab] = useState("manual"); 
+  const [paramTab, setParamTab] = useState("manual");
   const [prescriptionRef, setPrescriptionRef] = useState("");
   const [axisOptions, setAxisOptions] = useState([]);
-  const [isPhoto , setIsPhoto]= useState(false);
+  const [isPhoto, setIsPhoto] = useState(false);
   const [facePhotoData, setFacePhotoData] = useState(null);
-
+  const [facePhotoError, setFacePhotoError] = useState(false);
 
   const takePhotoHandler = (photo) => {
     setIsPhoto(true);
     setFacePhotoData(photo);
+    setFacePhotoError(false);
   };
 
   useEffect(() => {
-    
     const options = [];
     for (let i = 0; i <= 180; i++) {
       options.push(
@@ -314,263 +325,320 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
                 </div>
               </div>
 
-              {/* Parameters */}
-              <div className="bg-card-background rounded-xl shadow-md p-6 border border-card-border/50 backdrop-blur-sm">
-                <div className="flex flex-wrap gap-2 items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-text-primary tracking-tight">
-                    {t("parameters")}
-                  </h2>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setParamTab("manual")}
-                      className={`px-3 py-1.5 text-xs md:text-sm rounded-full transition-colors ${
-                        paramTab === "manual"
-                          ? "bg-primary text-white"
-                          : "bg-primary/10 text-primary hover:bg-primary/20"
-                      }`}
-                    >
-                      {t("prescription.tabs.manual")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setParamTab("upload")}
-                      className={`px-3 py-1.5 text-xs md:text-sm rounded-full transition-colors ${
-                        paramTab === "upload"
-                          ? "bg-primary text-white"
-                          : "bg-primary/10 text-primary hover:bg-primary/20"
-                      }`}
-                    >
-                      {t("prescription.tabs.upload")}
-                    </button>
-                  </div>
+              {/* Guided Setup: Prescription & Fit */}
+              <div id="lens-guide" className="bg-card-background rounded-xl shadow-md p-6 border border-card-border/50 backdrop-blur-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-text-primary tracking-tight">{t('lensGuide.title')}</h2>
                 </div>
+                <ol className="list-decimal list-inside space-y-4 text-sm">
+                  <li className="bg-background/40 p-4 rounded-lg border border-card-border/30">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div>
+                        <p className="font-medium text-text-primary">{t('lensGuide.providePrescription')}</p>
+                        <p className="text-text-secondary mt-1">{t('lensGuide.prescriptionHelp')}</p>
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                          <span className={`px-2 py-1 rounded-full border ${rightPower && leftPower ? "border-green-500 text-green-500" : "border-card-border/60 text-text-secondary"}`}>Sphere R/L {rightPower && leftPower ? "✓" : "•"}</span>
+                          <span className={`px-2 py-1 rounded-full border ${useTwoPDs ? (rightPd && leftPd ? "border-green-500 text-green-500" : "border-card-border/60 text-text-secondary") : (pd ? "border-green-500 text-green-500" : "border-card-border/60 text-text-secondary")}`}>PD {useTwoPDs ? "R/L" : "Single"} {(useTwoPDs ? (rightPd && leftPd) : pd) ? "✓" : "•"}</span>
+                          <span className={`px-2 py-1 rounded-full border ${prescriptionRef ? "border-green-500 text-green-500" : "border-card-border/60 text-text-secondary"}`}>Prescription file {prescriptionRef ? "✓" : "•"}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setParamTab("manual")}
+                          className={`px-3 py-1.5 text-xs md:text-sm rounded-full transition-colors ${
+                            paramTab === "manual"
+                              ? "bg-primary text-white"
+                              : "bg-primary/10 text-primary hover:bg-primary/20"
+                          }`}
+                        >
+                          {t("prescription.tabs.manual")}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setParamTab("upload")}
+                          className={`px-3 py-1.5 text-xs md:text-sm rounded-full transition-colors ${
+                            paramTab === "upload"
+                              ? "bg-primary text-white"
+                              : "bg-primary/10 text-primary hover:bg-primary/20"
+                          }`}
+                        >
+                          {t("prescription.tabs.upload")}
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                  {/* Parameters */}
+                  <div className="bg-card-background rounded-xl shadow-md p-6 border border-card-border/50 backdrop-blur-sm">
+                    <div className="flex flex-wrap gap-2 items-center justify-between mb-6">
+                      <h2 className="text-xl font-bold mb-4 capitalize text-text-primary tracking-tight">
+                        {t("parameters")}
+                      </h2>
+                    </div>
 
-                {paramTab === "manual" ? (
-                <>
-                <div className="overflow-x-auto rounded-lg">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b-2 border-card-border/30">
-                        <th className="text-left py-4 px-4 text-text-secondary font-medium tracking-tight text-xs md:text-sm uppercase"></th>
-                        <th className="text-center py-4 px-4 text-text-secondary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm uppercase">
-                          {t("sphere")}
-                        </th>
-                        <th className="text-center py-4 px-4 text-text-secondary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm uppercase">
-                          {t("cylinder")}
-                        </th>
-                        <th className="text-center py-4 px-4 text-text-secondary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm uppercase">
-                          {t("axis")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-card-border/20 hover:bg-card-background/50 transition-colors duration-200">
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                            <span className="text-text-primary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm">
-                              {t("rightEye")}
-                            </span>
+                    {paramTab === "manual" ? (
+                      <>
+                        <div className="overflow-x-auto rounded-lg">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b-2 border-card-border/30">
+                                <th className="text-left py-4 px-4 text-text-secondary font-medium tracking-tight text-xs md:text-sm uppercase"></th>
+                                <th className="text-center py-4 px-4 text-text-secondary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm uppercase">
+                                  {t("sphere")}
+                                </th>
+                                <th className="text-center py-4 px-4 text-text-secondary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm uppercase">
+                                  {t("cylinder")}
+                                </th>
+                                <th className="text-center py-4 px-4 text-text-secondary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm uppercase">
+                                  {t("axis")}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="border-b border-card-border/20 hover:bg-card-background/50 transition-colors duration-200">
+                                <td className="py-4 px-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                                    <span className="text-text-primary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm">
+                                      {t("rightEye")}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="py-4 px-4">
+                                  <Select
+                                    value={rightPower}
+                                    onValueChange={setRightPower}
+                                  >
+                                    <SelectTrigger className="group w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
+                                      <SelectValue
+                                        placeholder={t("selectPower")}
+                                        className="placeholder:text-text-secondary/50"
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card-background/95 backdrop-blur-sm border-primary/10 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 p-1">
+                                      <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+                                        {generatePowerOptions()}
+                                      </div>
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <Select
+                                    value={rightCylinder}
+                                    onValueChange={setRightCylinder}
+                                  >
+                                    <SelectTrigger className="group w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
+                                      <SelectValue
+                                        placeholder={t("selectCylinder")}
+                                        className="placeholder:text-text-secondary/50"
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card-background/95 backdrop-blur-sm border-primary/10 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 p-1">
+                                      <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+                                        {generateCylinderOptions()}
+                                      </div>
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <Select
+                                    value={rightAxis}
+                                    onValueChange={setRightAxis}
+                                  >
+                                    <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
+                                      <SelectValue
+                                        placeholder={t("selectAxis")}
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card-background border-card-border">
+                                      {axisOptions}
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                              </tr>
+                              <tr className="border-b border-card-border">
+                                <td className="py-3 px-4 text-text-primary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm">
+                                  {t("leftEye")}
+                                </td>
+                                <td className="py-3 px-4">
+                                  <Select
+                                    value={leftPower}
+                                    onValueChange={setLeftPower}
+                                  >
+                                    <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
+                                      <SelectValue
+                                        placeholder={t("selectPower")}
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card-background border-card-border">
+                                      {generatePowerOptions()}
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <Select
+                                    value={leftCylinder}
+                                    onValueChange={setLeftCylinder}
+                                  >
+                                    <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
+                                      <SelectValue
+                                        placeholder={t("selectCylinder")}
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card-background border-card-border">
+                                      {generateCylinderOptions()}
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <Select
+                                    value={leftAxis}
+                                    onValueChange={setLeftAxis}
+                                  >
+                                    <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
+                                      <SelectValue
+                                        placeholder={t("selectAxis")}
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card-background border-card-border">
+                                      {axisOptions}
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* Pupillary Distance */}
+                        <div className="mt-8 pt-6 border-t border-card-border/20">
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-1 h-6 bg-primary/20 rounded-full"></div>
+                              <h3 className="font-semibold text-text-primary tracking-tight text-sm md:text-base">
+                                {t("pupillaryDistance")}
+                              </h3>
+                            </div>
+                            <button
+                              onClick={handleToggleTwoPDs}
+                              className="px-4 py-1.5 text-xs md:text-sm text-primary bg-primary/10 hover:bg-primary/20 rounded-full transition-colors duration-300 font-medium"
+                            >
+                              {useTwoPDs ? t("useSinglePD") : t("useDualPD")}
+                            </button>
                           </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <Select
-                            value={rightPower}
-                            onValueChange={setRightPower}
-                          >
-                            <SelectTrigger className="group w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
-                              <SelectValue
-                                placeholder={t("selectPower")}
-                                className="placeholder:text-text-secondary/50"
-                              />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card-background/95 backdrop-blur-sm border-primary/10 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 p-1">
-                              <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
-                                {generatePowerOptions()}
-                              </div>
-                            </SelectContent>
-                          </Select>
-                        </td>
-                        <td className="py-3 px-4">
-                          <Select
-                            value={rightCylinder}
-                            onValueChange={setRightCylinder}
-                          >
-                            <SelectTrigger className="group w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
-                              <SelectValue
-                                placeholder={t("selectCylinder")}
-                                className="placeholder:text-text-secondary/50"
-                              />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card-background/95 backdrop-blur-sm border-primary/10 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 p-1">
-                              <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
-                                {generateCylinderOptions()}
-                              </div>
-                            </SelectContent>
-                          </Select>
-                        </td>
-                        <td className="py-3 px-4">
-                          <Select
-                            value={rightAxis}
-                            onValueChange={setRightAxis}
-                          >
-                            <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
-                              <SelectValue placeholder={t("selectAxis")} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card-background border-card-border">
-                              {axisOptions}
-                            </SelectContent>
-                          </Select>
-                        </td>
-                      </tr>
-                      <tr className="border-b border-card-border">
-                        <td className="py-3 px-4 text-text-primary font-medium tracking-tight whitespace-nowrap text-xs md:text-sm">
-                          {t("leftEye")}
-                        </td>
-                        <td className="py-3 px-4">
-                          <Select
-                            value={leftPower}
-                            onValueChange={setLeftPower}
-                          >
-                            <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
-                              <SelectValue placeholder={t("selectPower")} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card-background border-card-border">
-                              {generatePowerOptions()}
-                            </SelectContent>
-                          </Select>
-                        </td>
-                        <td className="py-3 px-4">
-                          <Select
-                            value={leftCylinder}
-                            onValueChange={setLeftCylinder}
-                          >
-                            <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
-                              <SelectValue placeholder={t("selectCylinder")} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card-background border-card-border">
-                              {generateCylinderOptions()}
-                            </SelectContent>
-                          </Select>
-                        </td>
-                        <td className="py-3 px-4">
-                          <Select value={leftAxis} onValueChange={setLeftAxis}>
-                            <SelectTrigger className="w-full bg-background border-card-border text-text-primary hover:bg-background/80 focus:ring-0 focus:ring-offset-0 font-medium text-xs md:text-sm">
-                              <SelectValue placeholder={t("selectAxis")} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card-background border-card-border">
-                              {axisOptions}
-                            </SelectContent>
-                          </Select>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
 
-                {/* Pupillary Distance */}
-                <div className="mt-8 pt-6 border-t border-card-border/20">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1 h-6 bg-primary/20 rounded-full"></div>
-                      <h3 className="font-semibold text-text-primary tracking-tight text-sm md:text-base">
-                        {t("pupillaryDistance")}
-                      </h3>
-                    </div>
-                    <button
-                      onClick={handleToggleTwoPDs}
-                      className="px-4 py-1.5 text-xs md:text-sm text-primary bg-primary/10 hover:bg-primary/20 rounded-full transition-colors duration-300 font-medium"
-                    >
-                      {useTwoPDs ? t("useSinglePD") : t("useDualPD")}
-                    </button>
+                          {useTwoPDs ? (
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="bg-background/30 p-4 rounded-lg border border-card-border/20">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-1 h-4 bg-primary/20 rounded-full"></div>
+                                  <label className="block text-xs md:text-sm text-text-secondary font-medium tracking-tight">
+                                    {t("rightEye")}
+                                  </label>
+                                </div>
+                                <Select
+                                  value={rightPd}
+                                  onValueChange={setRightPd}
+                                >
+                                  <SelectTrigger className="w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:ring-1 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200">
+                                    <SelectValue placeholder={t("selectPD")} />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-card-background/95 backdrop-blur-sm border-card-border/30">
+                                    {generateTwoPdOptions()}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="bg-background/30 p-4 rounded-lg border border-card-border/20">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-1 h-4 bg-primary/20 rounded-full"></div>
+                                  <label className="block text-xs md:text-sm text-text-secondary font-medium tracking-tight">
+                                    {t("leftEye")}
+                                  </label>
+                                </div>
+                                <Select
+                                  value={leftPd}
+                                  onValueChange={setLeftPd}
+                                >
+                                  <SelectTrigger className="w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:ring-1 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200">
+                                    <SelectValue placeholder={t("selectPD")} />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-card-background/95 backdrop-blur-sm border-card-border/30">
+                                    {generateTwoPdOptions()}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="relative">
+                              <Select value={pd} onValueChange={setPd}>
+                                <SelectTrigger className="group w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
+                                  <SelectValue
+                                    placeholder={t("selectPD")}
+                                    className="placeholder:text-text-secondary/50"
+                                  />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card-background/95 backdrop-blur-sm border-primary/10 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 p-1">
+                                  <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+                                    {generatePdOptions()}
+                                  </div>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-4">
+                        <PrescriptionUpload
+                          productId={product?.id}
+                          onChange={setPrescriptionRef}
+                        />
+
+                        <p className="text-xs text-text-secondary">
+                          {t("prescription.or")} {t("prescription.tabs.manual")}
+                          .
+                        </p>
+                      </div>
+                    )}
                   </div>
-
-                  {useTwoPDs ? (
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="bg-background/30 p-4 rounded-lg border border-card-border/20">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-1 h-4 bg-primary/20 rounded-full"></div>
-                          <label className="block text-xs md:text-sm text-text-secondary font-medium tracking-tight">
-                            {t("rightEye")}
-                          </label>
+                  <li className="bg-background/40 p-4 rounded-lg border border-card-border/30">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div>
+                        <p className="font-medium text-text-primary">{t('lensGuide.capturePhoto')}</p>
+                        <p className="text-text-secondary mt-1">{t('lensGuide.captureHelp')}</p>
+                        <div className="mt-2 text-xs">
+                          <span className={`px-2 py-1 rounded-full border ${facePhotoRef || facePhotoData ? "border-green-500 text-green-500" : "border-card-border/60 text-text-secondary"}`}>Face photo {facePhotoRef || facePhotoData ? "✓" : "•"}</span>
+                          {facePhotoError && (
+                            <div className="mt-2 text-red-500 text-xs">{t('lensGuide.photoRequired')}</div>
+                          )}
                         </div>
-                        <Select value={rightPd} onValueChange={setRightPd}>
-                          <SelectTrigger className="w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:ring-1 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200">
-                            <SelectValue placeholder={t("selectPD")} />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card-background/95 backdrop-blur-sm border-card-border/30">
-                            {generateTwoPdOptions()}
-                          </SelectContent>
-                        </Select>
                       </div>
-                      <div className="bg-background/30 p-4 rounded-lg border border-card-border/20">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-1 h-4 bg-primary/20 rounded-full"></div>
-                          <label className="block text-xs md:text-sm text-text-secondary font-medium tracking-tight">
-                            {t("leftEye")}
-                          </label>
-                        </div>
-                        <Select value={leftPd} onValueChange={setLeftPd}>
-                          <SelectTrigger className="w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:ring-1 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200">
-                            <SelectValue placeholder={t("selectPD")} />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card-background/95 backdrop-blur-sm border-card-border/30">
-                            {generateTwoPdOptions()}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      <Select value={pd} onValueChange={setPd}>
-                        <SelectTrigger className="group w-full bg-background/50 border-card-border/30 text-text-primary hover:bg-background/70 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 font-medium text-xs md:text-sm transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
-                          <SelectValue
-                            placeholder={t("selectPD")}
-                            className="placeholder:text-text-secondary/50"
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="px-3 py-1.5 text-xs rounded-full bg-primary text-white hover:bg-primary/90"
+                          onClick={() => setShowFaceModal(true)}
+                        >
+                          {t('lensGuide.takePhoto')}
+                        </button>
+                        {isPhoto && facePhotoData && (
+                          <img
+                            src={facePhotoData}
+                            alt="Face preview"
+                            className="h-10 w-10 object-cover rounded border border-card-border"
                           />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card-background/95 backdrop-blur-sm border-primary/10 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 p-1">
-                          <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
-                            {generatePdOptions()}
-                          </div>
-                        </SelectContent>
-                      </Select>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-                </>
-                ) : (
-                  <div className="space-y-4">
-                    <PrescriptionUpload
-                      productId={product?.id}
-                      onChange={setPrescriptionRef}
-                    />
-                 
-      <button className="bg-primary text-text-primary px-4 py-2 rounded-lg" onClick={() => setShowFaceModal(true)}>Take a Photo</button>
-      {isPhoto && (
-        <div className="flex items-center gap-3 mt-2 ">
-          <a
-            href={facePhotoData}
-            download="face-photo.jpg"
-            className="bg-background text-text-primary px-4 py-2 rounded-lg"
-          >
-             <img
-            src={facePhotoData}
-            alt="Face preview"
-            className="h-16 w-16 object-cover rounded border border-gray-200"
-          />
-          </a>
-        </div>
-      )}
-     
- 
-                    <p className="text-xs text-text-secondary">
-                      {t("prescription.or")} {t("prescription.tabs.manual")}.
+                  </li>
+                  <li className="bg-background/40 p-4 rounded-lg border border-card-border/30">
+                    <p className="font-medium text-text-primary">
+                      {t('lensGuide.continue')}
                     </p>
-                  </div>
-                )}
+                  </li>
+                </ol>
               </div>
+
               {/* PD Measurement Guide */}
               <div className="mt-6 p-4 bg-background/50 rounded-lg border border-card-border">
                 <h3 className="text-lg font-medium text-text-primary mb-3 tracking-tight">
@@ -765,9 +833,10 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
                             <div className="pt-2">
                               <p className="text-primary font-bold tracking-tight text-lg">
                                 <PriceTag amount={thickness.price} />
-                          
                               </p>
-                              <span className="text-text-secondary text-xs">{t("pricePerPair")}</span>
+                              <span className="text-text-secondary text-xs">
+                                {t("pricePerPair")}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1021,7 +1090,9 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
                               <p className="font-bold text-xl text-primary">
                                 <PriceTag amount={type.price} />
                               </p>
-                              <span className="text-text-secondary text-xs">{t("pricePerPair")}</span>
+                              <span className="text-text-secondary text-xs">
+                                {t("pricePerPair")}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1139,7 +1210,6 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
   );
 };
 export default LensCustomizer;
-
 
 export async function getServerSideProps(context) {
   const { id } = context.params;

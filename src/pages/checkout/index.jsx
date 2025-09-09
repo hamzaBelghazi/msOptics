@@ -228,6 +228,16 @@ export default function CheckoutPage() {
             💳 Payment
           </h2>
 
+          {/* Checkout Guide */}
+          <div className="mb-6 p-4 rounded-md border border-border bg-background/40">
+            <h3 className="text-lg font-semibold text-text-primary mb-2">{t('checkout.guide_title') || 'Secure Checkout Guide'}</h3>
+            <ul className="list-disc list-inside text-sm text-text-secondary space-y-1">
+              <li>{t('checkout.guide_step_review') || 'Review your order summary on the left.'}</li>
+              <li>{t('checkout.guide_step_details') || 'Enter your payment details securely below.'}</li>
+              <li>{t('checkout.guide_step_confirm') || 'Confirm and submit to complete your purchase.'}</li>
+            </ul>
+          </div>
+
           {clientSecret ? (
             <Elements options={options} stripe={stripePromise}>
               <StripeCheckoutForm
@@ -253,6 +263,13 @@ export default function CheckoutPage() {
           ) : (
             <p>Loading payment...</p>
           )}
+
+          {/* Payment privacy notice */}
+          <div className="mt-6 text-xs text-text-secondary border-t border-border pt-4">
+            <p>
+              {t('checkout.no_store_payments') || 'For your security, we do not store your card or payment details on our servers. Payments are processed securely by Stripe.'}
+            </p>
+          </div>
         </div>
       </div>
     </Layout>
