@@ -104,6 +104,40 @@ const LensCustomizer = ({ product: initialProduct, error }) => {
       }
     }
   }, [thicknessOptions]);
+  
+  // Auto-populate PD from localStorage if available
+  useEffect(() => {
+    try {
+      const measuredPD = localStorage.getItem('measuredPD');
+      const timestamp = localStorage.getItem('pdMeasurementTimestamp');
+      
+      if (measuredPD && timestamp) {
+        // Check if measurement is recent (within 24 hours)
+        const measurementAge = Date.now() - parseInt(timestamp);
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        
+        if (measurementAge < oneDayInMs) {
+          // Auto-populate single PD if not in dual PD mode
+          if (!useTwoPDs && !pd) {
+            setPd(measuredPD);
+          }
+          // If in dual PD mode, split the PD value equally
+          else if (useTwoPDs && !rightPd && !leftPd) {
+            const halfPd = Math.round(parseInt(measuredPD) / 2);
+            setRightPd(halfPd.toString());
+            setLeftPd(halfPd.toString());
+          }
+        } else {
+          // Clear expired PD data
+          localStorage.removeItem('measuredPD');
+          localStorage.removeItem('pdMeasurementTimestamp');
+        }
+      }
+    } catch (error) {
+      console.error('Error retrieving PD from localStorage:', error);
+    }
+  }, [useTwoPDs]); // Re-run when switching between single/dual PD mode
+
   const [thicknessPrice, setThicknessPrice] = useState(0);
   const [advancedTypePrice, setAdvancedTypePrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(Number(product?.price));

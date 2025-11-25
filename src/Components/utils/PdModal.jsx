@@ -193,9 +193,18 @@ const PdModal = ({
           (IRIS_WIDTH_IN_MM / pupils.left.widthPx) * pupilsDistance;
 
         if (isAutomaticMeasurePd) {
-          setPd(Math.round(pdLeft));
-          setEyeDist(Math.round(pdLeft));
+          const measuredPd = Math.round(pdLeft);
+          setPd(measuredPd);
+          setEyeDist(measuredPd);
           setIsInitialValue(true);
+          
+          // Save PD to localStorage for automatic form population
+          try {
+            localStorage.setItem('measuredPD', measuredPd.toString());
+            localStorage.setItem('pdMeasurementTimestamp', Date.now().toString());
+          } catch (error) {
+            console.error('Error saving PD to localStorage:', error);
+          }
         }
 
         // Clear canvas and draw visualization
