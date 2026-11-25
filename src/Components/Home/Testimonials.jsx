@@ -1,101 +1,86 @@
 import React from "react";
-import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectCards } from "swiper/modules";
+import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/swiper-bundle.css";
 import { useTranslation } from "react-i18next";
+import { Star, Quote } from "lucide-react";
+import SectionHeading from "@/Components/ui/SectionHeading";
 
 const testimonials = [
   {
     id: 1,
     name: "Karim El Amrani",
-    avatar: "/images/karim-el-amrani.png", // (Use image similar to top-left: smiling man with glasses)
-    review:
-      "I found the perfect pair within minutes—and they fit like a dream. Fast delivery and great customer support!",
+    initials: "KE",
+    review: "I found the perfect pair within minutes — and they fit like a dream. Fast delivery and great customer support!",
     rating: 5,
   },
   {
     id: 2,
     name: "Yasmine Lahlou",
-    avatar: "/images/yasmine-lahlou.png", // (Top-right image—a happy customer modeling frames)
-    review:
-      "The styles are trendy, prices are fair, and checkout was effortless. Totally recommend Ayweer!",
+    initials: "YL",
+    review: "The styles are trendy, prices are fair, and checkout was effortless. Totally recommend MHS Optics!",
     rating: 5,
   },
   {
     id: 3,
     name: "Rachid Jouhari",
-    avatar: "/images/rachid-jouhari.png", // (Bottom-left: pleased man putting on glasses)
-    review:
-      "I was worried about buying online, but Ayweer exceeded expectations. The prescription is spot-on.",
+    initials: "RJ",
+    review: "I was worried about buying online, but the prescription is spot-on and the virtual try-on nailed the fit.",
     rating: 4,
   },
   {
     id: 4,
     name: "Leïla Benkirane",
-    avatar: "/images/leila-benkirane.png", // (Bottom-right: smiling woman in optical setting)
-    review:
-      "Lovely frames, and customer service walked me through the measurement process—so helpful!",
+    initials: "LB",
+    review: "Lovely frames, and customer service walked me through the measurement process — so helpful!",
     rating: 5,
   },
 ];
 
-
-// Theme colors for testimonials
-const themeColors = [
-  "bg-cyan-400",
-  "bg-emerald-400",
-  "bg-lime-400",
-  "bg-amber-400",
-  "bg-blue-400",
-  "bg-purple-400",
-  "bg-teal-400",
-  "bg-indigo-400",
-];
-
 export default function Testimonials() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dir = i18n.dir();
   return (
-    <div className="max-w-lg mx-auto px-4" dir={dir}>
-      <Swiper
-        key={dir}
-        modules={[Autoplay, EffectCards]}
-        effect="cards"
-        grabCursor={true}
-        autoplay={{ delay: 5000 }}
-        loop={true}
-      >
-        {testimonials.map((testimonial, index) => {
-          const colorClass = themeColors[index % themeColors.length];
-          return (
-            <SwiperSlide key={testimonial.id}>
-              <div
-                className={`p-6 rounded-lg shadow-md text-center ${colorClass}`}
-              >
-                <Image
-                  src={testimonial.avatar}
-                  alt={testimonial.name}
-                  width={80}
-                  height={80}
-                  className="rounded-full mx-auto"
-                />
-                <p className="text-white mt-4">{testimonial.review}</p>
-                <h4 className="text-xl font-semibold mt-4 text-white">
-                  {testimonial.name}
-                </h4>
-                <div className="flex justify-center mt-2">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i} className="text-yellow-400">
-                      ★
-                    </span>
+    <div className="container mx-auto px-4" dir={dir}>
+      <SectionHeading
+        eyebrow={t("home.testimonials.eyebrow", "Wall of love")}
+        title={t("home.testimonials.title")}
+      />
+      <div className="max-w-2xl mx-auto">
+        <Swiper
+          key={dir}
+          modules={[Autoplay, Pagination]}
+          grabCursor
+          autoplay={{ delay: 5500 }}
+          loop
+          pagination={{ clickable: true }}
+          className="pb-12"
+        >
+          {testimonials.map((item) => (
+            <SwiperSlide key={item.id}>
+              <div className="glass-card p-8 md:p-10 text-center mx-1">
+                <span className="mx-auto grid place-items-center w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-gold text-white mb-5">
+                  <Quote size={22} />
+                </span>
+                <p className="font-display text-lg md:text-xl italic text-text-primary leading-relaxed">
+                  “{item.review}”
+                </p>
+                <div className="flex justify-center gap-1 mt-5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={15} className={i < item.rating ? "text-gold fill-current" : "text-text-muted/30"} />
                   ))}
+                </div>
+                <div className="flex items-center justify-center gap-3 mt-4">
+                  <span className="grid place-items-center w-11 h-11 rounded-full bg-primary/10 text-primary font-extrabold text-sm border border-primary/20">
+                    {item.initials}
+                  </span>
+                  <span className="font-bold text-text-primary">{item.name}</span>
                 </div>
               </div>
             </SwiperSlide>
-          );
-        })}
-      </Swiper>
+          ))}
+        </Swiper>
+      </div>
     </div>
   );
 }

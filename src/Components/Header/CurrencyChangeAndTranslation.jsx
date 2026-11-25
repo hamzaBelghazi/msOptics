@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "../Context/currencyContext";
 
-export default function CurrencyChangeAndTranslation() {
+const Chevron = () => (
+  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-muted">
+    <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+    </svg>
+  </div>
+);
+
+export default function CurrencyChangeAndTranslation({ compact = false }) {
   const { t, i18n } = useTranslation();
 
   const [language, setLanguage] = useState(i18n.language);
 
-  const { currency, setCurrency } = useCurrency();
+  // keep every mounted copy (mobile row + desktop strip) on the active language
+  useEffect(() => {
+    setLanguage(i18n.language);
+  }, [i18n.language]);
+
+  const { currency, setCurrency, currencies } = useCurrency();
   // Update i18next language when the user selects a new language
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
@@ -23,19 +36,43 @@ export default function CurrencyChangeAndTranslation() {
     i18n.changeLanguage(lang); // Change the active language
   };
 
-  // Currency options
-  const currencies = [
-    { code: "USD", symbol: "$", nameKey: "currency.usd" },
-    { code: "EUR", symbol: "€", nameKey: "currency.eur" },
-    { code: "GBP", symbol: "£", nameKey: "currency.gbp" },
-  ];
-
   // Language options
   const languages = [
     { code: "en", nameKey: "language.english" },
     { code: "de", nameKey: "language.german" },
     { code: "ar", nameKey: "language.arabic" },
   ];
+
+  const selectCls =
+    "appearance-none bg-transparent border border-border rounded-full pl-3 pr-7 text-[11px] sm:text-xs font-semibold text-text-secondary hover:text-primary hover:border-primary/50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/25 transition-all " +
+    (compact ? "py-1.5" : "py-2");
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <div className="relative">
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)} className={selectCls} aria-label={t("navigation.currency")}>
+            {currencies.map((curr) => (
+              <option key={curr.code} value={curr.code} className="bg-background text-text-primary">
+                {`${curr.symbol || ""} ${curr.code}`.trim()}
+              </option>
+            ))}
+          </select>
+          <Chevron />
+        </div>
+        <div className="relative">
+          <select value={language} onChange={(e) => handleLanguageChange(e.target.value)} className={selectCls} aria-label={t("navigation.language")}>
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code} className="bg-background text-text-primary">
+                {lang.code.toUpperCase()}
+              </option>
+            ))}
+          </select>
+          <Chevron />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-row justify-end items-center gap-2 sm:gap-4 bg-gradient-to-r from-background/80 via-card-background/90 to-background/80 backdrop-blur-sm p-2 sm:p-4 w-full">
@@ -61,7 +98,7 @@ export default function CurrencyChangeAndTranslation() {
                 value={curr.code}
                 className="bg-background text-text-primary text-[11px] sm:text-sm py-1 sm:py-2"
               >
-                {`${curr.symbol} ${t(curr.nameKey)}`}
+                {`${curr.symbol ? `${curr.symbol} ` : ""}${curr.nameKey ? t(curr.nameKey) : curr.code}`}
               </option>
             ))}
           </select>

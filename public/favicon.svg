@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .tile-a { stop-color: #12907a; }
+    .tile-b { stop-color: #0b5f52; }
+    .tile-c { stop-color: #c9a227; }
+    .ink { stroke: #f6efe0; }
+    .glint { stroke: #ffe9a8; }
+    @media (prefers-color-scheme: dark) {
+      .tile-a { stop-color: #2dd4a8; }
+      .tile-b { stop-color: #0e7c66; }
+      .tile-c { stop-color: #e8c566; }
+      .ink { stroke: #08110e; }
+      .glint { stroke: #fff7dd; }
+    }
+  </style>
+  <defs>
+    <linearGradient id="g" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" class="tile-a"/>
+      <stop offset="0.55" class="tile-b"/>
+      <stop offset="1" class="tile-c"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#g)"/>
+  <g class="ink" stroke-width="3.4" stroke-linecap="round" fill="none">
+    <rect x="12" y="24" width="16" height="13" rx="6"/>
+    <rect x="36" y="24" width="16" height="13" rx="6"/>
+    <path d="M28 28.5c2-3 6-3 8 0"/>
+    <path d="M12 28 6.5 25.5M52 28l5.5-2.5"/>
+  </g>
+  <path d="M40 27.5l4.5 6.5M44.5 27.5l2.2 3.2" class="glint" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+</svg>

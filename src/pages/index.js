@@ -14,6 +14,13 @@ import Categories from "@/Components/Home/Categories";
 
 import { useTranslation } from "react-i18next";
 import HomeAccessories from "@/Components/Home/Accessories";
+import MarqueeStrip from "@/Components/Home/MarqueeStrip";
+import StatsBand from "@/Components/Home/StatsBand";
+import CraftSection from "@/Components/Home/CraftSection";
+import LookbookPanels from "@/Components/Home/LookbookPanels";
+import BestsellersRail from "@/Components/Home/BestsellersRail";
+import TryOnBand from "@/Components/Home/TryOnBand";
+import NewsletterSignup from "@/Components/Home/NewsLetter";
 import FloatingCartButton from "@/Components/utils/floatingCart";
 import GoogleOneTap from "@/Components/Auth/GoogleOneTap";
 import { useContext } from "react";
@@ -44,65 +51,77 @@ export default function Home() {
 
   return (
     <Layout title={t("home.title")} announcement={data?.announces}>
-      <div className="space-y-16 bg-background">
+      <div className="bg-background">
         {/* Hero Section */}
 
         <HeroSection />
 
+        <MarqueeStrip />
+
         {/* Features Section */}
-        <Features />
+        <div className="pt-4">
+          <Features />
+        </div>
         {data?.categories.length > 0 && (
           <Categories categories={data?.categories} />
         )}
 
         {/* Featured Products */}
         {data?.products.length > 0 && (
-          <section className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-              {t("home.featured_products")}
-            </h2>
+          <section className="py-6">
             <FeaturedProducts products={data?.products} />
           </section>
         )}
 
+        {/* Stats band */}
+        <StatsBand />
+
+        {/* Craft split */}
+        <CraftSection />
+
         {/* Product Grid */}
         {data?.products.length > 0 && (
-          <section className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-              {t("home.trending.title")}
-            </h2>
+          <section className="py-6">
             <ProductGrid products={data?.products} />
           </section>
         )}
 
+        {/* Bestsellers rail */}
+        {data?.products.length > 0 && <BestsellersRail products={data?.products} />}
+
+        {/* Lookbook panels */}
+        <LookbookPanels />
+
         {/* Testimonials */}
         {data?.products.length > 0 && (
-          <section className="container mx-auto px-4 py-12">
-            <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-              {t("home.testimonials.title")}
-            </h2>
+          <section className="py-10">
             <Testimonials />
           </section>
         )}
 
         {/* Accessories Section */}
         {data?.accessories.length > 0 && (
-          <section className="container mx-auto px-4 py-12">
+          <section className="container mx-auto px-4 py-10">
             <HomeAccessories accessories={data?.accessories} />
           </section>
         )}
 
+        {/* Virtual try-on band */}
+        <TryOnBand />
+
         {/* About Us */}
 
-        <section className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-text-primary mb-8">
-            {t("about_us.who_we_are")}
-          </h2>
+        <section className="py-10">
           <AboutUs />
         </section>
 
+        {/* Newsletter */}
+        <section className="py-6">
+          <NewsletterSignup />
+        </section>
+
         {/* FAQ Section */}
-        <section className="container mx-auto px-4">
+        <section className="py-10">
           <FAQSection />
         </section>
 

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Layout from "@/Components/Layout/Layout";
 import { AuthContext } from "@/Components/Context/AuthContext";
 import { useTranslation } from "react-i18next";
+import PriceTag from "@/Components/utils/PriceTag";
 import Spinner from "@/Components/Spinner/Spinner";
 import AccountDetails from "@/Components/account/AccountDetails";
 import Password from "@/Components/account/Password";
@@ -404,7 +405,9 @@ export default function Account() {
                                               <div className="font-medium text-text-primary">{item.title}</div>
                                               <div className="text-sm text-text-secondary">x{item.quantity}</div>
                                             </div>
-                                            <div className="text-sm text-text-secondary">€{(item.price * item.quantity).toFixed(2)}</div>
+                                            <div className="text-sm text-text-secondary">
+                                              <PriceTag amount={item.price * item.quantity} />
+                                            </div>
                                             {isLens && attachments.length > 0 && (
                                               <div className="mt-2 text-sm">
                                                 <div className="font-medium text-text-primary mb-1">{t('account.attachments') || 'Attachments'}</div>

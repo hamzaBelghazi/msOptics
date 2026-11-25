@@ -66,6 +66,9 @@ export const CartProvider = ({ children }) => {
           : item.photo || item.icon,
         quantity,
         customizations,
+        // face measurements travel with the line, but out of the "key: value"
+        // customisation list the cart renders
+        ...(item.faceMetrics ? { faceMetrics: item.faceMetrics } : {}),
         originalItem: item, // Store the original item for reference
       };
 

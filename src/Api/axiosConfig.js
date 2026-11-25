@@ -1,5 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { startAdminLoading, stopAdminLoading } from "./adminLoading";
 
 function getToken() {
   if (localStorage.getItem("token")) {
@@ -23,6 +24,9 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   async (config) => {
+    // drives the superAdmin loading bar (a no-op outside the admin area).
+    // "silent" calls (like the sidebar badge) skip the bar and the toasts.
+    if (!config.silent) startAdminLoading();
     const token = getToken();
     console.log('Axios interceptor - Token from localStorage:', token);
     config.headers.Authorization = `Bearer ${token}`;
@@ -30,14 +34,18 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => {
+    stopAdminLoading();
     return error;
   }
 );
 
 instance.interceptors.response.use(
   (response) => {
-    if (response.data.message) {
-      toast.success(response.data.message);
+    if (!response.config?.silent) {
+      stopAdminLoading();
+      if (response.data?.message) {
+        toast.success(response.data.message);
+      }
     }
     return response;
   },
@@ -46,14 +54,17 @@ instance.interceptors.response.use(
       localStorage.removeItem("token");
     }
 
-    if (error.response?.data?.length > 0) {
-      error.response?.data.forEach((message) => toast.error(message));
-    } else if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-    } else if (error.response?.data?.error) {
-      toast.error(error.response.data.error);
+    if (!error.config?.silent) {
+      stopAdminLoading();
+      if (error.response?.data?.length > 0) {
+        error.response?.data.forEach((message) => toast.error(message));
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else if (error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      }
     }
 
     throw error;

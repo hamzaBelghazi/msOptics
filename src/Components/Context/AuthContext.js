@@ -39,6 +39,7 @@ const filterUserData = (userData) => {
     firstName: userData.firstName,
     lastName: userData.lastName,
     email: userData.email,
+    role: userData.role || "client",
     image: userData.image,
     phone: userData.phone || null,
     street: userData.street || null,

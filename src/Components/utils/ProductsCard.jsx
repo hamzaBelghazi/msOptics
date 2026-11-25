@@ -1,281 +1,194 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import { Videocam } from "@mui/icons-material";
-import { Star, Eye } from "lucide-react";
+import { Star, Eye, Flame, ArrowUpRight } from "lucide-react";
 import axios from "axios";
 import WishlistButton from "./WishlistButton";
 import Tooltip from "./Tooltip";
 import PriceTag from "./PriceTag";
+import { useTranslation } from "react-i18next";
+import { tField } from "./tField";
+import { productHref } from "@/Api/links";
 
 export function ProductsCardSkeleton() {
   return (
-    <div className="p-2 relative h-[420px]">
-      <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 h-full flex flex-col p-4">
-        {/* Skeleton Image */}
-        <div className="relative mb-4 h-48">
-          <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-600 dark:to-gray-700 rounded-lg animate-pulse" />
-        </div>
-
-        {/* Skeleton Text */}
-        <div className="flex-1 flex flex-col justify-between space-y-4">
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-3/4" />
-            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-1/2" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-1/4" />
-            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-2/4" />
-          </div>
+    <div className="p-2 h-[430px]">
+      <div className="glass-card h-full p-4 flex flex-col">
+        <div className="h-52 rounded-2xl bg-gradient-to-br from-primary/10 to-gold/10 animate-pulse" />
+        <div className="flex-1 py-4 space-y-3">
+          <div className="h-4 w-3/4 rounded bg-text-muted/20 animate-pulse" />
+          <div className="h-4 w-1/2 rounded bg-text-muted/20 animate-pulse" />
+          <div className="h-6 w-1/3 rounded-full bg-text-muted/20 animate-pulse" />
         </div>
       </div>
     </div>
   );
 }
 
-export default function ProductsCard({
-  item,
-  isSlide = false,
-  reviewsData: reviews = {},
-}) {
+function Stars({ rating, count }) {
+  return (
+    <div className="flex items-center gap-1">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`w-3.5 h-3.5 ${
+            i < Math.floor(rating) ? "text-gold fill-current" : "text-text-muted/40"
+          }`}
+        />
+      ))}
+      <span className="text-[11px] text-text-muted ml-1 font-medium">
+        ({Number(count || 0).toLocaleString()})
+      </span>
+    </div>
+  );
+}
+
+export default function ProductsCard({ item, isSlide = false, reviewsData: reviews = {} }) {
   const navigate = useRouter();
-  const [reviewsData, setReviewsData] = useState(reviews);
+  const { i18n } = useTranslation();
+  const [reviewsData, setReviewsData] = useState(reviews || {});
   const [isHovered, setIsHovered] = useState(false);
+  const tiltRef = useRef(null);
 
   useEffect(() => {
     const getReviews = async () => {
-      if (!item?._id) {
-        return;
-      }
-
+      if (!item?._id) return;
       try {
-        
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/reviews/product/${item._id}`
         );
-
-        const stats = response.data?.data?.stats || {
-          averageRating: 0,
-          totalReviews: 0,
-        };
-        setReviewsData((prevData) => ({
-          ...prevData,
-          stats: stats,
-          ...response.data.data,
-        }));
-      } catch (error) {
-        setReviewsData((prevData) => ({
-          ...prevData,
-          stats: { averageRating: 0, totalReviews: 0 },
-        }));
+        const stats = response.data?.data?.stats || { averageRating: 0, totalReviews: 0 };
+        // spread the payload first: it can carry stats:null and wipe the default
+        setReviewsData((prev) => ({ ...prev, ...response.data.data, stats }));
+      } catch {
+        setReviewsData((prev) => ({ ...prev, stats: { averageRating: 0, totalReviews: 0 } }));
       }
     };
-
-    if (!reviewsData?.stats && item?._id) {
-    
-      getReviews();
-    }
+    if (!reviewsData?.stats && item?._id) getReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?._id]);
 
-  if (!item) {
-    return <ProductsCardSkeleton />;
-  }
+  // subtle 3D tilt
+  const onMove = (e) => {
+    const el = tiltRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const rx = ((e.clientY - r.top) / r.height - 0.5) * -7;
+    const ry = ((e.clientX - r.left) / r.width - 0.5) * 7;
+    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
+  };
+  const onLeave = () => {
+    setIsHovered(false);
+    if (tiltRef.current) tiltRef.current.style.transform = "";
+  };
+
+  const title = tField(item, "title", i18n.language);
+
+  if (!item) return <ProductsCardSkeleton />;
 
   const discountPercentage = item.discount;
-  const rating = reviewsData.stats?.averageRating || 0;
-  const reviewCount = reviewsData.stats?.totalReviews || 0;
+  const rating = reviewsData?.stats?.averageRating || 0;
+  const reviewCount = reviewsData?.stats?.totalReviews || 0;
+  const img =
+    item.images?.length
+      ? `${process.env.NEXT_PUBLIC_SERVER_URL}/img/products/${item.images[isHovered && item.images.length > 1 ? 1 : 0]}`
+      : "";
 
-  if (isSlide) {
-    return (
-      <div className="p-2 relative group cursor-pointer h-[420px]">
-        <div className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-lg border border-gray-200 dark:border-gray-600 hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer h-full flex flex-col">
-          {/* Product Image */}
-          <div className="relative mb-4 h-48">
-            <div
-              className="aspect-square bg-gradient-to-br w-full from-gray-50 to-gray-100 dark:from-gray-600 dark:to-gray-700 rounded-lg overflow-hidden h-full"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              <Image
-                src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/products/${item.images[isHovered && item.images.length > 1 ? 1 : 0]}`}
-                fill
-                className="object-contain transition-all duration-300"
-                alt={item.title}
-              />
-            </div>
-
-            {/* Discount Badge */}
+  return (
+    <div className="p-2 h-[430px] group">
+      <div
+        ref={tiltRef}
+        onMouseMove={onMove}
+        onMouseLeave={onLeave}
+        onMouseEnter={() => setIsHovered(true)}
+        onClick={() => navigate.push(productHref(item))}
+        className="glass-card h-full p-4 flex flex-col cursor-pointer transition-shadow duration-300 hover:shadow-lg will-change-transform"
+        style={{ transition: "transform .18s ease-out, box-shadow .3s ease" }}
+      >
+        {/* image */}
+        <div className="relative h-52 rounded-2xl overflow-hidden bg-gradient-to-br from-background-soft via-card-elevated to-background-soft">
+          {img && (
+            <Image
+              src={img}
+              fill
+              className="object-contain p-3 transition-transform duration-500 group-hover:scale-110"
+              alt={title}
+            />
+          )}
+          {/* badges */}
+          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
             {discountPercentage > 0 && (
-              <div className="absolute top-2 left-2">
-                <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                  -{discountPercentage}%
-                </span>
-              </div>
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold text-white bg-gradient-to-r from-rose-600 to-orange-500 shadow">
+                -{discountPercentage}%
+              </span>
             )}
-
-            {/* Wishlist Button */}
-            <div className="absolute top-2 right-2 flex justify-center items-center bg-white/90 dark:bg-gray-800/90 w-8 h-8 rounded-full shadow-lg hover:text-red-500 transition-all duration-300">
-              <WishlistButton productId={item._id} />
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div className="flex-1 flex flex-col justify-between">
-            <div className="space-y-2">
-              <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                {item.title}
-              </h3>
-
-              {/* Rating */}
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-3 h-3 ${
-                      i < Math.floor(rating)
-                        ? "text-yellow-400 fill-current"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))}
-                <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
-                  ({reviewCount.toLocaleString()})
+            {item.shape && (
+              <Tooltip text="Try On" position="top">
+                <span className="glass grid place-items-center w-8 h-8 rounded-full">
+                  <Videocam className="w-4 h-4" />
                 </span>
-              </div>
-            </div>
+              </Tooltip>
+            )}
+          </div>
+          <div className="absolute top-2.5 right-2.5" onClick={(e) => e.stopPropagation()}>
+            <span className="glass grid place-items-center w-9 h-9 rounded-full hover:scale-110 transition-transform">
+              <WishlistButton productId={item._id} />
+            </span>
+          </div>
+          {/* hover quick view */}
+          <div
+            className={`absolute inset-x-3 bottom-3 transition-all duration-300 ${
+              isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+            }`}
+          >
+            <span className="glass-strong rounded-full py-2 px-4 text-xs font-bold text-text-primary flex items-center justify-center gap-1.5">
+              Quick view <ArrowUpRight size={14} />
+            </span>
+          </div>
+        </div>
 
-            <div className="space-y-2">
-              {/* Price */}
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-red-500">
+        {/* info */}
+        <div className="flex-1 flex flex-col justify-between pt-3.5">
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gold">
+              {item.glassesType || item.productGender || "Eyewear"}
+            </p>
+            <h3 className="font-semibold text-text-primary text-[15px] leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+              {title}
+            </h3>
+            <Stars rating={rating} count={reviewCount} />
+          </div>
+          <div className="pt-2 border-t border-border/60 mt-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-extrabold text-text-primary">
                   <PriceTag amount={item.price} />
                 </span>
                 {item.originalPrice > 0 && (
-                  <span className="text-sm text-gray-500 line-through">
+                  <span className="text-xs text-text-muted line-through">
                     <PriceTag amount={item.originalPrice} />
                   </span>
                 )}
               </div>
-
-              {/* Stats */}
-              <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                <span>🔥 {item.soldCount.toLocaleString()} sold</span>
-                <span className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  {item.views.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-2 relative group h-[420px]">
-      <div
-        className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-lg border border-gray-200 dark:border-gray-600 hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col"
-        onClick={() => navigate.push(`/product/${item._id}`)}
-      >
-        {/* Product Image */}
-        <div className="relative mb-4 h-48">
-          <div
-            className="aspect-square w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-600 dark:to-gray-700 rounded-lg overflow-hidden h-full"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <Image
-              src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/products/${item.images[isHovered && item.images.length > 1 ? 1 : 0]}`}
-              fill
-              className="object-contain transition-all duration-300"
-              alt={item.title}
-            />
-          </div>
-
-          {/* Discount Badge */}
-          {discountPercentage > 0 && (
-            <div className="absolute bottom-2 left-2">
-              <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                -{discountPercentage}%
-              </span>
-            </div>
-          )}
-
-          {/* Wishlist Button */}
-          <div className="absolute top-2 right-2 flex justify-center items-center bg-white/90 dark:bg-gray-800/90 w-8 h-8 rounded-full shadow-lg hover:text-red-500 transition-all duration-300">
-            <WishlistButton productId={item._id} />
-          </div>
-
-          {/* Try-on Video Icon */}
-          {item.virualsTrys && item.virualsTrys.length > 0 && (
-            <div className="absolute top-2 left-2">
-              <Tooltip text="Try On" position="top">
-                <div className="bg-white/90 dark:bg-gray-800/90 w-8 h-8 rounded-full shadow-lg flex items-center justify-center hover:text-red-500 transition-all duration-300">
-                  <Videocam className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                </div>
-              </Tooltip>
-            </div>
-          )}
-        </div>
-
-        {/* Product Info */}
-        <div className="flex-1 flex flex-col justify-between">
-          <div className="space-y-2">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-primary transition-colors">
-              {item.title}
-            </h3>
-
-            {/* Rating */}
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${
-                    i < Math.floor(rating)
-                      ? "text-yellow-400 fill-current"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-              <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
-                ({reviewCount.toLocaleString()})
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            {/* Price */}
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-red-500">
-                <PriceTag amount={item.price} />
-              </span>
-              {item.originalPrice > 0 && (
-                <span className="text-sm text-gray-500 line-through">
-                  <PriceTag amount={item.originalPrice} />
-                </span>
-              )}
-            </div>
-
-            {/* Stock Status */}
-            <div className="flex items-center justify-center">
               <span
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                className={`text-[10px] font-bold px-2 py-1 rounded-full ${
                   item.inStock
-                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                    : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                    ? "bg-primary/10 text-primary"
+                    : "bg-rose-500/10 text-rose-500"
                 }`}
               >
-                {item.inStock ? "In Stock" : "Out of Stock"}
+                {item.inStock ? "In stock" : "Sold out"}
               </span>
             </div>
-
-            {/* Stats */}
-            <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-              <span>🔥 {item.soldCount.toLocaleString()} sold</span>
+            <div className="flex items-center justify-between text-[11px] text-text-muted mt-1.5 font-medium">
               <span className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                {item.views.toLocaleString()}
+                <Flame size={12} className="text-orange-500" />
+                {Number(item.soldCount || 0).toLocaleString()} sold
+              </span>
+              <span className="flex items-center gap-1">
+                <Eye size={12} />
+                {Number(item.views || 0).toLocaleString()}
               </span>
             </div>
           </div>

@@ -3,7 +3,6 @@ import axios from "axios";
 import { useState, useContext, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import Layout from "@/Components/Layout/Layout";
 import { AuthContext } from "@/Components/Context/AuthContext";
 import { useToast } from "@/Components/Context/ToastContext";
@@ -11,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import Spinner from "@/Components/Spinner/Spinner";
 import ButtonSpinner from "@/Components/Spinner/ButtonSpinner";
 import GoogleLoginButton from "@/Components/Auth/GoogleLoginButton";
+import Logo from "@/Components/ui/Logo";
 
 export default function Login() {
   const router = useRouter();
@@ -90,24 +90,25 @@ export default function Login() {
 
   return (
     <Layout title={t("auth.login")}>
-      <section className="min-h-screen grid p-2 md:p-10">
+      <section className="relative min-h-screen grid p-4 md:p-10 overflow-hidden">
+        <div className="aurora w-[420px] h-[420px] -left-32 top-10 bg-primary/15 animate-aurora" />
+        <div className="aurora w-[360px] h-[360px] -right-24 bottom-0 bg-gold/15 animate-aurora" />
         {/* Main Content */}
-        <div className="container mx-auto flex flex-col md:flex-row items-center justify-center min-h-[80vh]">
+        <div className="relative container mx-auto flex flex-col md:flex-row items-center justify-center gap-8 min-h-[80vh]">
           {/* Form Section */}
           <form
             onSubmit={handleSubmit}
-            className="bg-card-background p-8 rounded-lg shadow-md w-full max-w-md border border-border"
+            className="glass-card p-8 md:p-10 w-full max-w-md"
           >
-            <h2 className="text-2xl font-bold text-center text-text-primary mb-6">
+            <span className="eyebrow justify-center">Welcome back</span>
+            <h2 className="text-3xl text-center text-text-primary mt-2 mb-6">
               {t("auth.login")}
             </h2>
 
             {/* Error Message */}
             {errors.submit && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 transform transition-all duration-300 ease-in-out opacity-100 translate-y-0">
-                <p className="transition-opacity duration-300">
-                  {errors.submit}
-                </p>
+              <div className="bg-rose-500/10 border border-rose-500/30 text-rose-600 px-4 py-3 rounded-2xl mb-4 text-sm">
+                <p>{errors.submit}</p>
               </div>
             )}
 
@@ -125,7 +126,7 @@ export default function Login() {
                 placeholder={t("auth.email_placeholder")}
                 value={email}
                 onChange={handleEmailChange}
-                className="mt-1 block w-full px-3 py-2 border border-input-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-input-background text-text-primary"
+                className="mt-1.5 block w-full px-4 py-3 border border-input-border rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-input-background text-text-primary transition-all"
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -146,7 +147,7 @@ export default function Login() {
                 placeholder={t("auth.password_placeholder")}
                 value={password}
                 onChange={handlePasswordChange}
-                className="mt-1 block w-full px-3 py-2 border border-input-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-input-background text-text-primary"
+                className="mt-1.5 block w-full px-4 py-3 border border-input-border rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-input-background text-text-primary transition-all"
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -168,7 +169,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary text-button-text py-2 px-4 rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50"
+                className="btn-luxe w-full !py-3.5 disabled:opacity-50"
               >
                 {isLoading ? <ButtonSpinner /> : t("auth.login_btn")}
               </button>
@@ -176,9 +177,9 @@ export default function Login() {
 
             {/* Divider */}
             <div className="my-6 flex items-center">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4 text-sm text-gray-500">{t("auth.or")}</span>
-              <div className="flex-1 border-t border-gray-300"></div>
+              <div className="flex-1 border-t border-border"></div>
+              <span className="px-4 text-xs font-bold tracking-widest uppercase text-text-muted">{t("auth.or")}</span>
+              <div className="flex-1 border-t border-border"></div>
             </div>
 
             {/* Google Login Button */}
@@ -201,60 +202,34 @@ export default function Login() {
             </div>
           </form>
 
-          {/* Right Section (Decorative Background with Animations) */}
-          <div className="hidden md:block w-1/2 h-full relative rounded-lg ml-8 overflow-hidden">
-            {/* Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/40"></div>
-
-            {/* Animated Circles */}
-            <motion.div
-              className="absolute w-32 h-32 bg-primary/10 rounded-full"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-              style={{ top: "10%", left: "20%" }}
-            ></motion.div>
-
-            <motion.div
-              className="absolute w-24 h-24 bg-primary/20 rounded-full"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-              style={{ bottom: "20%", right: "10%" }}
-            ></motion.div>
-
-            {/* Animated Lines */}
-            <motion.div
-              className="absolute w-1 h-48 bg-primary/30"
-              initial={{ height: 0 }}
-              animate={{ height: "100%" }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-              style={{ top: "10%", left: "50%" }}
-            ></motion.div>
-
-            <motion.div
-              className="absolute w-48 h-1 bg-primary/30"
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-              style={{ top: "50%", right: "10%" }}
-            ></motion.div>
+          {/* Right Section (Editorial panel) */}
+          <div className="hidden md:flex w-1/2 min-h-[540px] relative rounded-[2rem] overflow-hidden bg-[#141210] dark:bg-black text-white">
+            <div className="aurora w-[300px] h-[300px] -left-16 -top-16 bg-primary/30 animate-aurora" />
+            <div className="aurora w-[260px] h-[260px] -right-12 -bottom-12 bg-gold/25 animate-aurora" />
+            {/* oversized watermark */}
+            <span className="absolute -bottom-8 -right-2 font-display font-bold text-[11rem] leading-none text-white/5 select-none">
+              MHS
+            </span>
+            <div className="relative flex flex-col justify-between p-10 w-full">
+              <Logo size={44} tone="light" />
+              <div>
+                <p className="font-display text-3xl leading-snug italic text-white/95">
+                  “Elegance is refusal — see everything, settle for nothing.”
+                </p>
+                <div className="flex gap-6 mt-6 text-sm">
+                  {[
+                    ["4.9★", t("auth.social_proof.rating", "loved by customers")],
+                    ["2yr", t("auth.social_proof.warranty", "full warranty")],
+                    ["30d", t("auth.social_proof.returns", "free returns")],
+                  ].map(([v, l]) => (
+                    <div key={l}>
+                      <p className="font-display text-2xl text-gold-soft">{v}</p>
+                      <p className="text-white/55 text-xs mt-0.5">{l}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

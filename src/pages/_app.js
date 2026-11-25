@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import "@/styles/JeelizVTOWidget.css";
 
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/Components/Context/AuthContext";
@@ -13,6 +12,7 @@ import { useEffect, useRef } from "react";
 import App from "next/app";
 import { useRouter } from "next/router";
 import { CurrencyProvider } from "@/Components/Context/currencyContext";
+import AdminLoadingBar from "@/Components/superAdmin/LoadingBar";
 
 // Global scroll restoration per route using sessionStorage
 function ScrollRestoration() {
@@ -152,6 +152,9 @@ function ScrollRestoration() {
 }
 
 function MyApp({ Component, pageProps }) {
+  const router = useRouter();
+  const isAdminArea = String(router?.pathname || "").startsWith("/superAdmin");
+
   // Keep <html> lang and dir in sync with i18n
   useEffect(() => {
     const applyDir = (lng) => {
@@ -179,6 +182,7 @@ function MyApp({ Component, pageProps }) {
                 <CartProvider>
                   <CurrencyProvider>
                     <ScrollRestoration />
+                    {isAdminArea && <AdminLoadingBar />}
                     <Component {...pageProps} />
                   </CurrencyProvider>
                 </CartProvider>

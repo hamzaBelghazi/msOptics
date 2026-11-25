@@ -1,54 +1,56 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { ArrowUpRight } from "lucide-react";
 import PriceTag from "../utils/PriceTag";
+import SectionHeading from "@/Components/ui/SectionHeading";
+import Reveal from "@/Components/ui/Reveal";
+import { tField } from "../utils/tField";
 
 const HomeAccessories = ({ accessories: accs }) => {
-  const { t } = useTranslation();
-
-
+  const { t, i18n } = useTranslation();
+  if (!accs?.length) return null;
 
   return (
-    <section className="w-full py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-text-primary mb-8 text-center">
-          {t("accessories.title")}
-        </h2>
-        <p className="text-text-secondary text-center mb-12 max-w-2xl mx-auto">
-          {t("accessories.description")}
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {accs && accs.map((item) => (
-            <Link
-              href={`/accessories/${item._id}`}
-              key={item._id}
-              className="block"
-            >
-              <div className="group bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:transform hover:-translate-y-1 border border-gray-100">
+    <div>
+      <SectionHeading
+        eyebrow={t("accessories.eyebrow", "Finishing touches")}
+        title={t("accessories.title")}
+        subtitle={t("accessories.description")}
+        href="/accessories"
+        linkLabel={t("home.view_all", "View all")}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {accs.map((item, i) => (
+          <Reveal key={item._id} delay={(i % 3) * 0.08}>
+            <Link href={`/accessories/${item._id}`} className="block group">
+              <div className="glass-card overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-lg">
                 <div className="relative h-72 w-full overflow-hidden">
-                  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300 z-10" />
                   <Image
                     src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/accessories/${item.images[0]}`}
-                    alt={item.name}
+                    alt={tField(item, "name", i18n.language)}
                     fill
-                    className="object-cover transform group-hover:scale-110 transition-transform duration-500"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                </div>
-                <div className="p-6 bg-gradient-to-b from-white to-gray-50">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-primary transition-colors">
-                    {item.name}
-                  </h3>
-                  <p className="text-lg font-medium text-primary">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                  <span className="absolute top-3 right-3 grid place-items-center w-10 h-10 rounded-full glass !border-white/30 text-white transition-all duration-300 group-hover:bg-primary group-hover:border-primary">
+                    <ArrowUpRight size={17} />
+                  </span>
+                  <span className="absolute bottom-3 left-3 glass rounded-full px-3.5 py-1.5 text-sm font-extrabold text-text-primary">
                     <PriceTag amount={item.price} />
-                  </p>
+                  </span>
+                </div>
+                <div className="p-5">
+                  <h3 className="font-display text-xl font-semibold text-text-primary group-hover:text-primary transition-colors">
+                    {tField(item, "name", i18n.language)}
+                  </h3>
                 </div>
               </div>
             </Link>
-          ))}
-        </div>
+          </Reveal>
+        ))}
       </div>
-    </section>
+    </div>
   );
 };
 

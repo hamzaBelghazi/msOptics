@@ -1,16 +1,34 @@
 import clsx from "clsx";
-import React, { useState, useEffect, useRef } from "react";
-import {
-  FaceLandmarker,
-  FilesetResolver,
-  DrawingUtils,
-} from "@mediapipe/tasks-vision";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
-const VISION_PATH =
+// The WASM runtime and the model ship with the app in /public/mediapipe, so
+// the measurement works offline and does not depend on CDNs that are often
+// blocked or throttled. The CDN copies stay as a last-resort fallback.
+const LOCAL_VISION_PATH = "/mediapipe/wasm";
+const LOCAL_MODEL_PATH = "/mediapipe/face_landmarker.task";
+const CDN_VISION_PATH =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm";
-const MODEL_PATH =
+const CDN_MODEL_PATH =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 const IRIS_WIDTH_IN_MM = 12;
+const PD_MIN = 40;
+const PD_MAX = 85;
+const SAMPLE_SIZE = 18;
+
+const roundHalf = (value) => Math.round(value * 2) / 2;
+
+const median = (values) => {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+};
+
+// Distance between two normalised landmarks. The x axis is corrected by the
+// video aspect ratio so the result is measured in square (normalised) units.
+const normDistance = (a, b, aspect) =>
+  Math.hypot((a.x - b.x) * aspect, a.y - b.y);
 
 const PdModal = ({
   openModal,
@@ -21,321 +39,367 @@ const PdModal = ({
   const [collapsed, setCollapsed] = useState(true);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [faceLandmarker, setFaceLandmarker] = useState(null);
-  const [lastVideoTime, setLastVideoTime] = useState(-1);
-  const [videoWidth, setVideoWidth] = useState(1920);
-  const [videoHeight, setVideoHeight] = useState(840);
-  const [pd, setPd] = useState(45); // Default PD value
-  const [eyeDist, setEyeDist] = useState(45); // Default eye distance
-  const [isInitialValue, setIsInitialValue] = useState(false);
+  const landmarkerRef = useRef(null);
+  const landmarkerPromiseRef = useRef(null);
+  const streamRef = useRef(null);
+  const rafRef = useRef(0);
+  const runningRef = useRef(false);
+  const lastVideoTimeRef = useRef(-1);
+  const samplesRef = useRef([]);
+  const lastSavedRef = useRef({ at: 0, value: 0 });
+  const [pd, setPd] = useState(0);
   const [isFaceDetected, setIsFaceDetected] = useState(false);
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
 
-  const enableCamera = async () => {
-    if (!faceLandmarker || !videoRef.current) return;
+  // Load the face landmarker once and reuse it for every measurement session.
+  const loadLandmarker = useCallback(async () => {
+    if (landmarkerRef.current) return landmarkerRef.current;
+    if (!landmarkerPromiseRef.current) {
+      landmarkerPromiseRef.current = (async () => {
+        const createWith = async (visionPath, modelPath) => {
+          const fileset = await FilesetResolver.forVisionTasks(visionPath);
+          const create = (delegate) =>
+            FaceLandmarker.createFromOptions(fileset, {
+              baseOptions: { modelAssetPath: modelPath, delegate },
+              outputFaceBlendshapes: false,
+              runningMode: "VIDEO",
+              numFaces: 1,
+            });
+          try {
+            return await create("GPU");
+          } catch (gpuError) {
+            return await create("CPU");
+          }
+        };
 
-    try {
-      // Request video with explicit selfie mode constraints
-      const stream = await navigator.mediaDevices.getUserMedia({
+        let landmarker;
+        try {
+          landmarker = await createWith(LOCAL_VISION_PATH, LOCAL_MODEL_PATH);
+        } catch (localError) {
+          console.error("Local face landmarker failed, retrying CDN:", localError);
+          landmarker = await createWith(CDN_VISION_PATH, CDN_MODEL_PATH);
+        }
+        landmarkerRef.current = landmarker;
+        return landmarker;
+      })().catch((err) => {
+        landmarkerPromiseRef.current = null;
+        throw err;
+      });
+    }
+    return landmarkerPromiseRef.current;
+  }, []);
+
+  // Some webcams reject `facingMode: { exact: "user" }`; fall back gradually
+  // instead of failing with an OverconstrainedError.
+  const requestStream = useCallback(async () => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      const err = new Error("Camera API unavailable");
+      err.name = "NotSupportedError";
+      throw err;
+    }
+    const attempts = [
+      {
         video: {
           facingMode: { exact: "user" },
           width: { ideal: 1280 },
           height: { ideal: 720 },
           frameRate: { ideal: 30 },
         },
-      });
-
-      const videoTrack = stream.getVideoTracks()[0];
-      const settings = videoTrack.getSettings();
-      console.log("Camera settings:", settings);
-
-      videoRef.current.srcObject = stream;
-      videoRef.current.addEventListener("loadeddata", predictWebcam);
-    } catch (error) {
-      console.error("Error accessing camera:", error);
+        audio: false,
+      },
+      {
+        video: {
+          facingMode: "user",
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      },
+      { video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+      { video: true, audio: false },
+    ];
+    let lastError;
+    for (const constraints of attempts) {
+      try {
+        return await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (err) {
+        lastError = err;
+        // Permission was refused: retrying with other constraints cannot help.
+        if (err?.name === "NotAllowedError" || err?.name === "SecurityError") break;
+      }
     }
-  };
+    throw lastError;
+  }, []);
 
-  const getDistance = (p1, p2) => {
-    return Math.sqrt(
-      Math.pow(p1.x - p2.x, 2) +
-        Math.pow(p1.y - p2.y, 2) +
-        Math.pow(p1.z - p2.z, 2)
-    );
-  };
+  const stopMeasure = useCallback(() => {
+    runningRef.current = false;
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+      } catch (_) {}
+      videoRef.current.srcObject = null;
+    }
+    lastVideoTimeRef.current = -1;
+    samplesRef.current = [];
+    setIsFaceDetected(false);
+  }, []);
 
-  const getDistanceInScreenCoordinates = (p1, p2) => {
-    return Math.sqrt(
-      Math.pow(p1.x * videoWidth - p2.x * videoWidth, 2) +
-        Math.pow(p1.y * videoHeight - p2.y * videoHeight, 2)
-    );
-  };
+  const publish = useCallback((value) => {
+    const rounded = roundHalf(value);
+    setPd(rounded);
+    try {
+      localStorage.setItem("measuredPD", String(rounded));
+      localStorage.setItem("pdMeasurementTimestamp", String(Date.now()));
+    } catch (_) {}
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("pd:measured", { detail: { pd: rounded } })
+      );
+    }
+  }, []);
 
-  const drawPoint = (ctx, x, y, color = "chartreuse", size = 3) => {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(
-      x * videoRef.current.videoWidth,
-      y * videoRef.current.videoHeight,
-      size,
-      0,
-      2 * Math.PI
-    );
-    ctx.fill();
-  };
+  const drawOverlay = useCallback((landmarks, canvas) => {
+    const video = videoRef.current;
+    if (!video || !canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  const drawLine = (ctx, x1, y1, x2, y2, color = "chartreuse") => {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(
-      x1 * videoRef.current.videoWidth,
-      y1 * videoRef.current.videoHeight
-    );
-    ctx.lineTo(
-      x2 * videoRef.current.videoWidth,
-      y2 * videoRef.current.videoHeight
-    );
-    ctx.stroke();
-  };
+    const container = canvas.parentElement;
+    if (!container) return;
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const vw = video.videoWidth || 1;
+    const vh = video.videoHeight || 1;
+    if (canvas.width !== cw || canvas.height !== ch) {
+      canvas.width = cw;
+      canvas.height = ch;
+    }
 
-  const getPupils = (landmarks) => {
-    return {
-      left: {
-        x:
-          (landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[0].start].x +
-            landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[2].start].x) /
-          2.0,
-        y:
-          (landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[0].start].y +
-            landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[2].start].y) /
-          2.0,
-        z:
-          (landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[0].start].z +
-            landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[2].start].z) /
-          2.0,
-        widthPx: getDistanceInScreenCoordinates(
-          landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[0].start],
-          landmarks[FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[2].start]
-        ),
-      },
-      right: {
-        x:
-          (landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[0].start].x +
-            landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[2].start].x) /
-          2.0,
-        y:
-          (landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[0].start].y +
-            landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[2].start].y) /
-          2.0,
-        z:
-          (landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[0].start].z +
-            landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[2].start].z) /
-          2.0,
-        widthPx: getDistanceInScreenCoordinates(
-          landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[0].start],
-          landmarks[FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[2].start]
-        ),
-      },
+    // Match the letterboxing of the video element (object-contain).
+    const scale = Math.min(cw / vw, ch / vh);
+    const offsetX = (cw - vw * scale) / 2;
+    const offsetY = (ch - vh * scale) / 2;
+    const px = (p) => offsetX + p.x * vw * scale;
+    const py = (p) => offsetY + p.y * vh * scale;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const drawPoint = (p, color, size) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(px(p), py(p), size, 0, Math.PI * 2);
+      ctx.fill();
     };
-  };
+    const drawSegment = (a, b, color) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px(a), py(a));
+      ctx.lineTo(px(b), py(b));
+      ctx.stroke();
+    };
 
-  const predictWebcam = async () => {
-    if (!videoRef.current || !canvasRef.current || !faceLandmarker) return;
+    drawPoint(landmarks[6], "#FF6B6B", 2);
+    drawPoint(landmarks[4], "#FF6B6B", 2);
+    drawPoint(landmarks[168], "#FF6B6B", 2);
 
+    const eyeContours = [
+      [159, 160, 161],
+      [163, 144, 145],
+      [386, 387, 388],
+      [390, 373, 374],
+    ];
+    eyeContours.forEach((points) => {
+      for (let i = 0; i < points.length - 1; i += 1) {
+        drawSegment(landmarks[points[i]], landmarks[points[i + 1]], "#4CAF50");
+      }
+    });
+
+    const leftIris = FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS;
+    const rightIris = FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS;
+    const leftCenter = {
+      x: (landmarks[leftIris[0].start].x + landmarks[leftIris[2].start].x) / 2,
+      y: (landmarks[leftIris[0].start].y + landmarks[leftIris[2].start].y) / 2,
+    };
+    const rightCenter = {
+      x: (landmarks[rightIris[0].start].x + landmarks[rightIris[2].start].x) / 2,
+      y: (landmarks[rightIris[0].start].y + landmarks[rightIris[2].start].y) / 2,
+    };
+
+    drawPoint(leftCenter, "#FFD700", 4);
+    drawPoint(rightCenter, "#FFD700", 4);
+    drawSegment(leftCenter, rightCenter, "#00BCD4");
+  }, []);
+
+  const readPd = useCallback((landmarks, aspect) => {
+    const leftIris = FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS;
+    const rightIris = FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS;
+    const leftA = landmarks[leftIris[0].start];
+    const leftB = landmarks[leftIris[2].start];
+    const rightA = landmarks[rightIris[0].start];
+    const rightB = landmarks[rightIris[2].start];
+    const leftCenter = { x: (leftA.x + leftB.x) / 2, y: (leftA.y + leftB.y) / 2 };
+    const rightCenter = { x: (rightA.x + rightB.x) / 2, y: (rightA.y + rightB.y) / 2 };
+    const irisWidth = normDistance(leftA, leftB, aspect);
+    const pupilDistance = normDistance(leftCenter, rightCenter, aspect);
+    if (!irisWidth || !pupilDistance) return null;
+    return (IRIS_WIDTH_IN_MM / irisWidth) * pupilDistance;
+  }, []);
+
+  const predictWebcam = useCallback(() => {
+    if (!runningRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const canvasCtx = canvas.getContext("2d");
+    const landmarker = landmarkerRef.current;
 
-    // Get the actual container size
-    const container = canvas.parentElement;
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-
-    // Set canvas size to match container
-    canvas.width = containerWidth;
-    canvas.height = containerHeight;
-
-    // Calculate scale to maintain aspect ratio
-    const scaleX = containerWidth / video.videoWidth;
-    const scaleY = containerHeight / video.videoHeight;
-    const scale = Math.min(scaleX, scaleY);
-
-    // Calculate translation to center the image
-    const translateX = (containerWidth - video.videoWidth * scale) / 2;
-    const translateY = (containerHeight - video.videoHeight * scale) / 2;
-
-    // Update state with container dimensions
-    setVideoWidth(containerWidth);
-    setVideoHeight(containerHeight);
-
-    // Set up the canvas transform for proper scaling and centering
-    canvasCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-    canvasCtx.scale(scale, scale); // Scale to fit
-    canvasCtx.translate(translateX / scale, translateY / scale); // Center
-    if (lastVideoTime !== video.currentTime) {
-      setLastVideoTime(video.currentTime);
-      const startTimeMs = performance.now();
-      const results = faceLandmarker.detectForVideo(video, startTimeMs);
-
-      // Update face detection status
-      setIsFaceDetected(
-        Boolean(results.faceLandmarks && results.faceLandmarks[0])
-      );
-
-      if (results.faceLandmarks && results.faceLandmarks[0]) {
-        const landmarks = results.faceLandmarks[0];
-        const pupils = getPupils(landmarks);
-        const pupilsDistance = getDistanceInScreenCoordinates(
-          pupils.left,
-          pupils.right
-        );
-        const pdLeft =
-          (IRIS_WIDTH_IN_MM / pupils.left.widthPx) * pupilsDistance;
-
-        if (isAutomaticMeasurePd) {
-          const measuredPd = Math.round(pdLeft);
-          setPd(measuredPd);
-          setEyeDist(measuredPd);
-          setIsInitialValue(true);
-          
-          // Save PD to localStorage for automatic form population
-          try {
-            localStorage.setItem('measuredPD', measuredPd.toString());
-            localStorage.setItem('pdMeasurementTimestamp', Date.now().toString());
-          } catch (error) {
-            console.error('Error saving PD to localStorage:', error);
-          }
+    if (video && canvas && landmarker && video.readyState >= 2 && video.videoWidth) {
+      if (lastVideoTimeRef.current !== video.currentTime) {
+        lastVideoTimeRef.current = video.currentTime;
+        let results;
+        try {
+          results = landmarker.detectForVideo(video, performance.now());
+        } catch (err) {
+          console.error("Face detection error:", err);
         }
+        const landmarks = results?.faceLandmarks?.[0];
+        const detected = Boolean(landmarks);
+        setIsFaceDetected((prev) => (prev === detected ? prev : detected));
 
-        // Clear canvas and draw visualization
-        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw nose points
-        const noseTop = landmarks[6];
-        const noseTip = landmarks[4];
-        const noseBottom = landmarks[168];
-        drawPoint(canvasCtx, noseTop.x, noseTop.y, "#FF6B6B", 2);
-        drawPoint(canvasCtx, noseTip.x, noseTip.y, "#FF6B6B", 2);
-        drawPoint(canvasCtx, noseBottom.x, noseBottom.y, "#FF6B6B", 2);
-
-        // Draw eye contours
-        const leftEyeUpper = [landmarks[159], landmarks[160], landmarks[161]];
-        const leftEyeLower = [landmarks[163], landmarks[144], landmarks[145]];
-        const rightEyeUpper = [landmarks[386], landmarks[387], landmarks[388]];
-        const rightEyeLower = [landmarks[390], landmarks[373], landmarks[374]];
-
-        // Draw eye contours
-        leftEyeUpper.forEach((p, i) => {
-          if (i < leftEyeUpper.length - 1) {
-            drawLine(
-              canvasCtx,
-              p.x,
-              p.y,
-              leftEyeUpper[i + 1].x,
-              leftEyeUpper[i + 1].y,
-              "#4CAF50"
-            );
+        if (landmarks) {
+          const aspect = video.videoWidth / video.videoHeight;
+          const value = readPd(landmarks, aspect);
+          if (value && value >= PD_MIN && value <= PD_MAX) {
+            samplesRef.current.push(value);
+            if (samplesRef.current.length > SAMPLE_SIZE) {
+              samplesRef.current.shift();
+            }
+            // Wait for a few samples so the number does not jump while the
+            // face settles in front of the camera.
+            if (samplesRef.current.length >= 6) {
+              const stable = roundHalf(median(samplesRef.current));
+              if (stable && stable !== lastSavedRef.current.value) {
+                lastSavedRef.current = { at: Date.now(), value: stable };
+                publish(stable);
+              }
+            }
           }
-        });
-        leftEyeLower.forEach((p, i) => {
-          if (i < leftEyeLower.length - 1) {
-            drawLine(
-              canvasCtx,
-              p.x,
-              p.y,
-              leftEyeLower[i + 1].x,
-              leftEyeLower[i + 1].y,
-              "#4CAF50"
-            );
-          }
-        });
-        rightEyeUpper.forEach((p, i) => {
-          if (i < rightEyeUpper.length - 1) {
-            drawLine(
-              canvasCtx,
-              p.x,
-              p.y,
-              rightEyeUpper[i + 1].x,
-              rightEyeUpper[i + 1].y,
-              "#4CAF50"
-            );
-          }
-        });
-        rightEyeLower.forEach((p, i) => {
-          if (i < rightEyeLower.length - 1) {
-            drawLine(
-              canvasCtx,
-              p.x,
-              p.y,
-              rightEyeLower[i + 1].x,
-              rightEyeLower[i + 1].y,
-              "#4CAF50"
-            );
-          }
-        });
-
-        // Draw pupils
-        drawPoint(canvasCtx, pupils.left.x, pupils.left.y, "#FFD700", 4);
-        drawPoint(canvasCtx, pupils.right.x, pupils.right.y, "#FFD700", 4);
-
-        // Draw PD measurement line
-        drawLine(
-          canvasCtx,
-          pupils.left.x,
-          pupils.left.y,
-          pupils.right.x,
-          pupils.right.y,
-          "#00BCD4"
-        );
+          drawOverlay(landmarks, canvas);
+        } else {
+          samplesRef.current = [];
+          const ctx = canvas.getContext("2d");
+          if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
       }
     }
 
-    if (isAutomaticMeasurePd) {
-      requestAnimationFrame(predictWebcam);
+    rafRef.current = requestAnimationFrame(predictWebcam);
+  }, [drawOverlay, publish, readPd]);
+
+  const startMeasure = useCallback(async () => {
+    if (runningRef.current) return;
+    setError("");
+    setStatus("loading");
+    try {
+      const landmarker = await loadLandmarker();
+      if (!landmarker) throw new Error("Measurement engine unavailable");
+      setStatus("starting");
+      const stream = await requestStream();
+      streamRef.current = stream;
+      const video = videoRef.current;
+      if (!video) throw new Error("Video element unavailable");
+      video.srcObject = stream;
+      try {
+        await video.play();
+      } catch (_) {}
+      samplesRef.current = [];
+      lastSavedRef.current = { at: 0, value: 0 };
+      setStatus("running");
+      runningRef.current = true;
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(predictWebcam);
+    } catch (err) {
+      console.error("PD measurement could not start:", err);
+      stopMeasure();
+      setStatus("error");
+      if (err?.name === "NotAllowedError" || err?.name === "SecurityError") {
+        setError(
+          "Camera access was blocked. Allow the camera for this site (HTTPS or localhost) and try again."
+        );
+      } else if (err?.name === "NotFoundError" || err?.name === "OverconstrainedError") {
+        setError("No usable camera was found on this device.");
+      } else if (err?.name === "NotSupportedError") {
+        setError("This browser does not expose a camera. Open the page over HTTPS or localhost.");
+      } else {
+        setError(
+          "The measurement engine could not start. Check your connection and retry."
+        );
+      }
+      setIsAutomaticMeasurePd(false);
     }
+  }, [
+    loadLandmarker,
+    predictWebcam,
+    requestStream,
+    setIsAutomaticMeasurePd,
+    stopMeasure,
+  ]);
+
+  // Warm up the model as soon as the tool is opened so pressing "Start" only
+  // has to open the camera.
+  useEffect(() => {
+    if (!openModal) return;
+    loadLandmarker().catch(() => {});
+  }, [openModal, loadLandmarker]);
+
+  // Start/stop with the modal and the measurement toggle. Keeping openModal in
+  // the dependency list fixes the "reopen the tool and get a black frame" bug.
+  useEffect(() => {
+    if (openModal && isAutomaticMeasurePd) {
+      startMeasure();
+    } else {
+      stopMeasure();
+      if (!openModal) {
+        setStatus("idle");
+        setError("");
+      }
+    }
+  }, [openModal, isAutomaticMeasurePd, startMeasure, stopMeasure]);
+
+  useEffect(() => () => stopMeasure(), [stopMeasure]);
+
+  const handleClose = () => {
+    stopMeasure();
+    setOpenModal(false);
   };
-  useEffect(() => {
-    const initializeFaceLandmarker = async () => {
-      const filesetResolver = await FilesetResolver.forVisionTasks(VISION_PATH);
-      const landmarker = await FaceLandmarker.createFromOptions(
-        filesetResolver,
-        {
-          baseOptions: {
-            modelAssetPath: MODEL_PATH,
-            delegate: "GPU",
-          },
-          outputFaceBlendshapes: true,
-          runningMode: "VIDEO",
-          numFaces: 1,
-        }
-      );
-      setFaceLandmarker(landmarker);
-    };
 
-    initializeFaceLandmarker();
-  }, []);
-
-  useEffect(() => {
-    if (isAutomaticMeasurePd) {
-      enableCamera();
-    } else if (videoRef.current?.srcObject) {
-      const tracks = videoRef.current.srcObject.getTracks();
-      tracks.forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
-    }
-  }, [isAutomaticMeasurePd]);
-  // Don't render if modal is not open
   if (!openModal) {
     return null;
   }
+
+  const statusText =
+    status === "loading"
+      ? "Loading the measurement engine…"
+      : status === "starting"
+      ? "Starting the camera…"
+      : "";
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center  pointer-events-none"
+      className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
       <div
         className={clsx(
-          "w-full md:w-1/2 bg-white rounded-t-2xl py-10  shadow-lg transform transition-transform duration-300 pointer-events-auto",
+          "w-full md:w-1/2 glass-strong rounded-t-[1.8rem] py-10 shadow-2xl transform transition-transform duration-300 pointer-events-auto",
           openModal ? "translate-y-0" : "translate-y-full",
           isAutomaticMeasurePd ? "h-full" : ""
         )}
@@ -343,8 +407,10 @@ const PdModal = ({
       >
         <div className="relative">
           <button
+            type="button"
+            aria-label="Close PD measurement"
             className="absolute h-10 w-10 right-4 top-0 bottom-0 my-auto cursor-pointer flex items-center justify-center rounded-full bg-neutral-300 hover:bg-neutral-400 transition-all duration-300 z-10"
-            onClick={() => setOpenModal(false)}
+            onClick={handleClose}
           >
             <svg
               width="15"
@@ -352,7 +418,7 @@ const PdModal = ({
               viewBox="0 0 320 512"
               fill="currentColor"
             >
-              <path d="M312.1 375c9.369 9.369 9.369 24.57 0 33.94s-24.57 9.369-33.94 0L160 289.9l-119 119c-9.369 9.369-24.57 9.369-33.94 0s-9.369-24.57 0-33.94L126.1 256L7.027 136.1c-9.369-9.369-9.369-24.57 0-33.94s24.57-9.369 33.94 0L160 222.1l119-119c9.369-9.369 24.57-9.369 33.94 0s9.369 24.57 0 33.94L193.9 256L312.1 375z"></path>
+              <path d="M312.1 375c9.369 9.369 9.369 24.57 0 33.94s-24.57 9.369-33.94 0L160 289.9l-119 119c-9.369 9.369-24.57 9.369-33.94 0s-9.369-24.57 0-33.94L126.1 256L7.027 136.1c-9.369-9.369-9.369-24.57 0-33.94s24.57-9.369 33.94 0L160 222.1l119-119c9.369-9.369 24.57-9.369 33.94 0s9.369 24.57 0 33.94L193.9 256L312.1 375z" />
             </svg>
           </button>
         </div>
@@ -360,11 +426,15 @@ const PdModal = ({
           {isAutomaticMeasurePd && (
             <>
               <div className="flex justify-between items-center mt-4 mb-2 px-2">
-                <div className="text-gray-600 text-sm font-medium">
+                <div className="text-text-secondary text-sm font-medium">
                   Measured PD:
                 </div>
-                <div className="bg-sky-100 text-sky-800 px-4 py-1 rounded-full font-bold">
-                  {pd} mm
+                <div className="flex items-center gap-2 bg-sky-100 text-sky-800 px-4 py-1 rounded-full font-bold">
+                  <span
+                    className={clsx("w-2 h-2 rounded-full", isFaceDetected ? "bg-green-500" : "bg-amber-400")}
+                    aria-hidden="true"
+                  />
+                  {pd ? `${pd} mm` : "—"}
                 </div>
               </div>
               <div className="relative rounded-lg overflow-hidden aspect-video bg-black shadow-lg">
@@ -400,11 +470,7 @@ const PdModal = ({
                   )}
                   {isFaceDetected && (
                     <div className="bg-green-500/80 text-white px-2 py-2 rounded-full text-xs backdrop-blur-sm flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
+                      <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                         <path
                           fillRule="evenodd"
                           d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -415,12 +481,34 @@ const PdModal = ({
                     </div>
                   )}
                 </div>
+                {(status === "loading" || status === "starting") && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 text-white text-sm">
+                    <span className="w-8 h-8 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <span>{statusText}</span>
+                  </div>
+                )}
               </div>
+              {pd ? (
+                <p className="mt-3 text-center text-xs text-text-secondary">
+                  Applied to your prescription automatically. Keep your head still
+                  for a few seconds to refine it.
+                </p>
+              ) : null}
             </>
           )}
 
-          <div className="my-8 flex flex-col gap-2 ">
+          {error && (
+            <div
+              role="alert"
+              className="mt-4 rounded-xl border border-red-300/60 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {error}
+            </div>
+          )}
+
+          <div className="my-8 flex flex-col gap-2">
             <button
+              type="button"
               className={clsx(
                 "rounded-full cursor-pointer w-full px-4 py-3 text-white transition-all duration-300 font-medium flex items-center justify-center gap-2",
                 isAutomaticMeasurePd
@@ -431,12 +519,7 @@ const PdModal = ({
             >
               {isAutomaticMeasurePd ? (
                 <>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"
@@ -447,12 +530,7 @@ const PdModal = ({
                 </>
               ) : (
                 <>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
@@ -464,7 +542,7 @@ const PdModal = ({
               )}
             </button>
             {isAutomaticMeasurePd && (
-              <p className="text-center text-sm text-gray-500">
+              <p className="text-center text-sm text-text-muted">
                 Your PD will be automatically calculated when your face is
                 detected
               </p>
@@ -478,7 +556,6 @@ const PdModal = ({
               How to measure PD yourself?
               <div className="absolute flex items-center justify-center left-6 top-0 bottom-0">
                 <svg
-                  data-v-6e021274=""
                   fill="currentColor"
                   width="15"
                   xmlns="http://www.w3.org/2000/svg"
@@ -487,7 +564,7 @@ const PdModal = ({
                     "rotate-180": !collapsed,
                   })}
                 >
-                  <path d="M4.251 181.1C7.392 177.7 11.69 175.1 16 175.1c3.891 0 7.781 1.406 10.86 4.25l197.1 181.1l197.1-181.1c6.5-6 16.64-5.625 22.61 .9062c6 6.5 5.594 16.59-.8906 22.59l-208 192c-6.156 5.688-15.56 5.688-21.72 0l-208-192C-1.343 197.7-1.749 187.6 4.251 181.1z"></path>
+                  <path d="M4.251 181.1C7.392 177.7 11.69 175.1 16 175.1c3.891 0 7.781 1.406 10.86 4.25l197.1 181.1l197.1-181.1c6.5-6 16.64-5.625 22.61 .9062c6 6.5 5.594 16.59-.8906 22.59l-208 192c-6.156 5.688-15.56 5.688-21.72 0l-208-192C-1.343 197.7-1.749 187.6 4.251 181.1z" />
                 </svg>
               </div>
             </div>

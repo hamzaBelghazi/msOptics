@@ -4,13 +4,16 @@ import { useRouter } from "next/router";
 import ProductsCard from "@/Components/utils/ProductsCard";
 import Layout from "@/Components/Layout/Layout";
 import { useTranslation } from "react-i18next";
+import { tField } from "@/Components/utils/tField";
 import FloatingCartButton from "@/Components/utils/floatingCart";
 import { genderOptions, frameTypeOptions, shapeOptions, materialOptions, colorOptions as colorOptionList } from "@/constants/productFilters";
+import { useCurrency } from "@/Components/Context/currencyContext";
 
 export default function Category({ products , category }) {
   const router = useRouter();
   const { id } = router.query;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const catName = (c) => tField(c, "name", i18n.language);
   // State for accordion toggles
   const [activeAccordion, setActiveAccordion] = useState(null);
   // State to toggle sidebar visibility
@@ -38,6 +41,8 @@ export default function Category({ products , category }) {
 
   // State for price range
   const [priceRange, setPriceRange] = useState([0, 200]);
+  // the filter labels read in the shopper's currency, like every price
+  const { format } = useCurrency();
 
   // Discrete filters
   const [selectedGenders, setSelectedGenders] = useState([]); 
@@ -279,14 +284,14 @@ export default function Category({ products , category }) {
   }, [router?.isReady, router?.asPath, hasMoreApi, loadingMore]);
 
   return (
-    <Layout title={category?.name}>
+    <Layout title={catName(category) || "Category"}>
       {/* Hero Section */}
       <section className="mt-6">
         <div className="container mx-auto px-4">
           <div className="relative overflow-hidden rounded-2xl shadow-lg">
             <img
              src={`${process.env.NEXT_PUBLIC_SERVER_URL}/img/category/${category?.categoryImage}`}
-              alt={category?.name}
+              alt={catName(category)}
               className="w-full h-48 sm:h-64 md:h-72 object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
@@ -294,10 +299,10 @@ export default function Category({ products , category }) {
               <nav className="mb-2 text-white/80 text-xs sm:text-sm">
                 <span className="hover:underline cursor-pointer" onClick={() => router.push("/")}>Home</span>
                 <span className="mx-2">/</span>
-                <span className="text-white font-medium">{category?.name}</span>
+                <span className="text-white font-medium">{catName(category)}</span>
               </nav>
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white drop-shadow">
-                {category?.name}
+                {catName(category)}
               </h1>
             </div>
           </div>
@@ -317,14 +322,14 @@ export default function Category({ products , category }) {
         <aside
           className={`transition-all duration-300 ${
             isFiltersOpen ? "w-full lg:w-72" : "w-0 overflow-hidden"
-          } bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden shadow-md lg:sticky lg:top-24 h-fit z-40 lg:z-auto fixed lg:static bottom-0 top-0 right-0 lg:right-auto max-w-full sm:max-w-sm p-0`}
+          } bg-card-background border border-border rounded-lg overflow-hidden shadow-md lg:sticky lg:top-24 h-fit z-40 lg:z-auto fixed lg:static bottom-0 top-0 right-0 lg:right-auto max-w-full sm:max-w-sm p-0`}
         >
           {/* Filter Header */}
-          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
-            <h3 className="font-semibold text-gray-700 dark:text-gray-200">Filters</h3>
+          <div className="px-6 py-4 bg-background-soft flex justify-between items-center">
+            <h3 className="font-semibold text-text-primary">Filters</h3>
             <button
               onClick={() => setIsFiltersOpen(false)}
-              className="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="lg:hidden text-text-muted hover:text-primary"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -351,7 +356,7 @@ export default function Category({ products , category }) {
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-blue-500"
+                  className="h-5 w-5 text-primary"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -367,11 +372,11 @@ export default function Category({ products , category }) {
                 <label key={opt.value} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-4 w-4 text-blue-500"
+                    className="form-checkbox h-4 w-4 text-primary"
                     checked={selectedGenders.includes(opt.value)}
                     onChange={() => toggleFromList(setSelectedGenders)(opt.value)}
                   />
-                  <span className="text-gray-700">{opt.label}</span>
+                  <span className="text-text-primary">{opt.label}</span>
                 </label>
               ))}
             </FilterAccordion>
@@ -382,7 +387,7 @@ export default function Category({ products , category }) {
               isActive={activeAccordion === "color"}
               onToggle={() => toggleAccordion("color")}
               icon={
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-rose-500" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M4 3a1 1 0 000 2h1v11a1 1 0 102 0V5h2v11a1 1 0 102 0V5h1a1 1 0 100-2H4z" />
                 </svg>
               }
@@ -396,7 +401,7 @@ export default function Category({ products , category }) {
                     className={`text-xs px-3 py-1 rounded-full border transition ${
                       selectedColors.includes(c)
                         ? "bg-primary text-white border-primary"
-                        : "bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700"
+                        : "bg-card-background text-text-primary border-border"
                     }`}
                     aria-pressed={selectedColors.includes(c)}
                   >
@@ -435,11 +440,11 @@ export default function Category({ products , category }) {
                 <label key={opt.value} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-4 w-4 text-blue-500"
+                    className="form-checkbox h-4 w-4 text-primary"
                     checked={selectedFrameTypes.includes(opt.value)}
                     onChange={() => toggleFromList(setSelectedFrameTypes)(opt.value)}
                   />
-                  <span className="text-gray-700">{opt.label}</span>
+                  <span className="text-text-primary">{opt.label}</span>
                 </label>
               ))}
             </FilterAccordion>
@@ -452,7 +457,7 @@ export default function Category({ products , category }) {
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-yellow-500"
+                  className="h-5 w-5 text-gold"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -464,11 +469,11 @@ export default function Category({ products , category }) {
                 <label key={opt.value} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-4 w-4 text-blue-500"
+                    className="form-checkbox h-4 w-4 text-primary"
                     checked={selectedShapes.includes(opt.value)}
                     onChange={() => toggleFromList(setSelectedShapes)(opt.value)}
                   />
-                  <span className="text-gray-700">{opt.label}</span>
+                  <span className="text-text-primary">{opt.label}</span>
                 </label>
               ))}
             </FilterAccordion>
@@ -493,11 +498,11 @@ export default function Category({ products , category }) {
                 <label key={opt.value} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-4 w-4 text-blue-500"
+                    className="form-checkbox h-4 w-4 text-primary"
                     checked={selectedMaterials.includes(opt.value)}
                     onChange={() => toggleFromList(setSelectedMaterials)(opt.value)}
                   />
-                  <span className="text-gray-700">{opt.label}</span>
+                  <span className="text-text-primary">{opt.label}</span>
                 </label>
               ))}
             </FilterAccordion>
@@ -523,9 +528,9 @@ export default function Category({ products , category }) {
               }
             >
               <div className="mt-2">
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>${priceRange[0]}</span>
-                  <span>${priceRange[1]}</span>
+                <div className="flex justify-between text-sm text-text-secondary">
+                  <span>{format(priceRange[0])}</span>
+                  <span>{format(priceRange[1])}</span>
                 </div>
                 <input
                   type="range"
@@ -566,15 +571,15 @@ export default function Category({ products , category }) {
 
           {/* Toolbar */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-text-secondary">
               {t("category.results_count_frames", { count: sortedProducts.length })}
             </p>
             <div className="flex items-center gap-3">
-              <label className="text-sm text-gray-600 dark:text-gray-300">{t("category.sort_by")}:</label>
+              <label className="text-sm text-text-secondary">{t("category.sort_by")}:</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="border border-border bg-card-background text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="relevance">Relevance</option>
                 <option value="priceAsc">Price: Low to High</option>
@@ -583,12 +588,12 @@ export default function Category({ products , category }) {
                 <option value="titleDesc">Title: Z → A</option>
               </select>
               {/* View density toggle */}
-              <div className="hidden sm:flex items-center gap-1 ml-1 border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden">
+              <div className="hidden sm:flex items-center gap-1 ml-1 border border-border rounded-md overflow-hidden">
                 {[2,3,4].map((n) => (
                   <button
                     key={n}
                     onClick={() => setViewCols(n)}
-                    className={`px-2 py-2 text-xs ${viewCols===n?"bg-primary text-white":"bg-transparent text-gray-600 dark:text-gray-300"}`}
+                    className={`px-2 py-2 text-xs ${viewCols===n?"bg-primary text-white":"bg-transparent text-text-secondary"}`}
                     aria-label={`Show ${n} columns`}
                   >
                     {n}x
@@ -600,22 +605,22 @@ export default function Category({ products , category }) {
 
           {/* Active filter chips */}
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+            <span className="inline-flex items-center gap-1 text-xs bg-text-muted/10 text-text-primary px-2 py-1 rounded">
               Price: {priceRange[0]} - {priceRange[1]}
             </span>
             {selectedColors.map((c) => (
-              <span key={c} className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+              <span key={c} className="inline-flex items-center gap-1 text-xs bg-text-muted/10 text-text-primary px-2 py-1 rounded">
                 {c}
-                <button onClick={() => toggleColor(c)} aria-label={`Remove ${c}`} className="ml-1 text-gray-500 hover:text-gray-700">×</button>
+                <button onClick={() => toggleColor(c)} aria-label={`Remove ${c}`} className="ml-1 text-text-muted hover:text-primary">×</button>
               </span>
             ))}
           </div>
 
           {sortedProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-16 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl">
+            <div className="flex flex-col items-center justify-center text-center py-16 border border-dashed border-border rounded-xl">
               <img src="/images/empty-state.png" alt="No items" className="w-24 h-24 mb-4 opacity-80" />
               <h3 className="text-lg font-semibold mb-1">{t("category.empty.title")}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">{t("category.empty.subtitle")}</p>
+              <p className="text-sm text-text-secondary max-w-md">{t("category.empty.subtitle")}</p>
             </div>
           ) : (
             <div className={`grid grid-cols-1 ${viewCols>=2?"sm:grid-cols-2":""} ${viewCols>=3?"lg:grid-cols-3":""} ${viewCols>=4?"xl:grid-cols-4":""} gap-6`}
@@ -656,7 +661,7 @@ export default function Category({ products , category }) {
 
 const FilterAccordion = ({ title, isActive, onToggle, icon, children }) => {
   return (
-    <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
+    <div className="border-b border-border pb-4">
       {/* Accordion Header */}
       <button
         onClick={onToggle}
@@ -665,12 +670,12 @@ const FilterAccordion = ({ title, isActive, onToggle, icon, children }) => {
         {/* Title with Icon */}
         <div className="flex items-center space-x-2">
           {icon && <span className="text-lg">{icon}</span>}
-          <span className="font-medium text-gray-700 dark:text-gray-200">{title}</span>
+          <span className="font-medium text-text-primary">{title}</span>
         </div>
 
         {/* Chevron Icon (Rotates when active) */}
         <svg
-          className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${
+          className={`w-5 h-5 text-text-muted transition-transform duration-300 ${
             isActive ? "rotate-180" : ""
           }`}
           xmlns="http://www.w3.org/2000/svg"
@@ -726,10 +731,29 @@ export async function getServerSideProps(context) {
     const qs = params.toString();
     const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/${id}?${qs}`;
     const response = await axios.get(url);
-    
+    const category = response.data.category || null;
+
+    // /category/<objectid> is forwarded to the slug once, then stays there
+    if (category?.slug && id !== category.slug) {
+      const rest = { ...q };
+      delete rest.id;
+      const keep = new URLSearchParams();
+      for (const [key, val] of Object.entries(rest)) {
+        if (val == null) continue;
+        keep.set(key, Array.isArray(val) ? val.join(",") : String(val));
+      }
+      const tail = keep.toString();
+      return {
+        redirect: {
+          destination: `/category/${category.slug}${tail ? `?${tail}` : ""}`,
+          permanent: true,
+        },
+      };
+    }
+
     return {
       props: {
-        category: response.data.category || [],
+        category: category || [],
         products: response.data.products || [],
       },
     };

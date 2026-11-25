@@ -46,143 +46,50 @@ export default function Filters(props) {
     };
   }, [openDropdown]);
 
+  const pill =
+    "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border bg-background text-text-secondary border-border hover:border-primary/50 hover:text-primary";
+
+  const menu =
+    "absolute top-full left-0 mt-2 w-52 max-h-64 overflow-y-auto glass-strong rounded-2xl shadow-xl z-50 p-1.5";
+
+  const row =
+    "flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-primary/10 cursor-pointer text-sm text-text-primary transition-colors";
+
+  const groups = [
+    { key: "gender", label: t("product.gender"), list: genders, onChange: (e) => changeGender(e) },
+    { key: "frameType", label: t("product.frame_type"), list: frameTypes, onChange: (e) => changeFtype(e) },
+    { key: "shape", label: t("product.shape"), list: shapes, onChange: (e) => changeShape(e) },
+    { key: "color", label: t("product.frame_colour"), list: colors.map((c) => ({ value: c, label: c })), onChange: (e) => changeColor(e) },
+    { key: "material", label: t("product.frame_material"), list: frameMaterials, onChange: (e) => changeFMaterial(e) },
+  ];
+
   return (
-    <section ref={filtersRef} className="container mx-auto my-8">
-      <div className="flex flex-wrap justify-center gap-4">
-        {/* Gender */}
-        <div className="relative">
-          <button
-            onClick={() => toggleDropdown("gender")}
-            className="px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none hover:bg-gray-700 transition-colors"
-          >
-            {t("product.gender")}
-          </button>
-          {openDropdown === "gender" && (
-            <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
-              {genders.map((item) => (
-                <li key={item.value} className="px-4 py-2 hover:bg-gray-800">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      value={item.value}
-                      onChange={(e) => changeGender(e)}
-                      className="form-checkbox text-primary"
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Frame Type */}
-        <div className="relative">
-          <button
-            onClick={() => toggleDropdown("frameType")}
-            className="px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none hover:bg-gray-700 transition-colors"
-          >
-            {t("product.frame_type")}
-          </button>
-          {openDropdown === "frameType" && (
-            <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
-              {frameTypes.map((item) => (
-                <li key={item.value} className="px-4 py-2 hover:bg-gray-800">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      value={item.value}
-                      onChange={(e) => changeFtype(e)}
-                      className="form-checkbox text-primary"
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Shape */}
-        <div className="relative">
-          <button
-            onClick={() => toggleDropdown("shape")}
-            className="px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none hover:bg-gray-700 transition-colors"
-          >
-            {t("product.shape")}
-          </button>
-          {openDropdown === "shape" && (
-            <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
-              {shapes.map((item) => (
-                <li key={item.value} className="px-4 py-2 hover:bg-gray-800">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      value={item.value}
-                      onChange={(e) => changeShape(e)}
-                      className="form-checkbox text-primary"
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Colors */}
-        <div className="relative">
-          <button
-            onClick={() => toggleDropdown("color")}
-            className="px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none hover:bg-gray-700 transition-colors"
-          >
-            {t("product.frame_colour")}
-          </button>
-          {openDropdown === "color" && (
-            <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 max-h-96 text-white rounded-md shadow-lg z-50 overflow-auto">
-              {colors.map((color) => (
-                <li key={color} className="px-4 py-2 hover:bg-gray-800">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      value={color}
-                      onChange={(e) => changeColor(e)}
-                      className="form-checkbox text-primary"
-                    />
-                    <span>{color}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Material */}
-        <div className="relative">
-          <button
-            onClick={() => toggleDropdown("material")}
-            className="px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none hover:bg-gray-700 transition-colors"
-          >
-            {t("product.frame_material")}
-          </button>
-          {openDropdown === "material" && (
-            <ul className="absolute top-full left-0 mt-2 w-48 bg-gray-900 text-white rounded-md shadow-lg z-50">
-              {frameMaterials.map((item) => (
-                <li key={item.value} className="px-4 py-2 hover:bg-gray-800">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      value={item.value}
-                      onChange={(e) => changeFMaterial(e)}
-                      className="form-checkbox text-primary"
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+    <section ref={filtersRef} className="container mx-auto my-8 px-4">
+      <div className="glass rounded-3xl px-4 py-3.5 flex flex-wrap justify-center gap-2.5">
+        {groups.map((g) => (
+          <div key={g.key} className="relative">
+            <button onClick={() => toggleDropdown(g.key)} className={pill}>
+              {g.label}
+            </button>
+            {openDropdown === g.key && (
+              <ul className={menu}>
+                {g.list.map((item) => (
+                  <li key={item.value}>
+                    <label className={row}>
+                      <input
+                        type="checkbox"
+                        value={item.value}
+                        onChange={g.onChange}
+                        className="w-4 h-4 rounded accent-[#0D7A66]"
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );

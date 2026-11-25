@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import React from "react";
 
 export default function ViewMoreCard({ subCategory }) {

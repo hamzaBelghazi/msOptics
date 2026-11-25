@@ -18,7 +18,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-2 rounded-md text-text-secondary hover:text-primary transition-colors"
+      className="grid place-items-center w-10 h-10 rounded-full glass text-text-secondary hover:text-gold hover:-translate-y-0.5 hover:rotate-12 transition-all duration-300"
       aria-label="Toggle theme"
     >
       {theme === "dark" ? (

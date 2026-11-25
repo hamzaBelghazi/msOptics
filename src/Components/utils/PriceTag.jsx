@@ -1,17 +1,10 @@
 import { useCurrency } from "../Context/currencyContext";
 
+// Price as the shopper's chosen currency. The amount is always stored in EUR;
+// conversion happens here and nowhere else, so the same figure is charged.
 const PriceTag = ({ amount }) => {
-  const { currency, convert } = useCurrency();
-  const convertedAmount = convert(amount);
-
-  return (
-    <span>
-      {new Intl.NumberFormat("en", {
-        style: "currency",
-        currency,
-      }).format(convertedAmount)}
-    </span>
-  );
+  const { format } = useCurrency();
+  return <span>{format(amount)}</span>;
 };
 
 export default PriceTag;

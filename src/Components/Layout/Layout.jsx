@@ -8,11 +8,14 @@ import Spinner from "../Spinner/Spinner";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import BackToTopButton from "../utils/backToTop";
+import CookieConsent from "../utils/CookieConsent";
+import { getConsent, onConsentChange } from "@/lib/consent";
 
 export default function Layout({ children, announcement, title }) {
   const { loading, setLoading } = useContext(LoadingContext);
   const { t } = useTranslation();
   const [scripts, setScripts] = useState([]);
+  const [consent, setConsent] = useState(() => getConsent());
   const router = useRouter();
 
   // Show spinner only during route transitions
@@ -49,9 +52,18 @@ export default function Layout({ children, announcement, title }) {
     return () => { ignore = true; };
   }, []);
 
+  // Track cookie consent (custom scripts only run with analytics/marketing consent)
+  useEffect(() => {
+    setConsent(getConsent());
+    return onConsentChange(setConsent);
+  }, []);
+
   // Reconcile and inject scripts so they actually execute, with dedupe and cleanup
+  // Custom (admin-added) scripts are treated as optional: they run only after
+  // the visitor consents to analytics/marketing cookies.
   useEffect(() => {
     if (!Array.isArray(scripts) || typeof window === 'undefined') return;
+    if (!consent.decided || (!consent.analytics && !consent.marketing)) return;
 
     const makeId = (s) => `msoptics-script-${s._id}`;
 
@@ -101,7 +113,7 @@ export default function Layout({ children, announcement, title }) {
 
     reconcile('header');
     reconcile('footer');
-  }, []);
+  }, [scripts, consent]);
 
   if (loading) {
     return <Spinner />;
@@ -110,7 +122,7 @@ export default function Layout({ children, announcement, title }) {
   const pageTitle = title ? `${title} | MHS Optics` : "MHS Optics";
 
   return (
-    <div className="flex flex-col min-h-screen overflow-x-hidden">
+    <div className="flex flex-col min-h-screen overflow-x-clip">
       <Head>
         <title>{pageTitle}</title>
         <meta
@@ -118,7 +130,7 @@ export default function Layout({ children, announcement, title }) {
           content="MHS Optics - Your trusted partner for premium eyewear and optical solutions."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </Head>
       <Header announcement={announcement} />
       <main className="flex-grow">{children}</main>
@@ -126,6 +138,7 @@ export default function Layout({ children, announcement, title }) {
       <BackToTopButton />
       {/* Ensure Footer is always at the bottom */}
       <Footer />
+      <CookieConsent />
     </div>
   );
 }
