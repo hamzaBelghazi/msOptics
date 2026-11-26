@@ -30,6 +30,12 @@ function tryonUrls(product) {
           bridge: file(parts.bridge),
           templeL: file(parts.templeL),
           templeR: file(parts.templeR),
+          // two-sided single view + image arms
+          singleBack: file(parts.singleBack),
+          armLFront: file(parts.armLFront),
+          armLBack: file(parts.armLBack),
+          armRFront: file(parts.armRFront),
+          armRBack: file(parts.armRBack),
         }
       : null,
     calibration: (parts && parts.calibration) || {},
@@ -65,6 +71,11 @@ function layoutFromCal(active) {
     // never drift off the rims when `drop` is calibrated away from 0.06
     bridge: { dy: drop - 0.08, w: 0.3, h: 0.1, z: 0.06 },
     temple: { len: num(c.templeLen, 0.7), droop: 0.12, z1: -0.55 },
+    // 0 = top of the single artwork, 1 = bottom: where the arms hinge
+    armY: num(c.armY, 0.474),
+    templeX: num(c.templeX, 1),
+    // Preserve legacy kit products; new Studio assets explicitly select single mode.
+    mode: c.mode === "single" || c.mode === "kit" ? c.mode : "auto",
   };
 }
 
@@ -188,6 +199,11 @@ export default function MirrorTryOn({ product, items = [], onClose }) {
       out.bridge = getImg(urls.parts.bridge);
       out.templeL = getImg(urls.parts.templeL);
       out.templeR = getImg(urls.parts.templeR);
+      out.singleBack = getImg(urls.parts.singleBack);
+      out.armLFront = getImg(urls.parts.armLFront);
+      out.armLBack = getImg(urls.parts.armLBack);
+      out.armRFront = getImg(urls.parts.armRFront);
+      out.armRBack = getImg(urls.parts.armRBack);
     }
     return out;
   }, [urls]);
@@ -231,9 +247,15 @@ export default function MirrorTryOn({ product, items = [], onClose }) {
     }
     // only touch canvas dimensions when something actually changed —
     // resetting width every frame reallocates the buffer and forces layout
-    const key = `${mode}|${cw}|${vw}|${vh}`;
-    const scale = cw / vw;
-    const w = Math.round(cw);
+    // The preview lives inside a height-limited modal. Fitting by width alone
+    // makes portrait uploads taller than the viewport, so the face (and the
+    // controls below it) get clipped behind the modal's scroll area. Fit both
+    // dimensions while keeping the image's aspect ratio and normalized
+    // landmark coordinates intact.
+    const maxH = Math.max(160, Math.round(window.innerHeight * 0.62));
+    const key = `${mode}|${cw}|${vw}|${vh}|${maxH}`;
+    const scale = Math.min(cw / vw, maxH / vh);
+    const w = Math.round(vw * scale);
     const h = Math.round(vh * scale);
     if (fitRef.current.key !== key) {
       fitRef.current = { key, w, h };

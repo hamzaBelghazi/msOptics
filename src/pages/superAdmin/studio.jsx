@@ -63,18 +63,25 @@ const DEFAULTS = {
   lensH: 0.68,
   drop: 0.06,
   templeLen: 0.7,
+  templeX: 1,
+  armY: 0.474,
 };
 
 const SLOTS = [
-  { key: "left", label: "Lens L", hint: "Lens centre = iris centre. Art fills the box." },
-  { key: "right", label: "Lens R", hint: "Mirrored lens art. Same box as Lens L." },
-  { key: "bridge", label: "Bridge", hint: "Centre = bridge midpoint; ends tuck behind the rims." },
-  { key: "templeL", label: "Temple L", hint: "Hinge on the LEFT edge, tip right, vertically symmetric." },
-  { key: "templeR", label: "Temple R", hint: "Same strip as Temple L — the renderer rotates it." },
-  { key: "single", label: "Single", hint: "Whole front frame, lenses + bridge, no temples." },
+  { key: "single", label: "Single front", hint: "Complete front artwork, including the bridge." },
+  { key: "singleBack", label: "Single back", hint: "Back side of the complete front frame." },
+  { key: "armLFront", label: "Temple L · front", hint: "Left temple outer face; hinge on the left edge." },
+  { key: "armLBack", label: "Temple L · back", hint: "Left temple inner face." },
+  { key: "armRFront", label: "Temple R · front", hint: "Right temple outer face; mirrored when rendered." },
+  { key: "armRBack", label: "Temple R · back", hint: "Right temple inner face." },
 ];
 
-const MIRROR = { left: "right", right: "left", templeL: "templeR", templeR: "templeL" };
+const MIRROR = {
+  armLFront: "armRFront",
+  armLBack: "armRBack",
+  armRFront: "armLFront",
+  armRBack: "armLBack",
+};
 
 const num = (v, d) => {
   const n = parseFloat(v);
@@ -96,6 +103,8 @@ const payload = (r) => ({
     lensH: num(r.lensH, DEFAULTS.lensH),
     drop: num(r.drop, DEFAULTS.drop),
     templeLen: num(r.templeLen, DEFAULTS.templeLen),
+    templeX: num(r.templeX, DEFAULTS.templeX),
+    armY: num(r.armY, DEFAULTS.armY),
   },
 });
 
@@ -114,7 +123,7 @@ function singleSize(recipe) {
   const lw = Math.round(num(recipe.lensW, 0.9) * 1000);
   const lh = Math.round(num(recipe.lensH, 0.68) * 1000);
   const dropPx = Math.round(num(recipe.drop, 0.06) * 1000);
-  const W = 1000 + lw;
+  const W = 1140 + lw;
   const H = Math.max(
     780,
     Math.ceil((dropPx + lh / 2) / (1 - EYE_FRAC)),
@@ -127,7 +136,7 @@ function singleLayout(recipe, sizes) {
   const { w: W, h: H } = sizes.single;
   const eyeY = Math.round(H * EYE_FRAC);
   const lensCy = eyeY + Math.round(num(recipe.drop, 0.06) * 1000);
-  const lensCx = W / 2 - 500;
+  const lensCx = W / 2 - 570;
   const lw = sizes.lens.w;
   const lh = sizes.lens.h;
   const bw = sizes.bridge.w;
@@ -173,7 +182,7 @@ function buildGuides(slot, size, recipe, sizes) {
     if (H - designH > 8) {
       g.push({ type: "text", x: 8, y: H - 8, text: "headroom", color: "rgba(25,25,25,0.35)" });
     }
-  } else if (slot === "templeL" || slot === "templeR") {
+  } else if (slot.startsWith("arm")) {
     g.push({ type: "rect", x: 0, y: 0, w: W * 0.1, h: H, color: acc });
     g.push({ type: "h", y: H / 2, color: acc, dash: true });
     g.push({ type: "dot", x: W * 0.1, y: H / 2, r: 3, color: strong });
@@ -184,13 +193,20 @@ function buildGuides(slot, size, recipe, sizes) {
     g.push({ type: "v", x: L.lensCx, color: acc, dash: true });
     g.push({ type: "v", x: W - L.lensCx, color: acc, dash: true });
     g.push({ type: "h", y: L.eyeY, color: "rgba(13,122,102,0.35)", dash: true });
-    for (const box of [L.left, L.right, L.bridge]) {
+    for (const box of [L.left, L.right]) {
       g.push({ type: "rect", x: box.x, y: box.y, w: box.w, h: box.h, color: "rgba(13,122,102,0.45)" });
     }
     for (const box of [L.left, L.right]) {
       g.push({ type: "cross", x: box.x + box.w / 2, y: box.y + box.h / 2, size: 9, color: strong });
     }
-    g.push({ type: "text", x: 12, y: 26, text: "eye line 47.4% · lens centres 23.7% / 76.3%", color: "rgba(25,25,25,0.5)" });
+    const hingeInset = 30;
+    const hingeOffset = (W / 2 - hingeInset) * clamp(num(recipe.templeX, 1), 0.5, 1);
+    const hingeY = H * clamp(num(recipe.armY, EYE_FRAC), 0, 1);
+    for (const x of [W / 2 - hingeOffset, W / 2 + hingeOffset]) {
+      g.push({ type: "cross", x, y: hingeY, size: 16, color: "rgba(220,38,38,0.9)" });
+      g.push({ type: "circle", x, y: hingeY, r: 34, color: "rgba(220,38,38,0.55)" });
+    }
+    g.push({ type: "text", x: 12, y: 26, text: "eye line 47.4% · red marks = temple hinges", color: "rgba(25,25,25,0.5)" });
   }
   return g;
 }
@@ -205,7 +221,7 @@ export default function TryOnStudio() {
   const [recipe, setRecipe] = useState(DEFAULTS);
 
   const [slots, setSlots] = useState({});
-  const [active, setActive] = useState("left");
+  const [active, setActive] = useState("single");
   const [selId, setSelId] = useState(null);
   const [showGuides, setShowGuides] = useState(true);
 
@@ -309,14 +325,7 @@ export default function TryOnStudio() {
   );
 
   const sizeFor = useCallback(
-    (slot) =>
-      slot === "left" || slot === "right"
-        ? sizes.lens
-        : slot === "bridge"
-        ? sizes.bridge
-        : slot === "single"
-        ? sizes.single
-        : sizes.temple,
+    (slot) => (slot === "single" || slot === "singleBack" ? sizes.single : sizes.temple),
     [sizes]
   );
 
@@ -579,6 +588,39 @@ export default function TryOnStudio() {
     [exportSlot, recipe, productId]
   );
 
+  const applyTemplePosition = useCallback(async () => {
+    if (!productId || !assign) {
+      setError("Select a product and enable attach on save before rebuilding its GLB.");
+      return;
+    }
+    setBusy("temple-position");
+    setError("");
+    try {
+      const data = await adminApi.products.updateTryOnCalibration(productId, {
+        templeX: num(recipe.templeX, DEFAULTS.templeX),
+        armY: num(recipe.armY, DEFAULTS.armY),
+        mode: "single",
+      });
+      const savedProduct = data?.data?.data || data?.data || data;
+      if (savedProduct?.tryOnParts) {
+        setProducts((list) =>
+          list.map((p) =>
+            (p._id || p.id) === productId
+              ? { ...p, tryOnImage: savedProduct.tryOnImage, tryOnParts: savedProduct.tryOnParts }
+              : p
+          )
+        );
+      }
+      if (data?.data?.modelCheck) setModelCheck(data.data.modelCheck);
+      setFlash(`Temple position applied · GLB rebuilt at X ${(num(recipe.templeX, 1) * 100).toFixed(1)}%, Y ${(num(recipe.armY, 0.474) * 100).toFixed(1)}%`);
+      setTimeout(() => setFlash(""), 3000);
+    } catch (e) {
+      setError(e?.response?.data?.message || "Could not rebuild the product GLB.");
+    } finally {
+      setBusy("");
+    }
+  }, [productId, assign, recipe.templeX, recipe.armY]);
+
   const saveCurrent = useCallback(async () => {
     setBusy("save");
     setError("");
@@ -625,38 +667,6 @@ export default function TryOnStudio() {
     }
   }, [slots, saveSlot, productId, assign, refreshLibrary]);
 
-  const files = useMemo(() => {
-    const out = {};
-    for (const [slot, data] of Object.entries(saved)) {
-      if (data?.file) out[slot] = data.file;
-    }
-    return out;
-  }, [saved]);
-
-  const composeSingle = useCallback(async () => {
-    setBusy("compose");
-    setError("");
-    try {
-      const data = await adminApi.studio.compose(
-        payload(recipe),
-        productId || undefined,
-        productId ? assign : false,
-        Object.keys(files).length ? files : undefined
-      );
-      setSaved((s) => ({ ...s, single: data }));
-      refreshLibrary(productId);
-      if (data?.assigned) {
-        adminApi.products.list().then((l) => setProducts(l)).catch(() => {});
-      }
-      setFlash("Single frontal PNG composed");
-      setTimeout(() => setFlash(""), 2200);
-    } catch (e) {
-      setError(e?.response?.data?.message || "Compose failed — check the backend log.");
-    } finally {
-      setBusy("");
-    }
-  }, [recipe, productId, assign, files, refreshLibrary]);
-
   // ---- product helpers --------------------------------------------------
   const activeProduct = products.find((p) => (p._id || p.id) === productId);
 
@@ -673,6 +683,8 @@ export default function TryOnStudio() {
       lensH: num(cal.lensH, DEFAULTS.lensH),
       drop: num(cal.drop, DEFAULTS.drop),
       templeLen: num(cal.templeLen, DEFAULTS.templeLen),
+      templeX: num(cal.templeX, DEFAULTS.templeX),
+      armY: num(cal.armY, DEFAULTS.armY),
     }));
   };
 
@@ -689,7 +701,8 @@ export default function TryOnStudio() {
         const parts = product.tryOnParts || {};
         const next = {};
         for (const { key } of SLOTS) {
-          const file = key === "single" ? product.tryOnImage : parts[key];
+          const legacyTemple = key === "armLFront" ? parts.templeL : key === "armRFront" ? parts.templeR || parts.templeL : null;
+          const file = key === "single" ? product.tryOnImage : parts[key] || legacyTemple;
           if (!file) continue;
           const src = `${SERVER_URL}/img/tryon/${file}`;
           const img = await loadImage(src);
@@ -754,9 +767,9 @@ export default function TryOnStudio() {
 
   const canVary = !!(
     activeProduct &&
-    activeProduct.tryOnParts?.left &&
-    activeProduct.tryOnParts?.right &&
-    activeProduct.tryOnParts?.bridge
+    (activeProduct.tryOnImage || activeProduct.tryOnParts?.single) &&
+    (activeProduct.tryOnParts?.armLFront || activeProduct.tryOnParts?.templeL) &&
+    (activeProduct.tryOnParts?.armRFront || activeProduct.tryOnParts?.templeR)
   );
 
   const addVariation = useCallback(() => {
@@ -954,10 +967,6 @@ export default function TryOnStudio() {
                 {busy === "all" ? <Spinner size={13} /> : <LayersIcon size={13} />}
                 {busy === "all" ? "Saving…" : "Save all parts"}
               </button>
-              <button onClick={composeSingle} disabled={!!busy} className={btnGhost}>
-                {busy === "compose" ? <Spinner size={13} /> : <Wand2 size={13} />}
-                {busy === "compose" ? "Composing…" : "Compose single"}
-              </button>
               {activeProduct && (
                 <button onClick={loadProductAssets} disabled={!!busy} className={btnGhost}>
                   {busy === "load" ? <Spinner size={13} /> : <Package size={13} />}
@@ -976,8 +985,7 @@ export default function TryOnStudio() {
               )}
             </div>
             <p className="text-[10px] text-text-muted mt-2">
-              Renderer order: parts win over the single PNG once any lens part
-              exists. Attaching one part switches the product to parts mode.
+              Use the complete front and back views plus four temple faces. The bridge is part of the single-frame artwork.
             </p>
             {(error || flash) && (
               <p className={`text-xs mt-2 ${error ? "text-red-500" : "text-primary"}`}>{error || flash}</p>
@@ -1110,7 +1118,7 @@ export default function TryOnStudio() {
 
               {!canVary && (
                 <p className="text-[11px] text-amber-600 px-1">
-                  Generate the 2D kit first — a variation recolours the stored parts.
+                  Generate the frame and temple assets first; variations recolour those assets and build a matching GLB.
                 </p>
               )}
 
@@ -1124,11 +1132,7 @@ export default function TryOnStudio() {
                 {variations.map((v) => (
                   <div key={v.key} className="rounded-xl border border-border p-2 space-y-2">
                     <VariantCanvas
-                      src={
-                        activeProduct.tryOnImage
-                          ? `${SERVER_URL}/img/tryon/${activeProduct.tryOnImage}`
-                          : `${SERVER_URL}/img/tryon/${activeProduct.tryOnParts?.left || ""}`
-                      }
+                      src={`${SERVER_URL}/img/tryon/${activeProduct.tryOnParts?.single || activeProduct.tryOnImage || ""}`}
                       frameColor={v.frameColor}
                       lensColor={v.lensColor}
                       lensOpacity={v.lensOpacity}
@@ -1579,6 +1583,45 @@ export default function TryOnStudio() {
                     </Field>
                   ))}
                 </div>
+                <div className="space-y-3 rounded-xl border border-border p-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-text-secondary">
+                    Temple hinge position on front frame
+                  </p>
+                  <Field label={`Horizontal — ${Math.round((recipe.templeX - 0.5) * 200)}% from center to outer edge`}>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="1"
+                      step="0.005"
+                      value={recipe.templeX}
+                      onChange={(e) => set("templeX", parseFloat(e.target.value))}
+                      className="w-full accent-[#0D7A66]"
+                    />
+                  </Field>
+                  <Field label={`Vertical — ${(recipe.armY * 100).toFixed(1)}% from top to bottom`}>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.005"
+                      value={recipe.armY}
+                      onChange={(e) => set("armY", parseFloat(e.target.value))}
+                      className="w-full accent-[#0D7A66]"
+                    />
+                  </Field>
+                  <p className="text-[10px] text-text-muted leading-snug">
+                    Adjust the red hinge marks on the Single front canvas. Horizontal moves both hinges between the frame center and outer edge; vertical moves them from top to bottom.
+                  </p>
+                  <button
+                    onClick={applyTemplePosition}
+                    disabled={!!busy || !productId || !assign}
+                    className={btnPrimary}
+                    title={!productId ? "Select a product first" : !assign ? "Enable attach on save first" : "Apply these hinge coordinates and rebuild the product GLB"}
+                  >
+                    {busy === "temple-position" ? <Spinner size={13} /> : <Wand2 size={13} />}
+                    {busy === "temple-position" ? "Rebuilding GLB…" : "Apply position & rebuild GLB"}
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-1.5">
                   <button onClick={() => setRecipe(DEFAULTS)} className={btnGhost}>
                     <RefreshCw size={12} /> reset recipe
@@ -1594,9 +1637,15 @@ export default function TryOnStudio() {
                         }
                         if (gen?.modelCheck) setModelCheck(gen.modelCheck);
                         if (gen?.modelError) {
-                          setError(`Parts generated, but the 3D model failed: ${gen.modelError}`);
+                          setError(`Frame generated, but the 3D model failed: ${gen.modelError}`);
                         } else {
-                          setFlash(gen?.files?.model ? "Generated: 2D parts + 3D model" : "Vector set generated");
+                          setFlash(
+                            gen?.files?.model
+                              ? gen.assigned
+                                ? "Generated: product GLB + frame assets"
+                                : "Generated preview GLB + frame assets — select a product to assign"
+                              : "Frame assets generated"
+                          );
                           setTimeout(() => setFlash(""), 2200);
                         }
                       } catch (_) {
@@ -1689,19 +1738,13 @@ export default function TryOnStudio() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Lens L/R</td>
+                  <td>Single back</td>
                   <td className="text-right font-mono">
-                    {sizes.lens.w}×{sizes.lens.h}
+                    {sizes.single.w}×{sizes.single.h}
                   </td>
                 </tr>
                 <tr>
-                  <td>Bridge</td>
-                  <td className="text-right font-mono">
-                    {sizes.bridge.w}×{sizes.bridge.h}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Temple L/R</td>
+                  <td>Temple views</td>
                   <td className="text-right font-mono">
                     {sizes.temple.w}×{sizes.temple.h}
                   </td>

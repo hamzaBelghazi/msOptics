@@ -232,6 +232,10 @@ export function drawAssembled(ctx, assets, pose, centerPx, pxPerUnit, layout = {
     return true;
   };
 
+  // Set only while the single frontal PNG is being drawn; carries hinge
+  // position from calibration so drawTemple owns no layout knowledge.
+  let singleHinge = null;
+
   // ————— temples: a real 3D arm, hinge → head side → ear → hook —————
   // The arm leaves the rim near its top-outer corner and runs BACK along the
   // head (z decreasing), so it foreshortens with yaw, tilts with pitch and
@@ -239,8 +243,12 @@ export function drawAssembled(ctx, assets, pose, centerPx, pxPerUnit, layout = {
   const templePoints = (side) => {
     const lensW = L.lensC.w;
     const lensH = L.lensC.h;
-    const hx = side * (L.lensC.dx + lensW / 2 - 0.012); // rim outer edge, slight tuck
-    const hy = L.lensC.dy - 0.12 * lensH; // hinge just above the pupil line
+    // Single-view mode pins the hinge to the artwork itself: x on the outer
+    // edge, y wherever the calibration puts it (armY, 0 = top, 1 = bottom).
+    const hx = singleHinge
+      ? side * singleHinge.halfW
+      : side * (L.lensC.dx + lensW / 2 - 0.012); // rim outer edge, slight tuck
+    const hy = singleHinge ? singleHinge.y : L.lensC.dy - 0.12 * lensH; // hinge just above the pupil line
     const k = L.temple.len / 0.7;
     return [
       [hx, hy, 0.02],                                 // hinge on the rim
@@ -376,6 +384,62 @@ export function drawAssembled(ctx, assets, pose, centerPx, pxPerUnit, layout = {
     // both axes damp toward the hinge when the head is square-on, otherwise a
     // horizontal sliver pokes out of the rim on a frontal face
     const end = { x: hinge.x + (ex - hinge.x) * kDrop, y: hinge.y + (ey - hinge.y) * kDrop };
+
+    // ————— image arms —————
+    // When the product ships arm artwork, draw the strip instead of the
+    // synthetic ribbon. The near arm shows its outer face, the far arm its
+    // inner face, so each side needs a front and a back upload.
+    {
+      const art = behind
+        ? side < 0
+          ? assets?.armLBack || assets?.templeL
+          : assets?.armRBack || assets?.templeR
+        : side < 0
+          ? assets?.armLFront || assets?.templeL
+          : assets?.armRFront || assets?.templeR;
+      const dx = end.x - hinge.x;
+      const dy = end.y - hinge.y;
+      const len = Math.hypot(dx, dy);
+      // a frontal head leaves only a stub; the ribbon reads better there than
+      // a squashed 14:1 strip
+      if (ready(art) && len > Math.max(6, 0.09 * pxPerUnit)) {
+        const ux = dx / len;
+        const uy = dy / len;
+        // basis across the arm, always with a downward component so the strip
+        // never lands upside down on a turned head
+        let vx = -uy;
+        let vy = ux;
+        if (vy < 0) {
+          vx = -vx;
+          vy = -vy;
+        }
+        const aw = art.naturalWidth || 1;
+        const ah = art.naturalHeight || 1;
+        // keep the artwork's own aspect, capped so a chunky file cannot turn
+        // into a slab across the cheek
+        const thick = Math.max(2.5, Math.min((len * ah) / aw, 0.10 * pxPerUnit));
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.setTransform(ux, uy, vx, vy, hinge.x, hinge.y);
+        if (side > 0) {
+          // the right arm is the left strip mirrored, hinge edge on the rim
+          ctx.translate(len, 0);
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(art, 0, -thick / 2, len, thick);
+        ctx.restore();
+        // hinge plate: a small dark block where the arm meets the rim
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.9;
+        ctx.fillStyle = shade(templeColor(img), 0.55);
+        ctx.beginPath();
+        ctx.arc(hinge.x, hinge.y, Math.max(2, thick * 0.5), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        return;
+      }
+    }
+
     const arm = [
       hinge,
       {
@@ -485,7 +549,11 @@ export function drawAssembled(ctx, assets, pose, centerPx, pxPerUnit, layout = {
     return m.d[(sy * m.w + sx) * 4 + 3] / 255;
   };
 
-  const hasParts = assets && (ready(assets.left) || ready(assets.right));
+  // Render mode: "auto" uses the lens kit when it exists, "single" forces the
+  // front view + image arms even if lens parts are uploaded, "kit" forces the
+  // 5-part kit.
+  const kitReady = !!(assets && (ready(assets.left) || ready(assets.right)));
+  const hasParts = layout?.mode === "single" ? false : kitReady;
 
   // ————— profile: the far lens is behind the nose and the far arm behind the
   // head, so a real side view shows one lens and one arm. The projected pair
@@ -541,17 +609,33 @@ export function drawAssembled(ctx, assets, pose, centerPx, pxPerUnit, layout = {
   // The PNG is a 1:1 slice of unit space (1000 px per IPD) with the eye line
   // at 47.4% of its height, so it is drawn at its natural size and aligned on
   // the eye line — never stretched into a fixed 1.90 x 0.78 box.
-  if (!hasParts && ready(assets?.single)) {
+  if (!hasParts && layout?.mode !== "kit" && ready(assets?.single)) {
     const ih = assets.single.naturalHeight;
     const wU = assets.single.naturalWidth / 1000;
     const hU = ih / 1000;
     const cy = (0.5 - EYE_FRAC) * hU;
     const fr = P.frame(0, cy, 0, wU, hU, centerPx.x, centerPx.y, pxPerUnit);
-    // far arm → head mask → the frame → near arm → hair mask
+    // Arm height on the artwork: 0 = top edge, 1 = bottom edge, default the
+    // eye line. This is what lets the arms be placed at any height of the
+    // single view instead of only where the shape renderer guessed.
+    const armY = Number.isFinite(L.armY) ? Math.min(1, Math.max(0, L.armY)) : EYE_FRAC;
+    const templeX = Number.isFinite(L.templeX) ? Math.min(1, Math.max(0.5, L.templeX)) : 1;
+    const halfW = Math.min(wU / 2 - 0.012, (wU / 2 - 0.03) * templeX);
+    singleHinge = { halfW, y: (armY - EYE_FRAC) * hU };
+    // far arm → head mask → back side → front → near arm → hair mask
     drawTemple(nearLeft ? 1 : -1, farAlpha(nearLeft ? 1 : -1));
     paintOcc("far");
+    if (ready(assets?.singleBack)) {
+      // Two-sided front: the back artwork sits a couple of millimetres behind
+      // and a hair larger, so its rim edge shows around the front — the frame
+      // reads as a solid object instead of a sticker. Seen from the far side
+      // of a turn it is what the eye gets.
+      const fb = P.frame(0, cy, -0.02, wU * 1.012, hU * 1.012, centerPx.x, centerPx.y, pxPerUnit);
+      drawImg(assets.singleBack, fb);
+    }
     drawImg(assets.single, fr);
     drawTemple(nearLeft ? -1 : 1, farAlpha(nearLeft ? -1 : 1));
+    singleHinge = null;
     return "single";
   }
 

@@ -20,8 +20,6 @@ const TRACKING_FOV = 63;
 // Canonical face, cm: eyes at y 2.6, corneas at z 3.9 — the lens plane sits
 // ~13 mm in front of them, and the GLB's origin is between the lenses.
 const EYE_ANCHOR = new THREE.Vector3(0, 2.6, 5.2);
-const GOLD = "#d0b048";
-
 const CALIB_KEY = "mhs-tryon3d-calib";
 
 const gltfCache = new Map();
@@ -148,7 +146,7 @@ export default function FaceTryOn({ product, onClose }) {
         const lensOrBridge = /lens|bridge/i.test(mat.name || "");
         mat.envMapIntensity = lensOrBridge ? 0.22 : 0.55;
         if (/temple/i.test(mat.name || "") || /temple/i.test(o.name)) {
-          mat.color.set(GOLD);
+          // Preserve the frame color sampled from the Studio temple artwork.
           mat.metalness = 0.2;
           mat.roughness = 0.62;
           mat.envMapIntensity = 0.32;

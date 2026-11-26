@@ -8,7 +8,6 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { CartContext } from "@/Components/Context/CartContext";
-import MirrorTryOn from "@/Components/tryon/MirrorTryOn";
 import FaceTryOn from "@/Components/tryon/FaceTryOn";
 import ModelSpin from "@/Components/tryon/ModelSpin";
 import Layout from "@/Components/Layout/Layout";
@@ -209,10 +208,11 @@ const pDesc = tField(product, "description", i18n.language);
  </div>
 
   {/* Try On Button */}
-  {product.shape && (
+  {product.shape && product.tryOnParts?.model && (
   <div className="absolute top-4 left-4 z-20">
   <button
   onClick={() => setIsTryOnOpen(true)}
+  aria-label="Virtual Try-On"
   className="btn-luxe !p-3.5 !rounded-full"
   >
   <Tooltip text="Virtual Try-On" position="bottom">
@@ -976,12 +976,8 @@ const pDesc = tField(product, "description", i18n.language);
  )}
 
   {/* Try On Modal */}
-  {isTryOnOpen && product.shape && (
-    product.tryOnParts?.model ? (
-      <FaceTryOn product={product} onClose={() => setIsTryOnOpen(false)} />
-    ) : (
-      <MirrorTryOn product={product} onClose={() => setIsTryOnOpen(false)} />
-    )
+  {isTryOnOpen && product.shape && product.tryOnParts?.model && (
+    <FaceTryOn product={product} onClose={() => setIsTryOnOpen(false)} />
   )}
  </div>
  </Layout>

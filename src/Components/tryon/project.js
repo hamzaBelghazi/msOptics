@@ -81,4 +81,7 @@ export const DEFAULT_LAYOUT = {
   lensC: { dx: 0.57, dy: 0.06, w: 0.84, h: 0.62 },
   bridge: { dx: 0, dy: -0.02, w: 0.30, h: 0.1, z: 0.06 },
   temple: { len: 0.7, droop: 0.14, z0: 0, z1: -0.55 },
+  // hinge position as a fraction of the single-frame art / half-frame width.
+  armY: 0.474,
+  templeX: 1,
 };

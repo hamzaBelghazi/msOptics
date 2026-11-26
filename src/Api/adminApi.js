@@ -52,6 +52,10 @@ export const adminApi = {
     remove: (id) => api.delete(`/products/${id}`),
     uploadTryOn: (id, formData) =>
       api.post(`/products/${id}/tryon`, formData, withMultipart).then((r) => r.data),
+    updateTryOnCalibration: (id, calibration) =>
+      api
+        .post(`/products/${id}/tryon`, { calibration: JSON.stringify(calibration) })
+        .then((r) => r.data),
   },
 
   orders: {
