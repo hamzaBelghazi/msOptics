@@ -52,10 +52,18 @@ export const adminApi = {
     remove: (id) => api.delete(`/products/${id}`),
     uploadTryOn: (id, formData) =>
       api.post(`/products/${id}/tryon`, formData, withMultipart).then((r) => r.data),
-    updateTryOnCalibration: (id, calibration) =>
-      api
+    updateTryOnCalibration: (id, calibration, files = null) => {
+      if (files?.frameTexture || files?.templeTexture) {
+        const form = new FormData();
+        form.append("calibration", JSON.stringify(calibration));
+        if (files.frameTexture) form.append("part-frameTexture", files.frameTexture);
+        if (files.templeTexture) form.append("part-templeTexture", files.templeTexture);
+        return api.post(`/products/${id}/tryon`, form, withMultipart).then((r) => r.data);
+      }
+      return api
         .post(`/products/${id}/tryon`, { calibration: JSON.stringify(calibration) })
-        .then((r) => r.data),
+        .then((r) => r.data);
+    },
   },
 
   orders: {

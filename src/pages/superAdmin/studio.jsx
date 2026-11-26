@@ -65,6 +65,18 @@ const DEFAULTS = {
   templeLen: 0.7,
   templeX: 1,
   armY: 0.474,
+  frameDepth: 0.15,
+  frameCurve: 0.25,
+  frameMaterialColor: "#ffffff",
+  frameMetallic: 0.25,
+  frameRoughness: 0.4,
+  frameTextureOpacity: 0.65,
+  templeTextureOpacity: 1,
+  templeWidth: 1,
+  templeThickness: 1,
+  templeDrop: 1,
+  templeTipStyle: "hook",
+  templeColor: "#2b241d",
 };
 
 const SLOTS = [
@@ -105,6 +117,18 @@ const payload = (r) => ({
     templeLen: num(r.templeLen, DEFAULTS.templeLen),
     templeX: num(r.templeX, DEFAULTS.templeX),
     armY: num(r.armY, DEFAULTS.armY),
+    frameDepth: num(r.frameDepth, DEFAULTS.frameDepth),
+    frameCurve: num(r.frameCurve, DEFAULTS.frameCurve),
+    frameMaterialColor: r.frameMaterialColor || DEFAULTS.frameMaterialColor,
+    frameMetallic: num(r.frameMetallic, DEFAULTS.frameMetallic),
+    frameRoughness: num(r.frameRoughness, DEFAULTS.frameRoughness),
+    frameTextureOpacity: num(r.frameTextureOpacity, DEFAULTS.frameTextureOpacity),
+    templeTextureOpacity: num(r.templeTextureOpacity, DEFAULTS.templeTextureOpacity),
+    templeWidth: num(r.templeWidth, DEFAULTS.templeWidth),
+    templeThickness: num(r.templeThickness, DEFAULTS.templeThickness),
+    templeDrop: num(r.templeDrop, DEFAULTS.templeDrop),
+    templeTipStyle: r.templeTipStyle || DEFAULTS.templeTipStyle,
+    templeColor: r.templeColor || DEFAULTS.templeColor,
   },
 });
 
@@ -219,6 +243,8 @@ export default function TryOnStudio() {
   const [productId, setProductId] = useState("");
   const [assign, setAssign] = useState(true);
   const [recipe, setRecipe] = useState(DEFAULTS);
+  const [frameTextureFile, setFrameTextureFile] = useState(null);
+  const [templeTextureFile, setTempleTextureFile] = useState(null);
 
   const [slots, setSlots] = useState({});
   const [active, setActive] = useState("single");
@@ -237,6 +263,7 @@ export default function TryOnStudio() {
   const [variations, setVariations] = useState([]);
 
   const [imgVersion, setImgVersion] = useState(0);
+  const frameTextureInput = useRef(null);
   const imgCache = useRef(new Map()); // src -> Promise<Image|null>
   const imgReady = useRef(new Map()); // src -> Image
   const artUrls = useRef({});
@@ -599,8 +626,20 @@ export default function TryOnStudio() {
       const data = await adminApi.products.updateTryOnCalibration(productId, {
         templeX: num(recipe.templeX, DEFAULTS.templeX),
         armY: num(recipe.armY, DEFAULTS.armY),
+        frameDepth: num(recipe.frameDepth, DEFAULTS.frameDepth),
+        frameCurve: num(recipe.frameCurve, DEFAULTS.frameCurve),
+        frameMaterialColor: recipe.frameMaterialColor || DEFAULTS.frameMaterialColor,
+        frameMetallic: num(recipe.frameMetallic, DEFAULTS.frameMetallic),
+        frameRoughness: num(recipe.frameRoughness, DEFAULTS.frameRoughness),
+        templeWidth: num(recipe.templeWidth, DEFAULTS.templeWidth),
+        templeThickness: num(recipe.templeThickness, DEFAULTS.templeThickness),
+        templeDrop: num(recipe.templeDrop, DEFAULTS.templeDrop),
+        templeTipStyle: recipe.templeTipStyle || DEFAULTS.templeTipStyle,
+        templeColor: recipe.templeColor || DEFAULTS.templeColor,
+        frameTextureOpacity: num(recipe.frameTextureOpacity, DEFAULTS.frameTextureOpacity),
+        templeTextureOpacity: num(recipe.templeTextureOpacity, DEFAULTS.templeTextureOpacity),
         mode: "single",
-      });
+      }, frameTextureFile || templeTextureFile ? { frameTexture: frameTextureFile, templeTexture: templeTextureFile } : null);
       const savedProduct = data?.data?.data || data?.data || data;
       if (savedProduct?.tryOnParts) {
         setProducts((list) =>
@@ -612,14 +651,16 @@ export default function TryOnStudio() {
         );
       }
       if (data?.data?.modelCheck) setModelCheck(data.data.modelCheck);
-      setFlash(`Temple position applied · GLB rebuilt at X ${(num(recipe.templeX, 1) * 100).toFixed(1)}%, Y ${(num(recipe.armY, 0.474) * 100).toFixed(1)}%`);
+      if (savedProduct?.tryOnParts?.frameTexture) setFrameTextureFile(null);
+      if (savedProduct?.tryOnParts?.templeTexture) setTempleTextureFile(null);
+      setFlash("3D settings saved · product GLB rebuilt");
       setTimeout(() => setFlash(""), 3000);
     } catch (e) {
       setError(e?.response?.data?.message || "Could not rebuild the product GLB.");
     } finally {
       setBusy("");
     }
-  }, [productId, assign, recipe.templeX, recipe.armY]);
+  }, [productId, assign, recipe, frameTextureFile, templeTextureFile]);
 
   const saveCurrent = useCallback(async () => {
     setBusy("save");
@@ -685,6 +726,19 @@ export default function TryOnStudio() {
       templeLen: num(cal.templeLen, DEFAULTS.templeLen),
       templeX: num(cal.templeX, DEFAULTS.templeX),
       armY: num(cal.armY, DEFAULTS.armY),
+      frameDepth: num(cal.frameDepth, DEFAULTS.frameDepth),
+      frameCurve: num(cal.frameCurve, DEFAULTS.frameCurve),
+      frameMaterialColor: cal.frameMaterialColor || DEFAULTS.frameMaterialColor,
+      frameColor: cal.frameMaterialColor || r.frameColor || DEFAULTS.frameColor,
+      frameMetallic: num(cal.frameMetallic, DEFAULTS.frameMetallic),
+      frameRoughness: num(cal.frameRoughness, DEFAULTS.frameRoughness),
+      templeWidth: num(cal.templeWidth, DEFAULTS.templeWidth),
+      templeThickness: num(cal.templeThickness, DEFAULTS.templeThickness),
+      templeDrop: num(cal.templeDrop, DEFAULTS.templeDrop),
+      templeTipStyle: cal.templeTipStyle || DEFAULTS.templeTipStyle,
+      templeColor: cal.templeColor || DEFAULTS.templeColor,
+      frameTextureOpacity: num(cal.frameTextureOpacity, DEFAULTS.frameTextureOpacity),
+      templeTextureOpacity: num(cal.templeTextureOpacity, DEFAULTS.templeTextureOpacity),
     }));
   };
 
@@ -1556,6 +1610,56 @@ export default function TryOnStudio() {
                     className="w-full accent-[#0D7A66]"
                   />
                 </Field>
+                <div className="space-y-3 rounded-xl border border-border p-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-text-secondary">3D front frame</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Front/back thickness (cm)">
+                      <input type="number" min="0.02" max="0.5" step="0.01" value={recipe.frameDepth} onChange={(e) => set("frameDepth", parseFloat(e.target.value))} className={inputCls} />
+                    </Field>
+                    <Field label="Front material tint">
+                      <input type="color" value={recipe.frameMaterialColor} onChange={(e) => set("frameMaterialColor", e.target.value)} className="h-8 w-full rounded-md border border-input-border bg-transparent" />
+                    </Field>
+                  </div>
+                  <Field label={`Front curvature — ${Math.round(recipe.frameCurve * 100)}%`}>
+                    <input type="range" min="0" max="1" step="0.01" value={recipe.frameCurve} onChange={(e) => set("frameCurve", parseFloat(e.target.value))} className="w-full accent-[#0D7A66]" />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label={`Metallic — ${Number(recipe.frameMetallic).toFixed(2)}`}>
+                      <input type="range" min="0" max="1" step="0.01" value={recipe.frameMetallic} onChange={(e) => set("frameMetallic", parseFloat(e.target.value))} className="w-full accent-[#0D7A66]" />
+                    </Field>
+                    <Field label={`Roughness — ${Number(recipe.frameRoughness).toFixed(2)}`}>
+                      <input type="range" min="0.05" max="1" step="0.01" value={recipe.frameRoughness} onChange={(e) => set("frameRoughness", parseFloat(e.target.value))} className="w-full accent-[#0D7A66]" />
+                    </Field>
+                  </div>
+                  <Field label="Custom frame texture (PNG, JPG, WEBP)">
+                    <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setFrameTextureFile(e.target.files?.[0] || null)} className="block w-full text-xs text-text-secondary" />
+                  </Field>
+                  <Field label={`Texture blend — ${Math.round(recipe.frameTextureOpacity * 100)}%`}>
+                    <input type="range" min="0" max="1" step="0.01" value={recipe.frameTextureOpacity} onChange={(e) => set("frameTextureOpacity", parseFloat(e.target.value))} className="w-full accent-[#0D7A66]" />
+                  </Field>
+                  {activeProduct?.tryOnParts?.frameTexture && !frameTextureFile && <p className="text-[10px] text-text-muted">A custom frame texture is saved. Upload another image to replace it.</p>}
+                  <Field label="Custom temple texture (PNG, JPG, WEBP)">
+                    <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setTempleTextureFile(e.target.files?.[0] || null)} className="block w-full text-xs text-text-secondary" />
+                  </Field>
+                  {activeProduct?.tryOnParts?.templeTexture && !templeTextureFile && <p className="text-[10px] text-text-muted">A custom temple texture is saved. Upload another image to replace it.</p>}
+                  {templeTextureFile && <Field label={`Texture strength — ${Math.round(recipe.templeTextureOpacity * 100)}%`}><input type="range" min="0" max="1" step="0.01" value={recipe.templeTextureOpacity} onChange={(e) => set("templeTextureOpacity", parseFloat(e.target.value))} className="w-full accent-[#0D7A66]" /></Field>}
+                </div>
+                <div className="space-y-3 rounded-xl border border-border p-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-text-secondary">Temple arms & tips</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Temple color"><input type="color" value={recipe.templeColor} onChange={(e) => set("templeColor", e.target.value)} className="h-8 w-full rounded-md border border-input-border bg-transparent" /></Field>
+                    <Field label="Tip shape">
+                      <select value={recipe.templeTipStyle} onChange={(e) => set("templeTipStyle", e.target.value)} className={inputCls}>
+                        <option value="hook">Hooked</option><option value="straight">Straight</option><option value="round">Rounded tip</option>
+                      </select>
+                    </Field>
+                  </div>
+                  {[["templeWidth", "Arm width", 0.4, 2], ["templeThickness", "Arm thickness", 0.4, 2], ["templeDrop", "Tip drop", 0.3, 2]].map(([k, label, min, max]) => (
+                    <Field key={k} label={`${label} — ${Number(recipe[k]).toFixed(2)}×`}>
+                      <input type="range" min={min} max={max} step="0.01" value={recipe[k]} onChange={(e) => set(k, parseFloat(e.target.value))} className="w-full accent-[#0D7A66]" />
+                    </Field>
+                  ))}
+                </div>
                 <label className="flex items-center gap-2 text-xs text-text-secondary">
                   <input
                     type="checkbox"
@@ -1616,10 +1720,10 @@ export default function TryOnStudio() {
                     onClick={applyTemplePosition}
                     disabled={!!busy || !productId || !assign}
                     className={btnPrimary}
-                    title={!productId ? "Select a product first" : !assign ? "Enable attach on save first" : "Apply these hinge coordinates and rebuild the product GLB"}
+                    title={!productId ? "Select a product first" : !assign ? "Enable attach on save first" : "Save all 3D settings and rebuild the product GLB"}
                   >
                     {busy === "temple-position" ? <Spinner size={13} /> : <Wand2 size={13} />}
-                    {busy === "temple-position" ? "Rebuilding GLB…" : "Apply position & rebuild GLB"}
+                    {busy === "temple-position" ? "Saving & rebuilding GLB…" : "Apply 3D settings & rebuild GLB"}
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">

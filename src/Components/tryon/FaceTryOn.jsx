@@ -166,11 +166,10 @@ export default function FaceTryOn({ product, onClose }) {
         m.visible = false;
       }
 
-      // There is no head behind the arm to hide it, so the last stretch of each
-      // temple is dissolved: it reads as the arm passing behind the ear and
-      // vanishing into the hair, instead of ending in a hard cut across the
-      // cheek. Distances are in the model's own frame (cm behind the hinge).
-      const EAR_FADE = { from: 5.8, to: 8.8 };
+      // There is no head behind the arm to occlude it. Keep the temples solid
+      // through the ear, then dissolve their tips behind it into the hair. The
+      // fade is measured along rearward depth from the hinge, in model cm.
+      const EAR_FADE = { from: 7.0, to: 9.5 };
       const templeMats = [];
       let armReach = 0;
       root.traverse((o) => {
@@ -182,7 +181,8 @@ export default function FaceTryOn({ product, onClose }) {
       for (const mat of templeMats) {
         // the arm becomes translucent over the head rather than being cut
         mat.transparent = true;
-        mat.depthWrite = true;
+        // Transparent tail pixels must not leave an invisible depth-writing cap.
+        mat.depthWrite = false;
         mat.onBeforeCompile = (shader) => {
           mat.userData.shader = shader;
           shader.uniforms.uFadeFrom = { value: EAR_FADE.from };
