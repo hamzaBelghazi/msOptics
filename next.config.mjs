@@ -36,16 +36,22 @@ const bakedImagePatterns = (() => {
   if (process.env.NEXT_PHASE === "phase-production-build") return [];
   try {
     const baked = JSON.parse(
-      fs.readFileSync(path.join(__dirname, ".next/required-server-files.json"), "utf8")
+      fs.readFileSync(
+        path.join(__dirname, ".next/required-server-files.json"),
+        "utf8",
+      ),
     );
     const patterns = baked?.config?.images?.remotePatterns;
-    return Array.isArray(patterns) ? patterns.filter((p) => p?.pathname === "/img/**") : [];
+    return Array.isArray(patterns)
+      ? patterns.filter((p) => p?.pathname === "/img/**")
+      : [];
   } catch {
     return [];
   }
 })();
 
-const patternKey = (p) => [p.protocol, p.hostname, p.port || "", p.pathname].join("|");
+const patternKey = (p) =>
+  [p.protocol, p.hostname, p.port || "", p.pathname].join("|");
 
 const baseImagePatterns = [
   {
@@ -96,7 +102,7 @@ const remotePatterns = [
   ...bakedImagePatterns,
   ...baseImagePatterns,
 ].filter(
-  (p, i, all) => all.findIndex((q) => patternKey(q) === patternKey(p)) === i
+  (p, i, all) => all.findIndex((q) => patternKey(q) === patternKey(p)) === i,
 );
 
 const nextConfig = {
